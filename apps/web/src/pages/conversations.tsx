@@ -45,11 +45,11 @@ export function ConversationsPage() {
                 <button
                   type="button"
                   className={cn(
-                    'flex w-full items-start gap-3 px-4 py-3.5 text-left transition-colors hover:bg-muted',
+                    'flex w-full items-start gap-3 px-4 py-3.5 text-left transition-colors hover:bg-white/60',
                     conversation.id === active?.id && 'bg-muted',
                   )}
                 >
-                  <span className="grid size-8 shrink-0 place-items-center rounded-md bg-muted text-[0.7rem] font-semibold text-ardosia">
+                  <span className="grid size-8 shrink-0 place-items-center rounded-md bg-white/80 text-[0.7rem] font-semibold text-ardosia">
                     {conversation.initials}
                   </span>
 
@@ -100,7 +100,7 @@ export function ConversationsPage() {
             </Button>
           </div>
 
-          <div className="flex-1 space-y-4 overflow-y-auto bg-background p-5">
+          <div className="flex-1 space-y-4 overflow-y-auto p-5">
             {thread.map((message) => (
               <div
                 key={message.id}
@@ -116,7 +116,7 @@ export function ConversationsPage() {
                 <p
                   className={cn(
                     'max-w-md rounded-lg px-3.5 py-2.5 text-sm leading-relaxed',
-                    message.from === 'ia' ? 'bg-azul text-white' : 'bg-muted text-grafite',
+                    message.from === 'ia' ? 'bg-azul text-white' : 'bg-white/75 text-grafite',
                   )}
                 >
                   {message.text}

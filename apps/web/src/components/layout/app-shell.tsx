@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Outlet } from 'react-router'
+import { Backdrop } from '@/components/backdrop'
 import { DemoBanner } from '@/components/demo-banner'
 import { Sidebar } from './sidebar'
 import { Topbar } from './topbar'
@@ -8,7 +9,9 @@ export function AppShell() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="min-h-dvh">
+      <Backdrop />
+
       <aside className="fixed inset-y-3 left-3 z-40 hidden w-[16.5rem] lg:block">
         <Sidebar />
       </aside>
@@ -18,7 +21,7 @@ export function AppShell() {
           <button
             type="button"
             aria-label="Fechar menu"
-            className="absolute inset-0 bg-noite/40"
+            className="absolute inset-0 bg-noite/30 backdrop-blur-sm"
             onClick={() => setMenuOpen(false)}
           />
           <div className="animate-in slide-in-from-left absolute inset-y-3 left-3 w-[16.5rem] duration-150">

@@ -26,8 +26,8 @@ function SidebarLink({ item, onNavigate }: { item: NavItem; onNavigate?: () => v
         cn(
           'flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm transition-colors',
           isActive
-            ? 'bg-noite font-medium text-white'
-            : 'text-grafite hover:bg-muted hover:text-noite',
+            ? 'bg-noite font-medium text-white shadow-card'
+            : 'text-grafite hover:bg-white/70 hover:text-noite',
         )
       }
     >
@@ -71,7 +71,7 @@ function UserRow() {
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="flex w-full items-center gap-2.5 rounded-xl px-2 py-2 text-left transition-colors hover:bg-muted"
+          className="flex w-full items-center gap-2.5 rounded-xl px-2 py-2 text-left transition-colors hover:bg-white/70"
         >
           <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-noite text-[0.7rem] font-semibold text-white">
             {initialsFrom(user.fullName)}
@@ -119,7 +119,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const groups = visibleGroups(company?.role ?? 'funcionario')
 
   return (
-    <div className="shadow-panel flex h-full flex-col rounded-2xl bg-card">
+    <div className="glass-strong flex h-full flex-col rounded-2xl">
       <div className="px-5 py-5">
         <Link to="/painel" onClick={onNavigate} className="inline-flex">
           <Logo />
@@ -127,7 +127,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       </div>
 
       <div className="px-3">
-        <div className="flex items-center gap-2.5 rounded-xl bg-muted px-3 py-2.5">
+        <div className="flex items-center gap-2.5 rounded-xl bg-white/70 px-3 py-2.5">
           <span className="size-1.5 shrink-0 rounded-full bg-ciano" />
           <span className="min-w-0 flex-1">
             <span className="block truncate text-sm font-medium text-noite">{company?.name}</span>

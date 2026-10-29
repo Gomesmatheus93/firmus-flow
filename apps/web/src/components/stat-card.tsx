@@ -10,14 +10,19 @@ export type Stat = {
   accent?: boolean
 }
 
-/** Fileira de métricas, cada uma no seu cartão. */
+/** Fileira de métricas, cada uma no seu painel de vidro. */
 export function StatStrip({ stats }: { stats: Stat[] }) {
   return (
     <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       {stats.map((stat) => (
         <article
           key={stat.label}
-          className={cn('min-w-0 rounded-2xl p-4', stat.accent ? 'bg-ciano' : 'surface')}
+          className={cn(
+            'min-w-0 rounded-2xl p-4',
+            stat.accent
+              ? 'shadow-card border border-ciano/50 bg-ciano/85 backdrop-blur-xl'
+              : 'surface',
+          )}
         >
           <p className={cn('text-xs', stat.accent ? 'text-noite/70' : 'text-ardosia')}>
             {stat.label}

@@ -92,12 +92,12 @@ export function DashboardPage() {
 
         <ol className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {funnel.map((stage) => (
-            <li key={stage.status} className="rounded-xl bg-muted p-4">
+            <li key={stage.status} className="rounded-xl bg-white/55 p-4">
               <p className="text-xs text-ardosia">{statusLabel[stage.status]}</p>
               <p className="tabular mt-3 text-2xl leading-none font-semibold text-noite">
                 {stage.count}
               </p>
-              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-card">
+              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/70">
                 <div
                   className="h-full rounded-full bg-azul"
                   style={{ width: `${funnelTotal ? (stage.count / funnelTotal) * 100 : 0}%` }}
@@ -112,7 +112,7 @@ export function DashboardPage() {
         <Panel>
           <SectionHeading
             aside={
-              <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-noite">
+              <span className="rounded-full bg-white/70 px-3 py-1 text-xs font-medium text-noite">
                 8 semanas
               </span>
             }
@@ -206,8 +206,11 @@ export function DashboardPage() {
 
           <ul className="mt-4 space-y-2">
             {pendingApprovals.map((item) => (
-              <li key={item.id} className="flex items-center gap-3 rounded-xl bg-muted px-3.5 py-3">
-                <span className="tabular shrink-0 rounded-lg bg-card px-2 py-1 text-xs text-ardosia">
+              <li
+                key={item.id}
+                className="flex items-center gap-3 rounded-xl bg-white/55 px-3.5 py-3"
+              >
+                <span className="tabular shrink-0 rounded-lg bg-white/80 px-2 py-1 text-xs text-ardosia">
                   {item.date}
                 </span>
                 <span className="min-w-0 flex-1 truncate text-sm text-noite">{item.title}</span>

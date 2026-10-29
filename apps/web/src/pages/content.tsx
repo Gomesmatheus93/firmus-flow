@@ -22,7 +22,7 @@ export function ContentPage() {
 
       <ul className="surface divide-y divide-border overflow-hidden">
         {captions.map((item) => (
-          <li key={item.id} className="p-5 transition-colors hover:bg-muted/50">
+          <li key={item.id} className="p-5 transition-colors hover:bg-white/60/50">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-xs text-ardosia">{item.format}</p>

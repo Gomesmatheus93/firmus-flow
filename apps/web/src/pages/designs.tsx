@@ -27,9 +27,9 @@ export function DesignsPage() {
             className="surface overflow-hidden transition-shadow hover:shadow-panel"
           >
             {/* Prévia na proporção 4:5, igual à arte final do Instagram. */}
-            <div className="relative grid aspect-4/5 place-items-center border-b border-border bg-muted">
+            <div className="relative grid aspect-4/5 place-items-center border-b border-white/60 bg-white/40">
               <Images className="size-7 text-ardosia/40" />
-              <span className="absolute right-2.5 bottom-2.5 rounded-lg bg-card px-1.5 py-0.5 text-[0.65rem] text-ardosia">
+              <span className="absolute right-2.5 bottom-2.5 rounded-lg bg-white/85 px-1.5 py-0.5 text-[0.65rem] text-ardosia">
                 {design.slides} {design.slides === 1 ? 'slide' : 'slides'}
               </span>
             </div>

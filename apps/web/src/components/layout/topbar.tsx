@@ -1,14 +1,14 @@
 import { Bell, Menu, Search, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-/** Fica direto sobre o fundo tingido: sem barra branca, sem borda. */
+/** Fica direto sobre o degradê: os controles são de vidro, como os painéis. */
 export function Topbar({ onMenu }: { onMenu: () => void }) {
   return (
     <div className="flex items-center gap-3">
       <Button
-        variant="outline"
+        variant="ghost"
         size="icon"
-        className="shadow-card rounded-full border-0 bg-card lg:hidden"
+        className="glass rounded-full lg:hidden"
         onClick={onMenu}
         aria-label="Abrir menu"
       >
@@ -21,20 +21,15 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
           type="search"
           placeholder="Buscar"
           aria-label="Buscar"
-          className="shadow-card h-10 w-36 rounded-full bg-card pr-4 pl-10 text-sm text-foreground outline-none placeholder:text-ardosia focus-visible:ring-[3px] focus-visible:ring-azul/25 sm:w-64"
+          className="glass h-10 w-36 rounded-full pr-4 pl-10 text-sm text-foreground outline-none placeholder:text-ardosia focus-visible:ring-[3px] focus-visible:ring-azul/25 sm:w-64"
         />
       </div>
 
-      <Button
-        variant="outline"
-        size="icon"
-        className="shadow-card rounded-full border-0 bg-card"
-        aria-label="Notificações"
-      >
+      <Button variant="ghost" size="icon" className="glass rounded-full" aria-label="Notificações">
         <Bell />
       </Button>
 
-      <Button className="rounded-full px-5">
+      <Button className="rounded-full px-5 shadow-card">
         <Sparkles />
         <span className="hidden sm:inline">Gerar conteúdo</span>
       </Button>

@@ -19,7 +19,7 @@ function Chips({ items }: { items: string[] }) {
   return (
     <ul className="flex flex-wrap gap-2">
       {items.map((item) => (
-        <li key={item} className="rounded-lg bg-muted px-2.5 py-1 text-sm text-grafite">
+        <li key={item} className="rounded-lg bg-white/60 px-2.5 py-1 text-sm text-grafite">
           {item}
         </li>
       ))}
@@ -118,7 +118,7 @@ export function BrandPage() {
             </ul>
 
             <p className="mt-6 text-xs text-ardosia">Logo</p>
-            <div className="mt-2 grid h-24 place-items-center rounded-lg border border-dashed border-border text-sm text-ardosia">
+            <div className="mt-2 grid h-24 place-items-center rounded-lg border border-dashed border-white/80 bg-white/35 text-sm text-ardosia">
               nenhum logo enviado
             </div>
           </Block>

@@ -56,14 +56,14 @@ export function PlanPage() {
           {weekDays.map((day) => (
             <div
               key={day}
-              className="bg-muted py-2 text-center text-[0.68rem] font-semibold text-ardosia"
+              className="bg-white/55 py-2 text-center text-[0.68rem] font-semibold text-ardosia"
             >
               {day}
             </div>
           ))}
 
           {Array.from({ length: leadingBlanks }, (_, i) => (
-            <div key={`vazio-${i}`} className="min-h-24 bg-card" />
+            <div key={`vazio-${i}`} className="min-h-24 bg-white/35" />
           ))}
 
           {Array.from({ length: daysInMonth }, (_, i) => {
@@ -71,7 +71,7 @@ export function PlanPage() {
             const post = postsByDay.get(day)
 
             return (
-              <div key={day} className="min-h-24 bg-card p-2">
+              <div key={day} className="min-h-24 bg-white/60 p-2">
                 <span className="tabular text-xs text-ardosia">{day}</span>
 
                 {post && (
