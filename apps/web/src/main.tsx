@@ -1,7 +1,10 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { App } from './App'
+import { RouterProvider } from 'react-router'
+import { Toaster } from 'sonner'
+import { TooltipProvider } from '@/components/ui/tooltip'
+import { router } from './router'
 import './index.css'
 
 const queryClient = new QueryClient()
@@ -15,7 +18,10 @@ if (!container) {
 createRoot(container).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <App />
+      <TooltipProvider delayDuration={200}>
+        <RouterProvider router={router} />
+        <Toaster theme="dark" position="top-right" richColors />
+      </TooltipProvider>
     </QueryClientProvider>
   </StrictMode>,
 )

@@ -128,13 +128,13 @@ O Matheus está aprendendo a programar enquanto constrói. Por isso:
 
 Paleta oficial:
 
-| Nome       | Hex       | Uso                            |
-| ---------- | --------- | ------------------------------ |
-| Azul noite | `#0B1F3A` | base / fundo escuro            |
-| Azul firme | `#1E4FD8` | cor principal                  |
-| Ciano      | `#22C3E6` | destaque                       |
-| Gelo       | `#F4F7FB` | fundo claro / texto no escuro  |
-| Grafite    | `#1A1D23` | texto                          |
+| Nome       | Hex       | Uso                           |
+| ---------- | --------- | ----------------------------- |
+| Azul noite | `#0B1F3A` | base / fundo escuro           |
+| Azul firme | `#1E4FD8` | cor principal                 |
+| Ciano      | `#22C3E6` | destaque                      |
+| Gelo       | `#F4F7FB` | fundo claro / texto no escuro |
+| Grafite    | `#1A1D23` | texto                         |
 
 - Fontes: Michroma só para o logotipo e títulos de destaque; Inter para o resto.
 - Visual limpo, sério e confiável: a marca transmite firmeza, autoridade e credibilidade.

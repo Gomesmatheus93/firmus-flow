@@ -1,9 +1,11 @@
 @import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
-/* ---------------------------------------------- Paleta e fontes da Firmus */
+/* ============================================================ Marca Firmus */
 @theme {
+  --color-abismo: #050b18;
   --color-noite: #0b1f3a;
   --color-firme: #1e4fd8;
   --color-ciano: #22c3e6;
@@ -14,9 +16,10 @@
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
 }
 
-/* ------------------------------- Tokens do shadcn/ui, ligados à paleta acima */
+/* =================================================== Tokens do shadcn/ui
+   Tema claro: só uma rede de segurança. A plataforma roda no tema escuro. */
 :root {
-  --radius: 0.625rem;
+  --radius: 0.75rem;
 
   --background: var(--color-gelo);
   --foreground: var(--color-grafite);
@@ -30,7 +33,7 @@
   --secondary-foreground: var(--color-noite);
   --muted: #e6ecf6;
   --muted-foreground: #5a6473;
-  --accent: var(--color-ciano);
+  --accent: #e6ecf6;
   --accent-foreground: var(--color-noite);
   --destructive: #d92d20;
   --border: #d4dde9;
@@ -38,24 +41,34 @@
   --ring: var(--color-firme);
 }
 
+/* ------------------------------------------- Tema escuro (o de verdade) */
 .dark {
-  --background: var(--color-noite);
-  --foreground: var(--color-gelo);
-  --card: #0f2748;
+  --background: var(--color-abismo);
+  --foreground: #e8eefb;
+
+  /* Vidro fosco: translúcido de propósito, o desfoque vem da utilidade .glass */
+  --card: color-mix(in oklab, var(--color-gelo) 5%, transparent);
   --card-foreground: var(--color-gelo);
-  --popover: #0f2748;
+
+  /* Menus e diálogos precisam ser opacos para o texto não vazar por trás */
+  --popover: #0a1730;
   --popover-foreground: var(--color-gelo);
+
   --primary: var(--color-firme);
   --primary-foreground: var(--color-gelo);
-  --secondary: #16335c;
+  --secondary: color-mix(in oklab, var(--color-gelo) 9%, transparent);
   --secondary-foreground: var(--color-gelo);
-  --muted: #16335c;
-  --muted-foreground: #9fb0c7;
-  --accent: var(--color-ciano);
-  --accent-foreground: var(--color-noite);
-  --destructive: #f04438;
-  --border: #1d3d6b;
-  --input: #1d3d6b;
+  --muted: color-mix(in oklab, var(--color-gelo) 6%, transparent);
+  --muted-foreground: #8ea4c4;
+
+  /* No shadcn, --accent é o fundo de hover. Fica discreto de propósito:
+     o ciano da marca é usado de forma deliberada, não em todo passar de mouse. */
+  --accent: color-mix(in oklab, var(--color-gelo) 10%, transparent);
+  --accent-foreground: var(--color-gelo);
+
+  --destructive: #ff5c4d;
+  --border: color-mix(in oklab, var(--color-gelo) 11%, transparent);
+  --input: color-mix(in oklab, var(--color-gelo) 15%, transparent);
   --ring: var(--color-ciano);
 }
 
@@ -85,6 +98,7 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* ====================================================== Base do documento */
 @layer base {
   * {
     border-color: var(--color-border);
@@ -95,5 +109,96 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+  }
+
+  /* Números sempre com largura fixa, para tabelas e métricas não "dançarem" */
+  .tabular,
+  th,
+  td {
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--color-ciano) 35%, transparent);
+    color: var(--color-gelo);
+  }
+}
+
+/* ============================================= Utilidades da pele futurista */
+
+/* Vidro fosco. Use junto com uma cor de fundo translúcida (ex.: bg-card). */
+@utility glass {
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+}
+
+/* Borda de 1px em gradiente ciano → azul, desenhada por cima da borda normal. */
+@utility edge {
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      135deg,
+      color-mix(in oklab, var(--color-ciano) 70%, transparent),
+      color-mix(in oklab, var(--color-firme) 55%, transparent) 40%,
+      transparent 70%
+    );
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    pointer-events: none;
+  }
+}
+
+/* Brilho suave atrás do elemento. Para números e ícones em destaque.
+   O ::after fica preso à caixa (inset: 0) de propósito: um inset negativo
+   aumentaria a largura rolável da página. O espalhamento vem do blur, que
+   pinta para fora sem afetar o layout. */
+@utility halo {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    background: radial-gradient(
+      closest-side,
+      color-mix(in oklab, var(--color-ciano) 40%, transparent),
+      transparent
+    );
+    filter: blur(22px);
+    z-index: -1;
+    pointer-events: none;
+  }
+}
+
+/* Linha fina que some nas pontas: separador discreto entre seções. */
+@utility rule-fade {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--color-gelo) 14%, transparent) 20%,
+    color-mix(in oklab, var(--color-gelo) 14%, transparent) 80%,
+    transparent
+  );
+}
+
+/* Barra de rolagem discreta, combinando com o tema escuro. */
+@layer base {
+  .dark * {
+    scrollbar-color: color-mix(in oklab, var(--color-gelo) 18%, transparent) transparent;
+    scrollbar-width: thin;
   }
 }
