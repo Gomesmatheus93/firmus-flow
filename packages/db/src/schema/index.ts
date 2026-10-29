@@ -1,2 +1,6 @@
-// As tabelas (companies, users, memberships, invitations, brand_brains) entram na Fase 1.1.
-export {}
+export { brandBrains, type BrandBrain, type NewBrandBrain } from './brand-brains'
+export { companies, type Company, type NewCompany } from './companies'
+export { invitationStatusEnum, roleEnum } from './enums'
+export { invitations, type Invitation, type NewInvitation } from './invitations'
+export { memberships, type Membership, type NewMembership } from './memberships'
+export { users, type NewUser, type User } from './users'
