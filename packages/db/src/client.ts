@@ -9,5 +9,3 @@ export function createDb(databaseUrl: string) {
   const client = postgres(databaseUrl, { prepare: false })
   return drizzle(client, { schema, casing: 'snake_case' })
 }
-
-export type Database = ReturnType<typeof createDb>
