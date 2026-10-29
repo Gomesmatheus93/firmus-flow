@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Outlet } from 'react-router'
 import { Backdrop } from '@/components/backdrop'
+import { DemoBanner } from '@/components/demo-banner'
 import { Sidebar } from './sidebar'
 import { Topbar } from './topbar'
 
@@ -30,6 +31,7 @@ export function AppShell() {
       )}
 
       <div className="lg:pl-68">
+        <DemoBanner />
         <Topbar onMenu={() => setMenuOpen(true)} />
         <main className="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
           <Outlet />

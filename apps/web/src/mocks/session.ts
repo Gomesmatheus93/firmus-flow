@@ -1,13 +1,13 @@
 import type { Role } from '@firmus/shared'
 
 /**
- * Sessão de exemplo. Na Etapa 2 isso vem do Supabase Auth e da tabela memberships.
- * Troque `role` para 'funcionario' se quiser ver a plataforma com menos permissões.
+ * Usuário e empresa do modo demonstração, usados quando o Supabase ainda não
+ * está no .env. Com o Supabase configurado, estes dados não são lidos:
+ * tudo vem de GET /me.
  */
 export const currentUser = {
   name: 'Matheus Gomes',
   email: 'matheus@studioaura.com.br',
-  initials: 'MG',
   role: 'chefe' as Role,
 }
 

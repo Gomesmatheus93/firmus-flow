@@ -1,12 +1,15 @@
 import { createBrowserRouter, Navigate } from 'react-router'
+import { GuestOnly, RequireCompany, RequireUser } from '@/components/guards'
 import { AppShell } from '@/components/layout/app-shell'
 import { ApprovalsPage } from '@/pages/approvals'
 import { AuditPage } from '@/pages/audit'
+import { AcceptInvitePage } from '@/pages/auth/accept-invite'
 import { SignInPage } from '@/pages/auth/sign-in'
 import { SignUpPage } from '@/pages/auth/sign-up'
 import { BrandPage } from '@/pages/brand'
 import { ContentPage } from '@/pages/content'
 import { ConversationsPage } from '@/pages/conversations'
+import { CreateCompanyPage } from '@/pages/create-company'
 import { DashboardPage } from '@/pages/dashboard'
 import { DesignsPage } from '@/pages/designs'
 import { LeadsPage } from '@/pages/leads'
@@ -16,25 +19,47 @@ import { SettingsPage } from '@/pages/settings'
 import { TeamPage } from '@/pages/team'
 
 export const router = createBrowserRouter([
-  { path: '/entrar', element: <SignInPage /> },
-  { path: '/criar-conta', element: <SignUpPage /> },
+  // O link de convite é público: quem recebe ainda pode não ter conta.
+  { path: '/convite/:token', element: <AcceptInvitePage /> },
+
   {
-    path: '/',
-    element: <AppShell />,
+    element: <GuestOnly />,
     children: [
-      { index: true, element: <Navigate to="/painel" replace /> },
-      { path: 'painel', element: <DashboardPage /> },
-      { path: 'marca', element: <BrandPage /> },
-      { path: 'auditoria', element: <AuditPage /> },
-      { path: 'planejamento', element: <PlanPage /> },
-      { path: 'conteudo', element: <ContentPage /> },
-      { path: 'artes', element: <DesignsPage /> },
-      { path: 'aprovacoes', element: <ApprovalsPage /> },
-      { path: 'conversas', element: <ConversationsPage /> },
-      { path: 'leads', element: <LeadsPage /> },
-      { path: 'equipe', element: <TeamPage /> },
-      { path: 'configuracoes', element: <SettingsPage /> },
+      { path: '/entrar', element: <SignInPage /> },
+      { path: '/criar-conta', element: <SignUpPage /> },
     ],
   },
+
+  // Exige login, mas ainda não exige empresa.
+  {
+    element: <RequireUser />,
+    children: [{ path: '/criar-empresa', element: <CreateCompanyPage /> }],
+  },
+
+  // Exige login e empresa. Tudo aqui dentro roda na casca da plataforma.
+  {
+    element: <RequireCompany />,
+    children: [
+      {
+        path: '/',
+        element: <AppShell />,
+        children: [
+          { index: true, element: <Navigate to="/painel" replace /> },
+          { path: 'painel', element: <DashboardPage /> },
+          { path: 'marca', element: <BrandPage /> },
+          { path: 'auditoria', element: <AuditPage /> },
+          { path: 'planejamento', element: <PlanPage /> },
+          { path: 'conteudo', element: <ContentPage /> },
+          { path: 'artes', element: <DesignsPage /> },
+          { path: 'aprovacoes', element: <ApprovalsPage /> },
+          { path: 'conversas', element: <ConversationsPage /> },
+          { path: 'leads', element: <LeadsPage /> },
+          { path: 'equipe', element: <TeamPage /> },
+          { path: 'configuracoes', element: <SettingsPage /> },
+        ],
+      },
+    ],
+  },
+
   { path: '*', element: <NotFoundPage /> },
 ])

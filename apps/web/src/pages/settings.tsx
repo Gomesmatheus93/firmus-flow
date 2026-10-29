@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { PageHeader } from '@/components/page-header'
 import { SampleBadge } from '@/components/sample-badge'
-import { currentCompany, currentUser } from '@/mocks/session'
+import { useAuth } from '@/providers/auth-provider'
 
 function Section({ children, onSave = 'Salvar' }: { children: ReactNode; onSave?: string }) {
   return (
@@ -29,6 +29,8 @@ function Field({ label, ...props }: { label: string } & React.ComponentProps<typ
 }
 
 export function SettingsPage() {
+  const { user, company } = useAuth()
+
   return (
     <>
       <PageHeader
@@ -55,16 +57,16 @@ export function SettingsPage() {
 
         <TabsContent value="empresa" className="mt-5">
           <Section>
-            <Field label="Nome da empresa" defaultValue={currentCompany.name} />
-            <Field label="Segmento" defaultValue={currentCompany.segment} />
-            <Field label="Instagram" defaultValue={currentCompany.instagram} />
+            <Field label="Nome da empresa" defaultValue={company?.name ?? ''} />
+            <Field label="Segmento" defaultValue={company?.segment ?? ''} />
+            <Field label="Instagram" defaultValue={company?.instagramHandle ?? ''} />
           </Section>
         </TabsContent>
 
         <TabsContent value="perfil" className="mt-5">
           <Section>
-            <Field label="Seu nome" defaultValue={currentUser.name} />
-            <Field label="E-mail" type="email" defaultValue={currentUser.email} disabled />
+            <Field label="Seu nome" defaultValue={user?.fullName ?? ''} />
+            <Field label="E-mail" type="email" defaultValue={user?.email ?? ''} disabled />
           </Section>
         </TabsContent>
 

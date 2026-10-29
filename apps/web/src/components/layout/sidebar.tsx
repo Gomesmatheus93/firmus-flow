@@ -11,7 +11,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Logo } from '@/components/logo'
-import { currentCompany, currentUser, roleLabel } from '@/mocks/session'
+import { initialsFrom } from '@/lib/names'
+import { roleLabel } from '@/mocks/session'
+import { useAuth } from '@/providers/auth-provider'
 import { visibleGroups, type NavItem } from './nav-items'
 
 function SidebarLink({ item, onNavigate }: { item: NavItem; onNavigate?: () => void }) {
@@ -44,6 +46,10 @@ function SidebarLink({ item, onNavigate }: { item: NavItem; onNavigate?: () => v
 }
 
 function UserCard() {
+  const { user, company, signOut, mode } = useAuth()
+
+  if (!user || !company) return null
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -53,13 +59,13 @@ function UserCard() {
         >
           <Avatar className="size-9 rounded-lg">
             <AvatarFallback className="rounded-lg bg-linear-to-br from-firme to-ciano text-xs font-semibold text-gelo">
-              {currentUser.initials}
+              {initialsFrom(user.fullName)}
             </AvatarFallback>
           </Avatar>
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-sm font-medium text-gelo">{currentUser.name}</span>
+            <span className="block truncate text-sm font-medium text-gelo">{user.fullName}</span>
             <span className="block truncate text-xs text-muted-foreground">
-              {currentCompany.name} · {roleLabel[currentUser.role]}
+              {company.name} · {roleLabel[company.role]}
             </span>
           </span>
           <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" />
@@ -68,20 +74,26 @@ function UserCard() {
 
       <DropdownMenuContent align="start" side="top" className="w-60">
         <DropdownMenuLabel className="font-normal">
-          <span className="block truncate text-sm font-medium">{currentUser.name}</span>
-          <span className="block truncate text-xs text-muted-foreground">{currentUser.email}</span>
+          <span className="block truncate text-sm font-medium">{user.fullName}</span>
+          <span className="block truncate text-xs text-muted-foreground">{user.email}</span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <UserRound />
-          Meu perfil
+        <DropdownMenuItem asChild>
+          <Link to="/configuracoes">
+            <UserRound />
+            Meu perfil
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuItem>
           <LifeBuoy />
           Ajuda
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem variant="destructive">
+        <DropdownMenuItem
+          variant="destructive"
+          disabled={mode === 'demo'}
+          onSelect={() => void signOut()}
+        >
           <LogOut />
           Sair
         </DropdownMenuItem>
@@ -91,7 +103,8 @@ function UserCard() {
 }
 
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
-  const groups = visibleGroups(currentUser.role)
+  const { company } = useAuth()
+  const groups = visibleGroups(company?.role ?? 'funcionario')
 
   return (
     <div className="glass flex h-full flex-col border-r border-border bg-card/70">

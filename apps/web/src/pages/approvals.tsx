@@ -3,10 +3,11 @@ import { Button } from '@/components/ui/button'
 import { PageHeader } from '@/components/page-header'
 import { SampleBadge } from '@/components/sample-badge'
 import { approvals } from '@/mocks/content'
-import { currentUser } from '@/mocks/session'
+import { useAuth } from '@/providers/auth-provider'
 
 export function ApprovalsPage() {
-  const isBoss = currentUser.role === 'chefe'
+  const { company } = useAuth()
+  const isBoss = company?.role === 'chefe'
 
   return (
     <>

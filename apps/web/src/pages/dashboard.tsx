@@ -20,7 +20,8 @@ import {
   pendingApprovals,
   recentActivity,
 } from '@/mocks/dashboard'
-import { currentCompany, currentUser } from '@/mocks/session'
+import { firstNameFrom } from '@/lib/names'
+import { useAuth } from '@/providers/auth-provider'
 
 const axisTick = { fill: 'var(--color-muted-foreground)', fontSize: 12 }
 
@@ -46,13 +47,14 @@ function ChartTooltip({
 }
 
 export function DashboardPage() {
-  const firstName = currentUser.name.split(' ')[0]
+  const { user, company } = useAuth()
+  const firstName = firstNameFrom(user?.fullName ?? '')
 
   return (
     <>
       <PageHeader
         title={`Olá, ${firstName}`}
-        description={`Como está a presença digital da ${currentCompany.name} nesta semana.`}
+        description={`Como está a presença digital da ${company?.name ?? 'sua empresa'} nesta semana.`}
         badge={<SampleBadge />}
       />
 

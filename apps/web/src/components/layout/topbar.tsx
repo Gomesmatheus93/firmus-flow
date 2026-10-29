@@ -1,8 +1,10 @@
 import { Bell, Menu, Search, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { currentCompany } from '@/mocks/session'
+import { useAuth } from '@/providers/auth-provider'
 
 export function Topbar({ onMenu }: { onMenu: () => void }) {
+  const { company } = useAuth()
+
   return (
     <header className="glass sticky top-0 z-30 border-b border-border bg-background/70">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6 lg:px-8">
@@ -18,7 +20,7 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
 
         <div className="hidden items-center gap-2 rounded-lg border border-border bg-muted px-3 py-1.5 sm:flex">
           <span className="size-1.5 rounded-full bg-ciano shadow-[0_0_8px_var(--color-ciano)]" />
-          <span className="text-sm text-muted-foreground">{currentCompany.name}</span>
+          <span className="text-sm text-muted-foreground">{company?.name}</span>
         </div>
 
         <div className="relative ml-auto hidden md:block">

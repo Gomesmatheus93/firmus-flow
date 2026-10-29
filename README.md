@@ -33,6 +33,60 @@ Depois disso:
 | `pnpm db:generate` | Gera uma migration a partir do schema Drizzle  |
 | `pnpm db:migrate`  | Aplica as migrations no banco                  |
 
+## Ligar o Supabase (login e banco de verdade)
+
+Enquanto o `.env` não tiver as variáveis do Supabase, a plataforma roda em
+**modo demonstração**: entra direto, com dados de exemplo, e um aviso aparece no
+topo. Para ligar de verdade:
+
+### 1. Crie o projeto
+
+Em <https://supabase.com>, crie um projeto. Guarde a senha do banco: ela aparece
+uma vez só.
+
+### 2. Copie as chaves
+
+Em **Project Settings → API**:
+
+| No painel do Supabase   | No `.env`                                      |
+| ----------------------- | ---------------------------------------------- |
+| Project URL             | `SUPABASE_URL` e `VITE_SUPABASE_URL`           |
+| `anon` `public`         | `SUPABASE_ANON_KEY` e `VITE_SUPABASE_ANON_KEY` |
+| `service_role` `secret` | `SUPABASE_SERVICE_ROLE_KEY`                    |
+
+A `service_role` ignora todas as permissões do banco. Ela fica **só no servidor**
+— nunca numa variável `VITE_`, porque essas vão para o navegador.
+
+Em **Project Settings → Database → Connection string → URI**, copie para
+`DATABASE_URL` e troque `[YOUR-PASSWORD]` pela senha do passo 1.
+
+### 3. Crie as tabelas
+
+```bash
+pnpm db:migrate
+```
+
+### 4. Ajuste a confirmação de e-mail
+
+Em **Authentication → Providers → Email**, decida se quer exigir confirmação por
+e-mail. Durante o desenvolvimento é mais prático desligar: sem isso, cada conta
+nova precisa clicar num link antes de entrar.
+
+### 5. Reinicie
+
+```bash
+pnpm dev
+```
+
+O aviso de demonstração some e o login passa a valer. O primeiro cadastro cria a
+conta, a tela seguinte cria a empresa e você vira o chefe dela.
+
+### Convidar funcionários
+
+Em **Equipe → Convidar funcionário**, informe o e-mail. Ainda não enviamos
+e-mail automático: a plataforma devolve um link para você mandar à pessoa. Ela
+cria a conta com aquele e-mail, abre o link e entra como funcionário.
+
 ## Estrutura
 
 ```

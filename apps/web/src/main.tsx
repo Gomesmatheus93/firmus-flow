@@ -4,10 +4,15 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { RouterProvider } from 'react-router'
 import { Toaster } from 'sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { AuthProvider } from '@/providers/auth-provider'
 import { router } from './router'
 import './index.css'
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { refetchOnWindowFocus: false, retry: 1 },
+  },
+})
 
 const container = document.getElementById('root')
 
@@ -18,10 +23,12 @@ if (!container) {
 createRoot(container).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider delayDuration={200}>
-        <RouterProvider router={router} />
-        <Toaster theme="dark" position="top-right" richColors />
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider delayDuration={200}>
+          <RouterProvider router={router} />
+          <Toaster theme="dark" position="top-right" richColors />
+        </TooltipProvider>
+      </AuthProvider>
     </QueryClientProvider>
   </StrictMode>,
 )
