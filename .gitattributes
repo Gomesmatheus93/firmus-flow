@@ -8,3 +8,6 @@
 *.pdf binary
 *.woff binary
 *.woff2 binary
+
+# Código de terceiros: preservar os bytes originais, sem normalizar quebras de linha.
+third_party/** -text
