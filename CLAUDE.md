@@ -1,0 +1,157 @@
+# Firmus Flow — instruções do projeto
+
+Este arquivo é lido pelo Claude Code em toda sessão. Siga estas regras sempre.
+
+## O que é o Firmus Flow
+
+Plataforma SaaS da **Firmus Tech** (Mossoró/RN) usada pelo próprio dono de negócio
+e pela equipe dele. Ela entende a marca da empresa, faz uma auditoria do Instagram e do
+atendimento, gera conteúdo com a identidade da marca e atende os clientes da empresa
+no WhatsApp com IA.
+
+### Fluxo da plataforma (em ordem)
+
+1. **Landing page**: vendas, FAQ e auditoria grátis (isca de captação).
+2. **Onboarding de marca**: o chefe cadastra o contexto da empresa (serviços, público,
+   diferenciais, tom de voz), as cores, o logo e o Instagram.
+3. **Agentes e auditoria**: os agentes estudam a empresa, geram a auditoria do Instagram
+   e do atendimento e salvam o que aprenderam no Cérebro da Marca.
+4. **Gerações**: planejamento semanal ou mensal, carrossel, post único, legendas.
+   O chefe aprova e o conteúdo é baixado para publicar no Meta Business Suite.
+5. **Atendente de IA no WhatsApp**: responde, coleta leads e passa para um humano.
+6. **Analytics**: depois do MVP. Não implementar agora.
+
+### Cérebro da Marca (conceito central)
+
+Toda empresa tem um único "Cérebro da Marca": um registro estruturado com tudo que a
+plataforma sabe sobre ela (contexto, tom de voz, paleta, logo, público, ofertas,
+perguntas frequentes, achados da auditoria). **Todos os agentes leem dele.** Nenhum
+agente guarda conhecimento da marca em outro lugar.
+
+### Papéis e permissões
+
+- Cada **empresa** (tenant) tem usuários com papel `chefe` ou `funcionario`.
+- `chefe`: configura a marca, aprova conteúdo, configura o WhatsApp, convida e remove
+  funcionários, e faz tudo o que o funcionário faz.
+- `funcionario`: vê a auditoria, gera conteúdo (que fica aguardando aprovação) e
+  assume conversas do WhatsApp passadas para humano.
+- **Isolamento total entre empresas**: toda tabela de dados de cliente tem
+  `company_id`, e toda consulta filtra por ele no servidor. Nunca confiar em
+  `company_id` vindo do navegador; sempre derivar da sessão do usuário.
+
+## Stack
+
+| Parte             | Tecnologia                                                                                    |
+| ----------------- | --------------------------------------------------------------------------------------------- |
+| Monorepo          | pnpm workspaces                                                                               |
+| Backend           | Node.js 20+, TypeScript, Express, Zod para validação                                          |
+| Banco             | PostgreSQL no Supabase, Drizzle ORM e migrations do Drizzle                                   |
+| Login             | Supabase Auth (e-mail e senha, convite por e-mail)                                            |
+| Fila e jobs       | BullMQ + Redis                                                                                |
+| IA                | SDK oficial da Anthropic (`@anthropic-ai/sdk`). Modelos configurados por variável de ambiente |
+| Frontend          | React, Vite, TypeScript, Tailwind CSS, shadcn/ui, TanStack Query                              |
+| Imagens dos posts | Templates HTML/SVG renderizados em PNG com Playwright                                         |
+| WhatsApp          | WhatsApp Cloud API oficial da Meta (direto, sem intermediário)                                |
+| Testes            | Vitest                                                                                        |
+| Deploy            | Docker na VPS própria com EasyPanel ou Coolify                                                |
+
+### Estrutura de pastas
+
+```
+apps/
+  api/        # Express: rotas REST, webhooks, auth middleware
+  worker/     # BullMQ: jobs de IA, renderização de imagens, mensagens do WhatsApp
+  web/        # React: painel do cliente e landing page
+packages/
+  db/         # schema Drizzle, migrations, cliente do banco
+  agents/     # runtime dos agentes, prompts, ferramentas
+  shared/     # tipos e schemas Zod compartilhados
+third_party/
+  instagram-agent-skill/   # skills públicas MIT de Jake Schincariol (manter LICENSE)
+```
+
+## Agentes
+
+Cada agente fica em `packages/agents/src/<nome>/` com:
+
+- `prompt.md`: instruções do agente, em português
+- `index.ts`: função que monta o contexto (Cérebro da Marca + entrada), chama a IA e
+  valida a saída com Zod
+- `index.test.ts`: testes com a chamada da IA simulada (mock)
+
+Agentes do MVP: `marca` (monta o Cérebro da Marca), `auditoria`, `estrategista`
+(planejamento), `conteudo` (legendas, roteiros e textos de carrossel), `design` (aplica a
+marca nos templates) e `atendimento` (WhatsApp).
+
+As skills em `third_party/instagram-agent-skill/skills/ig-*` são **material de referência**
+que os prompts podem incorporar ou carregar. Elas são MIT: manter o arquivo LICENSE e os
+créditos em `third_party/README.md`. Os scripts Python delas (ex.: `ig-human`) devem ser
+portados para TypeScript quando forem usados.
+
+Toda saída de agente é JSON validado por um schema Zod antes de ser salva.
+
+## Regras inegociáveis
+
+1. **Nada de código, prompt, documento ou dado vindo do emprego do Matheus.** Só código
+   escrito neste repositório ou de fontes públicas com licença permissiva (MIT, Apache 2.0,
+   BSD), com a licença preservada. Na dúvida, pergunte antes de usar.
+2. **Segredos só em `.env`** (nunca commitados). Manter `.env.example` atualizado, sem
+   valores reais.
+3. **Isolamento entre empresas** em toda rota, job e consulta (ver Papéis).
+4. **Webhooks validados**: verificar a assinatura `X-Hub-Signature-256` da Meta.
+5. **LGPD**: guardar só o necessário das conversas; nunca registrar mensagens completas em logs.
+6. **Nada é publicado automaticamente** no Instagram no MVP. A plataforma gera e o
+   cliente publica.
+
+## Como trabalhar neste projeto
+
+O Matheus está aprendendo a programar enquanto constrói. Por isso:
+
+1. **Planeje antes de codar.** Para cada tarefa, mostre o plano (arquivos que vai criar ou
+   alterar e por quê) e espere o OK antes de executar.
+2. **Uma tarefa por vez**, pequena e testável.
+3. **Rode os testes e o typecheck** antes de dizer que terminou.
+4. **Explique no final**, em português simples: o que foi feito, como funciona e como
+   testar manualmente. Explique conceitos novos quando aparecerem.
+5. **Commits pequenos**, no formato `tipo: descrição` (ex.: `feat: cadastro de empresa`).
+6. **Pergunte quando houver dúvida** de produto. Não invente regra de negócio.
+
+## Convenções
+
+- Código, nomes de arquivos, variáveis e tabelas em **inglês**. Textos da interface,
+  prompts dos agentes e mensagens ao usuário em **português do Brasil**.
+- TypeScript estrito (`strict: true`), sem `any`.
+- Datas em UTC no banco; exibir no fuso `America/Sao_Paulo`.
+- Valores em reais armazenados em centavos (inteiro).
+
+## Identidade visual da plataforma
+
+Paleta oficial:
+
+| Nome       | Hex       | Uso                            |
+| ---------- | --------- | ------------------------------ |
+| Azul noite | `#0B1F3A` | base / fundo escuro            |
+| Azul firme | `#1E4FD8` | cor principal                  |
+| Ciano      | `#22C3E6` | destaque                       |
+| Gelo       | `#F4F7FB` | fundo claro / texto no escuro  |
+| Grafite    | `#1A1D23` | texto                          |
+
+- Fontes: Michroma só para o logotipo e títulos de destaque; Inter para o resto.
+- Visual limpo, sério e confiável: a marca transmite firmeza, autoridade e credibilidade.
+- Na web, as cores vivem em `apps/web/src/index.css`: o bloco `@theme` define a paleta
+  (`--color-noite`, `--color-firme`, `--color-ciano`, `--color-gelo`, `--color-grafite`)
+  e os tokens do shadcn/ui apontam para ela. Mude lá, não nos componentes.
+
+## Comandos
+
+- `pnpm install`: instala tudo
+- `pnpm dev`: sobe api (3333), worker e web (5173) em modo desenvolvimento
+- `pnpm build`: compila tudo para produção
+- `pnpm test`: roda os testes (Vitest)
+- `pnpm typecheck`: confere os tipos
+- `pnpm lint` / `pnpm format`: ESLint e Prettier
+- `pnpm db:generate` / `pnpm db:migrate`: migrations do Drizzle
+
+Os pacotes de `packages/` não têm passo de build próprio: eles exportam
+`./src/index.ts` direto, e quem traduz o TypeScript é o `tsx` (dev) ou o `tsup` (build
+dos apps). Ao criar um pacote novo, siga esse mesmo padrão.

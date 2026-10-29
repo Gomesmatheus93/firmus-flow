@@ -1,0 +1,9 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+
+# Dependências autorizadas a rodar scripts de instalação.
+# esbuild baixa seu binário nesse passo; sem isso, tsup e drizzle-kit quebram.
+onlyBuiltDependencies:
+  - esbuild
+  - msgpackr-extract
