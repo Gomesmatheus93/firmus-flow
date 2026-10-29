@@ -126,21 +126,36 @@ O Matheus está aprendendo a programar enquanto constrói. Por isso:
 
 ## Identidade visual da plataforma
 
-Paleta oficial:
+Paleta oficial, extraída dos arquivos do logo em `Documents/firmus tech/logo`:
 
-| Nome       | Hex       | Uso                           |
-| ---------- | --------- | ----------------------------- |
-| Azul noite | `#0B1F3A` | base / fundo escuro           |
-| Azul firme | `#1E4FD8` | cor principal                 |
-| Ciano      | `#22C3E6` | destaque                      |
-| Gelo       | `#F4F7FB` | fundo claro / texto no escuro |
-| Grafite    | `#1A1D23` | texto                         |
+| Nome        | Hex       | Uso                                       |
+| ----------- | --------- | ----------------------------------------- |
+| Azul Firmus | `#1C8CFF` | cor principal: o que é clicável e o ativo |
+| Ciano       | `#22C3E6` | destaque, no máximo uma vez por tela      |
+| Azul noite  | `#0B1F3A` | títulos e blocos de assinatura            |
+| Grafite     | `#1A1D23` | corpo de texto                            |
+| Ardósia     | `#5A6B82` | texto secundário                          |
+| Gelo        | `#F4F7FB` | fundo da plataforma                       |
+| Régua       | `#E3E9F2` | bordas e divisórias                       |
 
-- Fontes: Michroma só para o logotipo e títulos de destaque; Inter para o resto.
-- Visual limpo, sério e confiável: a marca transmite firmeza, autoridade e credibilidade.
-- Na web, as cores vivem em `apps/web/src/index.css`: o bloco `@theme` define a paleta
-  (`--color-noite`, `--color-firme`, `--color-ciano`, `--color-gelo`, `--color-grafite`)
-  e os tokens do shadcn/ui apontam para ela. Mude lá, não nos componentes.
+**A plataforma é clara.** O logo da Firmus é chapado e angular — planos sólidos
+cortados a 45°, sem brilho e sem gradiente — e a interface segue isso:
+
+1. **Zero desfoque, zero brilho, zero gradiente.** Nem no fundo, nem na borda, nem no
+   botão. Sombra só em camada flutuante (menu, diálogo).
+2. **Profundidade vem de régua de 1px e troca de fundo**, nada mais.
+3. **Cartão só quando agrupa de verdade.** Métricas vão numa tira única dividida por
+   réguas, não em caixas soltas.
+4. **Chanfro de 45°** (utilidade `chamfer`): no máximo uma vez por tela.
+5. **Tipografia faz o trabalho.** Rótulo de seção com a utilidade `label` (maiúsculas,
+   11px, `tracking-[0.14em]`); número grande com `tabular`.
+
+- Fontes: Michroma só na assinatura "FIRMUS FLOW"; Inter em todo o resto.
+- O logo de verdade está em `apps/web/src/assets/firmus-symbol.png`, recortado do kit.
+  Dentro do painel quem assina é o produto ("FIRMUS FLOW"), não a empresa
+  ("FIRMUS TECH").
+- As cores vivem em `apps/web/src/index.css`: o bloco `@theme` define a paleta e os
+  tokens do shadcn/ui apontam para ela. Mude lá, nunca nos componentes.
 
 ## Comandos
 

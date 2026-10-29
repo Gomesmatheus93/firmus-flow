@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react'
-import { Backdrop } from '@/components/backdrop'
 import { Logo } from '@/components/logo'
 
 type AuthLayoutProps = {
@@ -11,22 +10,25 @@ type AuthLayoutProps = {
 
 export function AuthLayout({ title, description, children, footer }: AuthLayoutProps) {
   return (
-    <div className="grid min-h-dvh place-items-center px-4 py-10">
-      <Backdrop />
-
+    <div className="grid min-h-dvh place-items-center px-5 py-12">
       <div className="w-full max-w-sm">
-        <div className="flex justify-center">
-          <Logo />
+        <Logo />
+
+        <div className="mt-10">
+          <h1 className="text-2xl font-semibold tracking-tight text-noite">{title}</h1>
+          <p className="mt-2 text-sm leading-relaxed text-ardosia">{description}</p>
         </div>
 
-        <div className="glass edge mt-8 rounded-2xl border border-border bg-card p-7">
-          <h1 className="text-xl font-semibold tracking-tight text-gelo">{title}</h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">{description}</p>
+        <div className="mt-8">{children}</div>
 
-          <div className="mt-6">{children}</div>
-        </div>
+        {footer && (
+          <>
+            <hr className="mt-8 border-border" />
+            <p className="mt-5 text-sm text-ardosia">{footer}</p>
+          </>
+        )}
 
-        <p className="mt-6 text-center text-sm text-muted-foreground">{footer}</p>
+        <p className="mt-14 text-xs text-ardosia/70">Uma plataforma Firmus Tech · Mossoró, RN</p>
       </div>
     </div>
   )

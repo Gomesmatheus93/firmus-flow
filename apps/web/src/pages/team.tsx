@@ -1,9 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Clock, Copy, MailPlus, Trash2 } from 'lucide-react'
+import { Copy, MailPlus, Trash2 } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { toast } from 'sonner'
 import type { Role } from '@firmus/shared'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -15,7 +14,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { PageHeader } from '@/components/page-header'
+import { PageHeader, SectionHeading } from '@/components/page-header'
 import { SampleBadge } from '@/components/sample-badge'
 import { api } from '@/lib/api'
 import { initialsFrom } from '@/lib/names'
@@ -93,9 +92,7 @@ function InviteDialog() {
 
         {inviteUrl ? (
           <div className="grid gap-3">
-            <p className="text-sm text-foreground">
-              Convite criado. Envie este link para a pessoa:
-            </p>
+            <p className="text-sm text-grafite">Convite criado. Envie este link para a pessoa:</p>
             <div className="flex gap-2">
               <Input readOnly value={inviteUrl} className="font-mono text-xs" />
               <Button
@@ -110,7 +107,7 @@ function InviteDialog() {
                 <Copy />
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground">O link vale por 7 dias.</p>
+            <p className="text-xs text-ardosia">O link vale por 7 dias.</p>
           </div>
         ) : (
           <form className="grid gap-4" onSubmit={handleSubmit}>
@@ -198,63 +195,55 @@ export function TeamPage() {
         </p>
       )}
 
-      <section className="glass overflow-hidden rounded-xl border border-border bg-card">
-        <ul className="divide-y divide-border">
-          {members.map((member) => (
-            <li key={member.membershipId} className="flex items-center gap-4 px-5 py-4">
-              <Avatar className="size-10 rounded-lg">
-                <AvatarFallback className="rounded-lg bg-muted text-xs font-semibold text-muted-foreground">
-                  {initialsFrom(member.name)}
-                </AvatarFallback>
-              </Avatar>
+      <ul className="surface divide-y divide-border overflow-hidden">
+        {members.map((member) => (
+          <li key={member.membershipId} className="flex items-center gap-4 px-5 py-4">
+            <span className="grid size-9 shrink-0 place-items-center rounded-md bg-muted text-[0.7rem] font-semibold text-ardosia">
+              {initialsFrom(member.name)}
+            </span>
 
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-gelo">{member.name}</p>
-                <p className="truncate text-xs text-muted-foreground">{member.email}</p>
-              </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-noite">{member.name}</p>
+              <p className="truncate text-xs text-ardosia">{member.email}</p>
+            </div>
 
-              <span className="hidden text-xs text-muted-foreground sm:block">
-                entrou em {isDemo ? member.joinedAt : formatDate(member.joinedAt)}
-              </span>
+            <span className="hidden text-xs text-ardosia sm:block">
+              entrou em {isDemo ? member.joinedAt : formatDate(member.joinedAt)}
+            </span>
 
-              <span
-                className={
-                  member.role === 'chefe'
-                    ? 'rounded-full border border-ciano/30 bg-ciano/10 px-2.5 py-0.5 text-xs font-medium text-ciano'
-                    : 'rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground'
-                }
-              >
-                {roleLabel[member.role]}
-              </span>
+            <span
+              className={
+                member.role === 'chefe'
+                  ? 'rounded border border-azul/30 bg-azul/8 px-2 py-0.5 text-xs font-medium text-azul'
+                  : 'rounded-lg bg-muted px-2 py-0.5 text-xs font-medium text-ardosia'
+              }
+            >
+              {roleLabel[member.role]}
+            </span>
 
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                aria-label={`Remover ${member.name}`}
-                disabled={isDemo || member.role === 'chefe' || member.userId === user?.id}
-                onClick={() => removeMember.mutate(member.membershipId)}
-                className="text-muted-foreground hover:text-destructive"
-              >
-                <Trash2 />
-              </Button>
-            </li>
-          ))}
-        </ul>
-      </section>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={`Remover ${member.name}`}
+              disabled={isDemo || member.role === 'chefe' || member.userId === user?.id}
+              onClick={() => removeMember.mutate(member.membershipId)}
+              className="text-ardosia hover:text-destructive"
+            >
+              <Trash2 />
+            </Button>
+          </li>
+        ))}
+      </ul>
 
       {invites.length > 0 && (
         <section>
-          <h2 className="text-base font-medium text-gelo">Convites pendentes</h2>
-          <ul className="mt-3 space-y-2">
+          <SectionHeading>Convites pendentes</SectionHeading>
+          <ul className="mt-4 divide-y divide-border overflow-hidden rounded-2xl border border-dashed border-border bg-card">
             {invites.map((invite) => (
-              <li
-                key={invite.id}
-                className="glass flex items-center gap-3 rounded-xl border border-dashed border-border bg-card px-5 py-3.5"
-              >
-                <Clock className="size-4 shrink-0 text-muted-foreground" />
+              <li key={invite.id} className="flex items-center gap-4 px-5 py-3.5">
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm text-gelo">{invite.email}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="truncate text-sm text-noite">{invite.email}</p>
+                  <p className="text-xs text-ardosia">
                     como {roleLabel[invite.role].toLowerCase()} · enviado em{' '}
                     {isDemo ? invite.sentAt : formatDate(invite.sentAt)}
                   </p>

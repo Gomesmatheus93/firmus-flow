@@ -77,11 +77,7 @@ export function CreateCompanyPage() {
 
         <FormError message={error} />
 
-        <Button
-          type="submit"
-          disabled={submitting}
-          className="mt-2 w-full bg-linear-to-r from-firme to-ciano text-gelo shadow-lg shadow-firme/25 hover:opacity-90"
-        >
+        <Button type="submit" disabled={submitting} className="mt-2 w-full">
           {submitting ? 'Criando...' : 'Criar empresa'}
           {!submitting && <ArrowRight />}
         </Button>

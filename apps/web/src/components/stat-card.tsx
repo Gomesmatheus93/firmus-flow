@@ -1,53 +1,52 @@
-import type { LucideIcon } from 'lucide-react'
+import { ArrowUpRight } from 'lucide-react'
 import { cn } from 'cn'
 
-type StatCardProps = {
+export type Stat = {
   label: string
   value: string
   hint?: string
-  trend?: { value: string; direction: 'up' | 'down' | 'flat' }
-  icon: LucideIcon
-  highlight?: boolean
+  trend?: string
+  /** No máximo um por tela: é o cartão em ciano. */
+  accent?: boolean
 }
 
-const trendTone = {
-  up: 'text-ciano',
-  down: 'text-destructive',
-  flat: 'text-muted-foreground',
-} as const
-
-export function StatCard({ label, value, hint, trend, icon: Icon, highlight }: StatCardProps) {
+/** Fileira de métricas, cada uma no seu cartão. */
+export function StatStrip({ stats }: { stats: Stat[] }) {
   return (
-    <article
-      className={cn(
-        'glass relative overflow-hidden rounded-xl border border-border bg-card p-5',
-        highlight && 'edge',
-      )}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <p className="text-sm text-muted-foreground">{label}</p>
-        <Icon
-          className={cn('size-4 shrink-0', highlight ? 'text-ciano' : 'text-muted-foreground')}
-        />
-      </div>
+    <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      {stats.map((stat) => (
+        <article
+          key={stat.label}
+          className={cn('min-w-0 rounded-2xl p-4', stat.accent ? 'bg-ciano' : 'surface')}
+        >
+          <p className={cn('text-xs', stat.accent ? 'text-noite/70' : 'text-ardosia')}>
+            {stat.label}
+          </p>
 
-      <p
-        className={cn(
-          'tabular mt-3 text-3xl leading-none font-semibold text-gelo',
-          highlight && 'halo',
-        )}
-      >
-        {value}
-      </p>
+          <div className="mt-3 flex items-end justify-between gap-2">
+            <p className="tabular text-3xl leading-none font-semibold tracking-tight text-noite">
+              {stat.value}
+            </p>
+            {stat.trend && (
+              <span
+                className={cn(
+                  'flex items-center gap-0.5 text-xs font-medium',
+                  stat.accent ? 'text-noite/70' : 'text-ardosia',
+                )}
+              >
+                <ArrowUpRight className="size-3" />
+                {stat.trend}
+              </span>
+            )}
+          </div>
 
-      {(hint || trend) && (
-        <p className="mt-2.5 flex items-center gap-1.5 text-xs">
-          {trend && (
-            <span className={cn('font-medium', trendTone[trend.direction])}>{trend.value}</span>
+          {stat.hint && (
+            <p className={cn('mt-2 text-xs', stat.accent ? 'text-noite/70' : 'text-ardosia')}>
+              {stat.hint}
+            </p>
           )}
-          {hint && <span className="text-muted-foreground">{hint}</span>}
-        </p>
-      )}
-    </article>
+        </article>
+      ))}
+    </section>
   )
 }

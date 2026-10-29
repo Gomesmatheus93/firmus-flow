@@ -29,42 +29,45 @@ export function ApprovalsPage() {
         }
       />
 
-      <ul className="space-y-3">
+      <ul className="surface divide-y divide-border overflow-hidden">
         {approvals.map((item) => (
-          <li key={item.id} className="glass rounded-xl border border-border bg-card p-5">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              <div className="min-w-0">
-                <h2 className="text-sm font-medium text-gelo">{item.title}</h2>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {item.type} · enviado por {item.author} · {item.sentAt}
-                </p>
-              </div>
-
-              {isBoss ? (
-                <div className="flex shrink-0 flex-wrap gap-2">
-                  <Button size="sm" className="bg-emerald-500 text-abismo hover:bg-emerald-400">
-                    <Check />
-                    Aprovar
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <MessageSquareWarning />
-                    Pedir ajuste
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <X />
-                    Rejeitar
-                  </Button>
-                </div>
-              ) : (
-                <span className="shrink-0 rounded-full border border-ciano/30 bg-ciano/10 px-2.5 py-0.5 text-xs font-medium text-ciano">
-                  Aguardando o chefe
-                </span>
-              )}
+          <li
+            key={item.id}
+            className="flex flex-col gap-4 p-5 lg:flex-row lg:items-center lg:justify-between"
+          >
+            <div className="min-w-0">
+              <p className="text-xs text-ardosia">{item.type}</p>
+              <h2 className="mt-1.5 text-sm font-medium text-noite">{item.title}</h2>
+              <p className="mt-1 text-xs text-ardosia">
+                enviado por {item.author} · {item.sentAt}
+              </p>
             </div>
+
+            {isBoss ? (
+              <div className="flex shrink-0 flex-wrap gap-2">
+                <Button size="sm">
+                  <Check />
+                  Aprovar
+                </Button>
+                <Button variant="outline" size="sm">
+                  <MessageSquareWarning />
+                  Pedir ajuste
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive hover:text-destructive"
+                >
+                  <X />
+                  Rejeitar
+                </Button>
+              </div>
+            ) : (
+              <span className="inline-flex shrink-0 items-center gap-1.5 text-xs text-grafite">
+                <span className="size-1.5 rounded-full bg-azul" />
+                Aguardando o chefe
+              </span>
+            )}
           </li>
         ))}
       </ul>

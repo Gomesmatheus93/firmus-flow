@@ -1,15 +1,14 @@
 import { Bot, Send, UserRound } from 'lucide-react'
 import { cn } from 'cn'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { PageHeader } from '@/components/page-header'
 import { SampleBadge } from '@/components/sample-badge'
 import { conversationStatusLabel, conversations, type ConversationStatus } from '@/mocks/support'
 
 const statusTone: Record<ConversationStatus, string> = {
-  ia: 'border-ciano/30 bg-ciano/10 text-ciano',
-  humano: 'border-amber-400/30 bg-amber-400/10 text-amber-300',
-  resolvida: 'border-border bg-muted text-muted-foreground',
+  ia: 'bg-azul',
+  humano: 'bg-amber-500',
+  resolvida: 'bg-ardosia',
 }
 
 const thread = [
@@ -38,7 +37,7 @@ export function ConversationsPage() {
         badge={<SampleBadge />}
       />
 
-      <div className="glass grid overflow-hidden rounded-xl border border-border bg-card lg:grid-cols-[22rem_1fr]">
+      <div className="grid surface overflow-hidden lg:grid-cols-[21rem_1fr]">
         <div className="border-b border-border lg:border-r lg:border-b-0">
           <ul className="divide-y divide-border">
             {conversations.map((conversation) => (
@@ -46,40 +45,40 @@ export function ConversationsPage() {
                 <button
                   type="button"
                   className={cn(
-                    'flex w-full items-start gap-3 px-4 py-3.5 text-left transition-colors hover:bg-accent',
-                    conversation.id === active?.id && 'bg-accent',
+                    'flex w-full items-start gap-3 px-4 py-3.5 text-left transition-colors hover:bg-muted',
+                    conversation.id === active?.id && 'bg-muted',
                   )}
                 >
-                  <Avatar className="size-9 rounded-lg">
-                    <AvatarFallback className="rounded-lg bg-muted text-xs text-muted-foreground">
-                      {conversation.initials}
-                    </AvatarFallback>
-                  </Avatar>
+                  <span className="grid size-8 shrink-0 place-items-center rounded-md bg-muted text-[0.7rem] font-semibold text-ardosia">
+                    {conversation.initials}
+                  </span>
 
                   <span className="min-w-0 flex-1">
-                    <span className="flex items-center justify-between gap-2">
-                      <span className="truncate text-sm font-medium text-gelo">
+                    <span className="flex items-baseline justify-between gap-2">
+                      <span className="truncate text-sm font-medium text-noite">
                         {conversation.contact}
                       </span>
-                      <span className="shrink-0 text-[0.68rem] text-muted-foreground">
+                      <span className="shrink-0 text-[0.68rem] text-ardosia">
                         {conversation.when}
                       </span>
                     </span>
-                    <span className="mt-0.5 block truncate text-xs text-muted-foreground">
+                    <span className="mt-0.5 block truncate text-xs text-ardosia">
                       {conversation.lastMessage}
                     </span>
-                    <span
-                      className={cn(
-                        'mt-1.5 inline-block rounded-full border px-2 py-0.5 text-[0.62rem] font-medium',
-                        statusTone[conversation.status],
-                      )}
-                    >
+                    <span className="mt-1.5 inline-flex items-center gap-1.5 text-[0.65rem] text-grafite">
+                      <span
+                        aria-hidden
+                        className={cn(
+                          'size-1.5 shrink-0 rounded-full',
+                          statusTone[conversation.status],
+                        )}
+                      />
                       {conversationStatusLabel[conversation.status]}
                     </span>
                   </span>
 
                   {conversation.unread > 0 && (
-                    <span className="tabular grid size-5 shrink-0 place-items-center rounded-full bg-ciano text-[0.65rem] font-semibold text-abismo">
+                    <span className="tabular grid size-5 shrink-0 place-items-center rounded-full bg-azul text-[0.65rem] font-semibold text-white">
                       {conversation.unread}
                     </span>
                   )}
@@ -89,11 +88,11 @@ export function ConversationsPage() {
           </ul>
         </div>
 
-        <div className="flex min-h-[32rem] flex-col">
+        <div className="flex min-h-[30rem] flex-col">
           <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3.5">
             <div>
-              <p className="text-sm font-medium text-gelo">{active?.contact}</p>
-              <p className="tabular text-xs text-muted-foreground">{active?.phone}</p>
+              <p className="text-sm font-medium text-noite">{active?.contact}</p>
+              <p className="tabular text-xs text-ardosia">{active?.phone}</p>
             </div>
             <Button variant="outline" size="sm">
               <Bot />
@@ -101,23 +100,23 @@ export function ConversationsPage() {
             </Button>
           </div>
 
-          <div className="flex-1 space-y-4 overflow-y-auto p-5">
+          <div className="flex-1 space-y-4 overflow-y-auto bg-background p-5">
             {thread.map((message) => (
               <div
                 key={message.id}
                 className={cn('flex gap-2.5', message.from === 'ia' && 'flex-row-reverse')}
               >
-                <span className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-lg border border-border bg-muted">
+                <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-lg bg-card">
                   {message.from === 'ia' ? (
-                    <Bot className="size-3.5 text-ciano" />
+                    <Bot className="size-3 text-azul" />
                   ) : (
-                    <UserRound className="size-3.5 text-muted-foreground" />
+                    <UserRound className="size-3 text-ardosia" />
                   )}
                 </span>
                 <p
                   className={cn(
-                    'max-w-md rounded-xl px-3.5 py-2.5 text-sm leading-relaxed',
-                    message.from === 'ia' ? 'bg-firme/20 text-gelo' : 'bg-muted text-foreground',
+                    'max-w-md rounded-lg px-3.5 py-2.5 text-sm leading-relaxed',
+                    message.from === 'ia' ? 'bg-azul text-white' : 'bg-muted text-grafite',
                   )}
                 >
                   {message.text}
@@ -129,10 +128,11 @@ export function ConversationsPage() {
           <div className="flex items-center gap-2 border-t border-border p-3">
             <input
               type="text"
-              placeholder="Responder como equipe..."
-              className="h-10 flex-1 rounded-lg border border-border bg-muted px-3.5 text-sm text-foreground outline-none placeholder:text-muted-foreground focus-visible:border-ciano/50 focus-visible:ring-[3px] focus-visible:ring-ciano/20"
+              placeholder="Responder como equipe"
+              aria-label="Responder como equipe"
+              className="h-9 flex-1 rounded-md border border-input bg-background px-3.5 text-sm text-foreground outline-none placeholder:text-ardosia focus-visible:border-azul focus-visible:ring-[3px] focus-visible:ring-azul/20"
             />
-            <Button size="icon" aria-label="Enviar">
+            <Button size="icon-sm" aria-label="Enviar">
               <Send />
             </Button>
           </div>

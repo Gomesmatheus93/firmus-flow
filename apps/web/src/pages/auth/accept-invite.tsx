@@ -95,11 +95,7 @@ export function AcceptInvitePage() {
         <FormError message={error} />
 
         {user ? (
-          <Button
-            onClick={() => void accept()}
-            disabled={submitting}
-            className="w-full bg-linear-to-r from-firme to-ciano text-gelo shadow-lg shadow-firme/25 hover:opacity-90"
-          >
+          <Button onClick={() => void accept()} disabled={submitting} className="w-full">
             {submitting ? 'Entrando...' : 'Aceitar convite'}
             {!submitting && <ArrowRight />}
           </Button>
