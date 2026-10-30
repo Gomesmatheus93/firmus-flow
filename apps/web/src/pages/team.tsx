@@ -1,8 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Copy, MailPlus, Trash2 } from 'lucide-react'
+import type { Role } from '@firmus/shared'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Copy, MailPlus, Trash2, Users } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { toast } from 'sonner'
-import type { Role } from '@firmus/shared'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -14,12 +14,13 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { AsyncState } from '@/components/async-state'
 import { PageHeader, SectionHeading } from '@/components/page-header'
-import { SampleBadge } from '@/components/sample-badge'
 import { api } from '@/lib/api'
+import { formatDate } from '@/lib/dates'
+import { roleLabel } from '@/lib/demo-session'
 import { initialsFrom } from '@/lib/names'
-import { roleLabel } from '@/mocks/session'
-import { members as demoMembers, pendingInvites as demoInvites } from '@/mocks/team'
+import { useCompanyData } from '@/lib/queries'
 import { useAuth } from '@/providers/auth-provider'
 
 type Member = {
@@ -39,13 +40,6 @@ type PendingInvite = {
 }
 
 type TeamResponse = { members: Member[]; pendingInvites: PendingInvite[] }
-
-const dateFormat = new Intl.DateTimeFormat('pt-BR', {
-  dateStyle: 'short',
-  timeZone: 'America/Sao_Paulo',
-})
-
-const formatDate = (value: string) => dateFormat.format(new Date(value))
 
 function InviteDialog() {
   const queryClient = useQueryClient()
@@ -136,10 +130,9 @@ export function TeamPage() {
   const queryClient = useQueryClient()
   const isDemo = mode === 'demo'
 
-  const team = useQuery({
-    queryKey: ['team'],
-    queryFn: () => api.get<TeamResponse>('/team'),
-    enabled: !isDemo,
+  const { data, isPending, error } = useCompanyData<TeamResponse>(['team'], '/team', {
+    members: [],
+    pendingInvites: [],
   })
 
   const removeMember = useMutation({
@@ -160,98 +153,83 @@ export function TeamPage() {
     onError: (error: Error) => toast.error(error.message),
   })
 
-  const members: Member[] = isDemo
-    ? demoMembers.map((member) => ({
-        membershipId: member.id,
-        userId: member.id,
-        name: member.name,
-        email: member.email,
-        role: member.role,
-        joinedAt: member.joinedAt,
-      }))
-    : (team.data?.members ?? [])
-
-  const invites: PendingInvite[] = isDemo
-    ? demoInvites.map((item) => ({
-        id: item.id,
-        email: item.email,
-        role: item.role,
-        sentAt: item.sentAt,
-      }))
-    : (team.data?.pendingInvites ?? [])
-
   return (
     <>
       <PageHeader
         title="Equipe"
         description="Quem tem acesso à plataforma desta empresa. Só o chefe pode convidar e remover."
-        badge={isDemo ? <SampleBadge /> : undefined}
         actions={isDemo ? undefined : <InviteDialog />}
       />
 
-      {team.isError && (
-        <p className="text-sm text-destructive">
-          {team.error instanceof Error ? team.error.message : 'Não foi possível carregar a equipe.'}
-        </p>
-      )}
+      <AsyncState
+        isPending={isPending}
+        error={error}
+        isEmpty={data.members.length === 0}
+        empty={{
+          icon: Users,
+          title: 'Equipe vazia',
+          description: isDemo
+            ? 'Configure o Supabase no .env para criar sua conta e convidar sua equipe.'
+            : 'Convide alguém para gerar conteúdo e assumir conversas junto com você.',
+        }}
+      >
+        <ul className="surface divide-y divide-border overflow-hidden">
+          {data.members.map((member) => (
+            <li key={member.membershipId} className="flex items-center gap-4 px-5 py-4">
+              <span className="grid size-9 shrink-0 place-items-center rounded-md bg-white/80 text-[0.7rem] font-semibold text-ardosia">
+                {initialsFrom(member.name)}
+              </span>
 
-      <ul className="surface divide-y divide-border overflow-hidden">
-        {members.map((member) => (
-          <li key={member.membershipId} className="flex items-center gap-4 px-5 py-4">
-            <span className="grid size-9 shrink-0 place-items-center rounded-md bg-white/80 text-[0.7rem] font-semibold text-ardosia">
-              {initialsFrom(member.name)}
-            </span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-noite">{member.name}</p>
+                <p className="truncate text-xs text-ardosia">{member.email}</p>
+              </div>
 
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-noite">{member.name}</p>
-              <p className="truncate text-xs text-ardosia">{member.email}</p>
-            </div>
+              <span className="hidden text-xs text-ardosia sm:block">
+                entrou em {formatDate(member.joinedAt)}
+              </span>
 
-            <span className="hidden text-xs text-ardosia sm:block">
-              entrou em {isDemo ? member.joinedAt : formatDate(member.joinedAt)}
-            </span>
+              <span
+                className={
+                  member.role === 'chefe'
+                    ? 'rounded-full bg-azul/10 px-2.5 py-1 text-xs font-medium text-azul'
+                    : 'rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-ardosia'
+                }
+              >
+                {roleLabel[member.role]}
+              </span>
 
-            <span
-              className={
-                member.role === 'chefe'
-                  ? 'rounded border border-azul/30 bg-azul/8 px-2 py-0.5 text-xs font-medium text-azul'
-                  : 'rounded-lg bg-muted px-2 py-0.5 text-xs font-medium text-ardosia'
-              }
-            >
-              {roleLabel[member.role]}
-            </span>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label={`Remover ${member.name}`}
+                disabled={member.role === 'chefe' || member.userId === user?.id}
+                onClick={() => removeMember.mutate(member.membershipId)}
+                className="text-ardosia hover:text-destructive"
+              >
+                <Trash2 />
+              </Button>
+            </li>
+          ))}
+        </ul>
+      </AsyncState>
 
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label={`Remover ${member.name}`}
-              disabled={isDemo || member.role === 'chefe' || member.userId === user?.id}
-              onClick={() => removeMember.mutate(member.membershipId)}
-              className="text-ardosia hover:text-destructive"
-            >
-              <Trash2 />
-            </Button>
-          </li>
-        ))}
-      </ul>
-
-      {invites.length > 0 && (
+      {data.pendingInvites.length > 0 && (
         <section>
           <SectionHeading>Convites pendentes</SectionHeading>
-          <ul className="mt-4 divide-y divide-border overflow-hidden rounded-2xl border border-dashed border-border bg-card">
-            {invites.map((invite) => (
+          <ul className="surface mt-4 divide-y divide-border overflow-hidden">
+            {data.pendingInvites.map((invite) => (
               <li key={invite.id} className="flex items-center gap-4 px-5 py-3.5">
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm text-noite">{invite.email}</p>
                   <p className="text-xs text-ardosia">
                     como {roleLabel[invite.role].toLowerCase()} · enviado em{' '}
-                    {isDemo ? invite.sentAt : formatDate(invite.sentAt)}
+                    {formatDate(invite.sentAt)}
                   </p>
                 </div>
                 <Button
                   variant="ghost"
                   size="sm"
-                  disabled={isDemo}
                   onClick={() => cancelInvite.mutate(invite.id)}
                   className="text-destructive hover:text-destructive"
                 >

@@ -7,6 +7,7 @@ import { errorHandler, notFoundHandler, unavailable } from './http/errors'
 import { requireAuth } from './middleware/auth'
 import { requireCompany } from './middleware/company'
 import { commentRuleRoutes } from './routes/comment-rules'
+import { brandRoutes } from './routes/brand'
 import { companyRoutes } from './routes/companies'
 import { contentRoutes } from './routes/content'
 import { healthRouter } from './routes/health'
@@ -51,6 +52,7 @@ export function createApp({ db, verifyToken, webBaseUrl }: AppDeps): Express {
   // requireCompany é quem define o company_id de toda consulta abaixo.
   app.use(requireCompany(db))
   app.use(teamRoutes(db, webBaseUrl))
+  app.use(brandRoutes(db))
   app.use(contentRoutes(db))
   app.use(planRoutes(db))
   app.use(trendRoutes(db))

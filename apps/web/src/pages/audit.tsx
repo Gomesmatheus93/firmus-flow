@@ -1,111 +1,151 @@
-import { Check, Download, RefreshCw } from 'lucide-react'
+import type { AuditPriority } from '@firmus/shared'
+import { Check, Download, Gauge, RefreshCw } from 'lucide-react'
 import { cn } from 'cn'
 import { Button } from '@/components/ui/button'
-import { Panel } from '@/components/surface'
+import { AsyncState } from '@/components/async-state'
 import { PageHeader, SectionHeading } from '@/components/page-header'
-import { SampleBadge } from '@/components/sample-badge'
-import { auditIssues, auditScore, auditStrengths } from '@/mocks/audit'
+import { FeatureBlock, Panel } from '@/components/surface'
+import { formatDate } from '@/lib/dates'
+import { useCompanyData } from '@/lib/queries'
+import type { BrandBrain } from './brand'
 
-const priorityTone = {
+const priorityTone: Record<AuditPriority, string> = {
   alta: 'bg-destructive',
   media: 'bg-amber-500',
   baixa: 'bg-ardosia',
-} as const
+}
 
-const priorityLabel = {
+const priorityLabel: Record<AuditPriority, string> = {
   alta: 'Prioridade alta',
   media: 'Prioridade média',
   baixa: 'Prioridade baixa',
-} as const
+}
 
 export function AuditPage() {
+  const { data, isPending, error } = useCompanyData<{ brain: BrandBrain | null }>(
+    ['brand'],
+    '/brand',
+    { brain: null },
+  )
+
+  const audit = data.brain?.auditFindings ?? null
+
   return (
     <>
       <PageHeader
         title="Auditoria"
-        description={`Diagnóstico do Instagram e do atendimento. Última análise em ${auditScore.updatedAt}.`}
-        badge={<SampleBadge />}
+        description={
+          audit
+            ? `Diagnóstico do Instagram e do atendimento. Última análise em ${formatDate(audit.generatedAt)}.`
+            : 'Diagnóstico do Instagram e do atendimento.'
+        }
         actions={
           <>
             <Button variant="outline">
               <RefreshCw />
-              Refazer
+              {audit ? 'Refazer' : 'Rodar auditoria'}
             </Button>
-            <Button>
-              <Download />
-              Baixar PDF
-            </Button>
+            {audit && (
+              <Button>
+                <Download />
+                Baixar PDF
+              </Button>
+            )}
           </>
         }
       />
 
-      <div className="grid gap-6 lg:grid-cols-[18rem_1fr]">
-        {/* A assinatura da tela: bloco chanfrado, o único da página. */}
-        <section className="chamfer min-w-0 bg-noite p-6 text-white">
-          <p className="text-xs text-white/55">Nota geral</p>
-          <p className="tabular mt-6 text-6xl leading-none font-semibold tracking-tight">
-            {auditScore.overall.toLocaleString('pt-BR')}
-          </p>
-          <p className="mt-3 text-sm text-white/60">de 10</p>
-        </section>
+      <AsyncState
+        isPending={isPending}
+        error={error}
+        isEmpty={!audit}
+        empty={{
+          icon: Gauge,
+          title: 'Nenhuma auditoria ainda',
+          description:
+            'O agente de auditoria analisa o perfil do Instagram e o atendimento, e devolve uma nota, os pontos fortes e os problemas em ordem de impacto.',
+        }}
+      >
+        {audit && (
+          <>
+            <div className="grid gap-5 lg:grid-cols-[18rem_1fr]">
+              <FeatureBlock>
+                <p className="text-xs text-white/55">Nota geral</p>
+                <p className="tabular mt-6 text-6xl leading-none font-semibold tracking-tight">
+                  {audit.overallScore.toLocaleString('pt-BR')}
+                </p>
+                <p className="mt-3 text-sm text-white/60">de 10</p>
+              </FeatureBlock>
 
-        <Panel>
-          <SectionHeading>Notas por área</SectionHeading>
-          <ul className="mt-5 space-y-5">
-            {auditScore.areas.map((area) => (
-              <li key={area.label}>
-                <div className="flex items-baseline justify-between gap-3">
-                  <span className="text-sm text-grafite">{area.label}</span>
-                  <span className="tabular text-sm font-semibold text-noite">
-                    {area.score.toLocaleString('pt-BR')}
-                  </span>
-                </div>
-                <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/70">
-                  <div
-                    className="h-full rounded-full bg-azul"
-                    style={{ width: `${area.score * 10}%` }}
-                  />
-                </div>
-              </li>
-            ))}
-          </ul>
-        </Panel>
-      </div>
+              <Panel>
+                <SectionHeading>Notas por área</SectionHeading>
+                <ul className="mt-5 space-y-5">
+                  {audit.areas.map((area) => (
+                    <li key={area.label}>
+                      <div className="flex items-baseline justify-between gap-3">
+                        <span className="text-sm text-grafite">{area.label}</span>
+                        <span className="tabular text-sm font-semibold text-noite">
+                          {area.score.toLocaleString('pt-BR')}
+                        </span>
+                      </div>
+                      <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/70">
+                        <div
+                          className="h-full rounded-full bg-azul"
+                          style={{ width: `${area.score * 10}%` }}
+                        />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </Panel>
+            </div>
 
-      <Panel>
-        <SectionHeading>Pontos fortes</SectionHeading>
-        <ul className="mt-4 space-y-2.5">
-          {auditStrengths.map((item) => (
-            <li key={item} className="flex gap-2.5 text-sm text-grafite">
-              <Check className="mt-0.5 size-4 shrink-0 text-emerald-600" />
-              {item}
-            </li>
-          ))}
-        </ul>
-      </Panel>
+            {audit.strengths.length > 0 && (
+              <Panel>
+                <SectionHeading>Pontos fortes</SectionHeading>
+                <ul className="mt-4 space-y-2.5">
+                  {audit.strengths.map((item) => (
+                    <li key={item} className="flex gap-2.5 text-sm text-grafite">
+                      <Check className="mt-0.5 size-4 shrink-0 text-emerald-600" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </Panel>
+            )}
 
-      <section>
-        <SectionHeading>Problemas encontrados</SectionHeading>
-        <p className="mt-3 text-sm text-ardosia">
-          Em ordem de impacto. Resolver os de prioridade alta muda o resultado mais rápido.
-        </p>
+            {audit.issues.length > 0 && (
+              <section>
+                <SectionHeading>Problemas encontrados</SectionHeading>
+                <p className="mt-3 text-sm text-ardosia">
+                  Em ordem de impacto. Resolver os de prioridade alta muda o resultado mais rápido.
+                </p>
 
-        <ul className="mt-5 surface divide-y divide-border overflow-hidden">
-          {auditIssues.map((issue) => (
-            <li key={issue.id} className="flex gap-4 p-5">
-              <span
-                aria-hidden
-                className={cn('mt-1.5 h-2 w-2 shrink-0 rounded-full', priorityTone[issue.priority])}
-              />
-              <div className="min-w-0">
-                <p className="text-xs text-ardosia">{priorityLabel[issue.priority]}</p>
-                <h3 className="mt-1.5 text-sm font-medium text-noite">{issue.title}</h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-ardosia">{issue.detail}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </section>
+                <ul className="surface mt-5 divide-y divide-border overflow-hidden">
+                  {audit.issues.map((issue) => (
+                    <li key={issue.title} className="flex gap-4 p-5">
+                      <span
+                        aria-hidden
+                        className={cn(
+                          'mt-1.5 h-2 w-2 shrink-0 rounded-full',
+                          priorityTone[issue.priority],
+                        )}
+                      />
+                      <div className="min-w-0">
+                        <p className="text-xs text-ardosia">{priorityLabel[issue.priority]}</p>
+                        <h3 className="mt-1.5 text-sm font-medium text-noite">{issue.title}</h3>
+                        <p className="mt-1.5 text-sm leading-relaxed text-ardosia">
+                          {issue.detail}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+          </>
+        )}
+      </AsyncState>
     </>
   )
 }

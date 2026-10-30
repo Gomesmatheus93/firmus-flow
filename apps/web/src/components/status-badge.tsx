@@ -1,12 +1,12 @@
+import { contentStatusLabel, type ContentStatus } from '@firmus/shared'
 import { cn } from 'cn'
-import { statusLabel, type ContentStatus } from '@/mocks/content'
 
 /** Pílula suave com ponto: a cor nunca é a única pista do estado. */
 const tone: Record<ContentStatus, { pill: string; dot: string }> = {
   rascunho: { pill: 'bg-muted text-ardosia', dot: 'bg-ardosia' },
   aguardando: { pill: 'bg-azul/10 text-azul', dot: 'bg-azul' },
-  aprovado: { pill: 'bg-emerald-50 text-emerald-700', dot: 'bg-emerald-500' },
   ajustar: { pill: 'bg-amber-50 text-amber-700', dot: 'bg-amber-500' },
+  aprovado: { pill: 'bg-emerald-50 text-emerald-700', dot: 'bg-emerald-500' },
 }
 
 export function StatusBadge({ status, className }: { status: ContentStatus; className?: string }) {
@@ -19,7 +19,7 @@ export function StatusBadge({ status, className }: { status: ContentStatus; clas
       )}
     >
       <span className={cn('size-1.5 shrink-0 rounded-full', tone[status].dot)} />
-      {statusLabel[status]}
+      {contentStatusLabel[status]}
     </span>
   )
 }

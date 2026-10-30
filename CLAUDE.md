@@ -19,7 +19,8 @@ no WhatsApp com IA.
 4. **Gerações**: planejamento semanal ou mensal, carrossel, post único, legendas.
    O chefe aprova e o conteúdo é baixado para publicar no Meta Business Suite.
 5. **Atendente de IA no WhatsApp**: responde, coleta leads e passa para um humano.
-6. **Analytics**: depois do MVP. Não implementar agora.
+6. **Publicação**: programador de postagem e automação de comentários.
+7. **Analytics**: métricas do perfil do Instagram, dia a dia.
 
 ### Cérebro da Marca (conceito central)
 
@@ -81,7 +82,11 @@ Cada agente fica em `packages/agents/src/<nome>/` com:
 
 Agentes do MVP: `marca` (monta o Cérebro da Marca), `auditoria`, `estrategista`
 (planejamento), `conteudo` (legendas, roteiros e textos de carrossel), `design` (aplica a
-marca nos templates) e `atendimento` (WhatsApp).
+marca nos templates), `atendimento` (WhatsApp) e `tendencias` (o ig-viral).
+
+O agente `tendencias` **pesquisa na web**: a API do Instagram não entrega dado sobre
+perfis de terceiros. Ele sempre guarda a fonte de cada achado, e a tela só mostra o que
+tem fonte. É leitura de tendência, nunca número oficial do Instagram.
 
 As skills em `third_party/instagram-agent-skill/skills/ig-*` são **material de referência**
 que os prompts podem incorporar ou carregar. Elas são MIT: manter o arquivo LICENSE e os
@@ -100,8 +105,11 @@ Toda saída de agente é JSON validado por um schema Zod antes de ser salva.
 3. **Isolamento entre empresas** em toda rota, job e consulta (ver Papéis).
 4. **Webhooks validados**: verificar a assinatura `X-Hub-Signature-256` da Meta.
 5. **LGPD**: guardar só o necessário das conversas; nunca registrar mensagens completas em logs.
-6. **Nada é publicado automaticamente** no Instagram no MVP. A plataforma gera e o
-   cliente publica.
+6. **Publicar automaticamente depende da Meta.** O programador de postagem e a automação
+   de comentários existem na plataforma, mas só agem de verdade com o app aprovado na
+   revisão da Meta (`instagram_content_publish` e `instagram_manage_comments`;
+   `instagram_manage_insights` para o Analytics). Enquanto não houver aprovação, a
+   plataforma guarda a configuração, avisa na tela o que falta e **não publica nada**.
 
 ## Como trabalhar neste projeto
 
@@ -115,6 +123,16 @@ O Matheus está aprendendo a programar enquanto constrói. Por isso:
    testar manualmente. Explique conceitos novos quando aparecerem.
 5. **Commits pequenos**, no formato `tipo: descrição` (ex.: `feat: cadastro de empresa`).
 6. **Pergunte quando houver dúvida** de produto. Não invente regra de negócio.
+
+## Dados na interface
+
+**Nenhuma tela inventa dado.** Toda tela busca na api e mostra um estado vazio honesto
+quando não há nada — nunca conteúdo de exemplo. O componente `AsyncState` trata
+carregando, erro e vazio num lugar só.
+
+Enquanto o Supabase não estiver no `.env`, a plataforma entra em **modo demonstração**:
+uma sessão de vitrine (`src/lib/demo-session.ts`) só para a casca abrir, com um aviso no
+topo. Isso é sessão, não conteúdo.
 
 ## Convenções
 

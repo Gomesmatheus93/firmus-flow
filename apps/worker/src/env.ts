@@ -1,4 +1,4 @@
-import { loadRootEnv } from '@firmus/shared'
+import { loadRootEnv } from '@firmus/shared/env'
 import { z } from 'zod'
 
 loadRootEnv()

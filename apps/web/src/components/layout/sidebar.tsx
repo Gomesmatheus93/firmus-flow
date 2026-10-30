@@ -1,4 +1,4 @@
-import { Bot, ChevronsUpDown, LifeBuoy, LogOut, UserRound } from 'lucide-react'
+import { ChevronsUpDown, LifeBuoy, LogOut, UserRound } from 'lucide-react'
 import { Link, NavLink } from 'react-router'
 import { cn } from 'cn'
 import {
@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Logo } from '@/components/logo'
 import { initialsFrom } from '@/lib/names'
-import { roleLabel } from '@/mocks/session'
+import { roleLabel } from '@/lib/demo-session'
 import { useAuth } from '@/providers/auth-provider'
 import { visibleGroups, type NavItem } from './nav-items'
 
@@ -24,7 +24,7 @@ function SidebarLink({ item, onNavigate }: { item: NavItem; onNavigate?: () => v
       onClick={onNavigate}
       className={({ isActive }) =>
         cn(
-          'flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm transition-colors',
+          'flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm transition-colors',
           isActive
             ? 'bg-noite font-medium text-white shadow-card'
             : 'text-grafite hover:bg-white/70 hover:text-noite',
@@ -38,26 +38,6 @@ function SidebarLink({ item, onNavigate }: { item: NavItem; onNavigate?: () => v
         </>
       )}
     </NavLink>
-  )
-}
-
-/** Cartão de destaque do rodapé: o estado do atendente de IA, sempre à vista. */
-function AiCard() {
-  return (
-    <div className="rounded-xl bg-ciano p-3.5">
-      <div className="flex items-center gap-2">
-        <Bot className="size-4 shrink-0 text-noite" />
-        <p className="text-sm font-semibold text-noite">Atendente de IA</p>
-      </div>
-      <p className="mt-1 text-xs text-noite/70">Ligado · 38 conversas hoje</p>
-      <Link
-        to="/conversas"
-        className="mt-3 flex items-center justify-between rounded-lg bg-noite px-3 py-2 text-xs font-medium text-white transition-opacity hover:opacity-90"
-      >
-        4 esperam você
-        <span aria-hidden>→</span>
-      </Link>
-    </div>
   )
 }
 
@@ -120,7 +100,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
 
   return (
     <div className="glass-strong flex h-full flex-col rounded-2xl">
-      <div className="px-5 py-5">
+      <div className="px-5 py-4">
         <Link to="/painel" onClick={onNavigate} className="inline-flex">
           <Logo />
         </Link>
@@ -136,7 +116,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         </div>
       </div>
 
-      <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-5">
+      <nav className="flex-1 space-y-4 overflow-y-auto px-3 py-4">
         {groups.map((group) => (
           <div key={group.label}>
             <p className="label px-3 pb-2 text-ardosia/70">{group.label}</p>
@@ -151,8 +131,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         ))}
       </nav>
 
-      <div className="space-y-2 p-3">
-        <AiCard />
+      <div className="p-3">
         <UserRow />
       </div>
     </div>

@@ -4,7 +4,7 @@ import type { Role } from '@firmus/shared'
 import { api } from '@/lib/api'
 import { isDemoMode } from '@/lib/env'
 import { supabase } from '@/lib/supabase'
-import { currentCompany, currentUser } from '@/mocks/session'
+import { demoCompany, demoUser } from '@/lib/demo-session'
 
 export type SessionUser = { id: string; email: string; fullName: string }
 
@@ -38,13 +38,13 @@ const AuthContext = createContext<AuthValue | null>(null)
 const demoValue: AuthValue = {
   mode: 'demo',
   loading: false,
-  user: { id: 'demo', email: currentUser.email, fullName: currentUser.name },
+  user: { id: 'demo', email: demoUser.email, fullName: demoUser.name },
   company: {
     id: 'demo',
-    name: currentCompany.name,
-    segment: currentCompany.segment,
-    instagramHandle: currentCompany.instagram,
-    role: currentUser.role,
+    name: demoCompany.name,
+    segment: demoCompany.segment,
+    instagramHandle: demoCompany.instagram,
+    role: demoUser.role,
   },
   signIn: async () => {},
   signUp: async () => {},

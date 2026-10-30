@@ -1,22 +1,25 @@
 import { createBrowserRouter, Navigate } from 'react-router'
 import { GuestOnly, RequireCompany, RequireUser } from '@/components/guards'
 import { AppShell } from '@/components/layout/app-shell'
+import { AnalyticsPage } from '@/pages/analytics'
 import { ApprovalsPage } from '@/pages/approvals'
 import { AuditPage } from '@/pages/audit'
 import { AcceptInvitePage } from '@/pages/auth/accept-invite'
 import { SignInPage } from '@/pages/auth/sign-in'
 import { SignUpPage } from '@/pages/auth/sign-up'
 import { BrandPage } from '@/pages/brand'
-import { ContentPage } from '@/pages/content'
+import { CommentAutomationPage } from '@/pages/comment-automation'
 import { ConversationsPage } from '@/pages/conversations'
 import { CreateCompanyPage } from '@/pages/create-company'
+import { CreationPage } from '@/pages/creation'
 import { DashboardPage } from '@/pages/dashboard'
-import { DesignsPage } from '@/pages/designs'
 import { LeadsPage } from '@/pages/leads'
 import { NotFoundPage } from '@/pages/not-found'
 import { PlanPage } from '@/pages/plan'
+import { SchedulerPage } from '@/pages/scheduler'
 import { SettingsPage } from '@/pages/settings'
 import { TeamPage } from '@/pages/team'
+import { TrendsPage } from '@/pages/trends'
 
 export const router = createBrowserRouter([
   // O link de convite é público: quem recebe ainda pode não ter conta.
@@ -49,9 +52,12 @@ export const router = createBrowserRouter([
           { path: 'marca', element: <BrandPage /> },
           { path: 'auditoria', element: <AuditPage /> },
           { path: 'planejamento', element: <PlanPage /> },
-          { path: 'conteudo', element: <ContentPage /> },
-          { path: 'artes', element: <DesignsPage /> },
+          { path: 'criacao', element: <CreationPage /> },
           { path: 'aprovacoes', element: <ApprovalsPage /> },
+          { path: 'tendencias', element: <TrendsPage /> },
+          { path: 'analytics', element: <AnalyticsPage /> },
+          { path: 'programador', element: <SchedulerPage /> },
+          { path: 'comentarios', element: <CommentAutomationPage /> },
           { path: 'conversas', element: <ConversationsPage /> },
           { path: 'leads', element: <LeadsPage /> },
           { path: 'equipe', element: <TeamPage /> },

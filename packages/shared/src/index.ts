@@ -1,4 +1,5 @@
-export { loadRootEnv } from './env'
+// Este barril e importado pelo navegador. Nada aqui pode depender de Node.
+// O que e so de servidor vive em @firmus/shared/env.
 export { roleSchema, type Role } from './roles'
 export { invitationStatusSchema, type InvitationStatus } from './invitations'
 export {

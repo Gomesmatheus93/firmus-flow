@@ -1,33 +1,36 @@
-import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react'
+import { contentTypeLabel, type ContentType } from '@firmus/shared'
+import { CalendarDays, Sparkles } from 'lucide-react'
 import { cn } from 'cn'
 import { Button } from '@/components/ui/button'
+import { AsyncState } from '@/components/async-state'
 import { DataTable } from '@/components/data-table'
-import { Panel } from '@/components/surface'
-import { PageHeader, SectionHeading } from '@/components/page-header'
-import { SampleBadge } from '@/components/sample-badge'
-import { plannedPosts } from '@/mocks/content'
+import { PageHeader } from '@/components/page-header'
+import { useCompanyData } from '@/lib/queries'
+import type { PlanEntry } from '@/lib/api-types'
 
-const weekDays = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom']
-
-const formatTone: Record<string, string> = {
-  Carrossel: 'bg-azul',
-  Reels: 'bg-noite',
-  'Post único': 'bg-amber-500',
+const formatTone: Record<ContentType, string> = {
+  carrossel: 'bg-azul',
+  reel: 'bg-noite',
+  post: 'bg-amber-500',
+  story: 'bg-ciano',
 }
 
-/** Novembro de 2026 começa num domingo, então a primeira semana tem 6 vazios. */
-const leadingBlanks = 6
-const daysInMonth = 30
+/** "2026-11-03" vira "03/11" sem passar por Date, que mudaria o dia pelo fuso. */
+function dayAndMonth(isoDate: string): string {
+  const [, month, day] = isoDate.split('-')
+  return `${day}/${month}`
+}
 
 export function PlanPage() {
-  const postsByDay = new Map(plannedPosts.map((post) => [post.day, post]))
+  const { data, isPending, error } = useCompanyData<{ entries: PlanEntry[] }>(['plan'], '/plan', {
+    entries: [],
+  })
 
   return (
     <>
       <PageHeader
         title="Planejamento"
         description="O que publicar, quando e com qual objetivo. Gerado a partir do Cérebro da Marca."
-        badge={<SampleBadge />}
         actions={
           <Button>
             <Sparkles />
@@ -36,78 +39,52 @@ export function PlanPage() {
         }
       />
 
-      <Panel>
-        <SectionHeading
-          aside={
-            <div className="flex gap-1">
-              <Button variant="ghost" size="icon-sm" aria-label="Mês anterior">
-                <ChevronLeft />
-              </Button>
-              <Button variant="ghost" size="icon-sm" aria-label="Próximo mês">
-                <ChevronRight />
-              </Button>
-            </div>
-          }
-        >
-          Novembro de 2026
-        </SectionHeading>
-
-        <div className="mt-5 grid grid-cols-7 gap-px overflow-hidden rounded-lg border border-border bg-border">
-          {weekDays.map((day) => (
-            <div
-              key={day}
-              className="bg-white/55 py-2 text-center text-[0.68rem] font-semibold text-ardosia"
-            >
-              {day}
-            </div>
-          ))}
-
-          {Array.from({ length: leadingBlanks }, (_, i) => (
-            <div key={`vazio-${i}`} className="min-h-24 bg-white/35" />
-          ))}
-
-          {Array.from({ length: daysInMonth }, (_, i) => {
-            const day = i + 1
-            const post = postsByDay.get(day)
-
-            return (
-              <div key={day} className="min-h-24 bg-white/60 p-2">
-                <span className="tabular text-xs text-ardosia">{day}</span>
-
-                {post && (
-                  <div className="mt-1.5">
-                    <span className="flex items-center gap-1.5 text-[0.65rem] font-medium text-ardosia">
-                      <span
-                        aria-hidden
-                        className={cn('size-1.5 shrink-0 rounded-full', formatTone[post.format])}
-                      />
-                      {post.format}
-                    </span>
-                    <p className="mt-1 line-clamp-3 text-[0.72rem] leading-snug text-noite">
-                      {post.theme}
-                    </p>
-                  </div>
-                )}
-              </div>
-            )
-          })}
-        </div>
-      </Panel>
-
-      <DataTable
-        caption="Lista do mês"
-        rows={plannedPosts}
-        rowKey={(post) => post.id}
-        columns={[
-          { header: 'Dia', cell: (post) => <span className="text-ardosia">{post.day}/11</span> },
-          { header: 'Formato', cell: (post) => post.format, className: 'whitespace-nowrap' },
-          {
-            header: 'Tema',
-            cell: (post) => <span className="font-medium text-noite">{post.theme}</span>,
-          },
-          { header: 'Objetivo', cell: (post) => <span className="text-ardosia">{post.goal}</span> },
-        ]}
-      />
+      <AsyncState
+        isPending={isPending}
+        error={error}
+        isEmpty={data.entries.length === 0}
+        empty={{
+          icon: CalendarDays,
+          title: 'Nenhum planejamento ainda',
+          description:
+            'O agente estrategista monta o calendário do mês a partir do Cérebro da Marca. Assim que rodar, os temas aparecem aqui.',
+        }}
+      >
+        <DataTable
+          caption={`${data.entries.length} publicações planejadas`}
+          rows={data.entries}
+          rowKey={(entry) => entry.id}
+          columns={[
+            {
+              header: 'Data',
+              cell: (entry) => (
+                <span className="text-ardosia">{dayAndMonth(entry.scheduledDate)}</span>
+              ),
+            },
+            {
+              header: 'Formato',
+              className: 'whitespace-nowrap',
+              cell: (entry) => (
+                <span className="inline-flex items-center gap-1.5">
+                  <span
+                    aria-hidden
+                    className={cn('size-1.5 shrink-0 rounded-full', formatTone[entry.format])}
+                  />
+                  {contentTypeLabel[entry.format]}
+                </span>
+              ),
+            },
+            {
+              header: 'Tema',
+              cell: (entry) => <span className="font-medium text-noite">{entry.theme}</span>,
+            },
+            {
+              header: 'Objetivo',
+              cell: (entry) => <span className="text-ardosia">{entry.goal ?? '—'}</span>,
+            },
+          ]}
+        />
+      </AsyncState>
     </>
   )
 }

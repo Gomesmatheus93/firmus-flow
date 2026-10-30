@@ -1,14 +1,17 @@
 import {
+  BarChart3,
   Brain,
   CalendarDays,
+  CalendarClock,
   CheckCheck,
   Contact,
+  Flame,
   Gauge,
-  Images,
   LayoutDashboard,
+  MessageSquareReply,
   MessagesSquare,
-  PenLine,
   Settings,
+  Sparkles,
   Users,
   type LucideIcon,
 } from 'lucide-react'
@@ -43,9 +46,22 @@ export const navGroups: NavGroup[] = [
     label: 'Conteúdo',
     items: [
       { label: 'Planejamento', to: '/planejamento', icon: CalendarDays },
-      { label: 'Textos e legendas', to: '/conteudo', icon: PenLine },
-      { label: 'Artes', to: '/artes', icon: Images },
+      { label: 'Criação', to: '/criacao', icon: Sparkles },
       { label: 'Aprovações', to: '/aprovacoes', icon: CheckCheck },
+    ],
+  },
+  {
+    label: 'Crescimento',
+    items: [
+      { label: 'Tendências', to: '/tendencias', icon: Flame },
+      { label: 'Analytics', to: '/analytics', icon: BarChart3 },
+    ],
+  },
+  {
+    label: 'Publicação',
+    items: [
+      { label: 'Programador', to: '/programador', icon: CalendarClock },
+      { label: 'Comentários', to: '/comentarios', icon: MessageSquareReply },
     ],
   },
   {
