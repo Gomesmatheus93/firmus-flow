@@ -3,17 +3,21 @@ import type { TokenVerifier } from './types'
 
 /**
  * Valida o token perguntando ao próprio Supabase quem é o dono dele.
- * É uma chamada de rede por requisição, mas é a forma que funciona tanto com
- * chave simétrica quanto com as chaves assimétricas novas, sem reimplementar
- * verificação de assinatura aqui.
+ *
+ * Usa a chave pública de propósito: para responder "de quem é este token?" ela
+ * basta, e assim a chave de administrador não fica carregada numa rota que
+ * recebe pedido de qualquer um. Menor privilégio.
+ *
+ * É uma chamada de rede por requisição, mas funciona tanto com as chaves
+ * antigas quanto com as novas, sem reimplementar verificação de assinatura.
  */
-export function createSupabaseVerifier(url: string, serviceRoleKey: string): TokenVerifier {
-  const admin = createClient(url, serviceRoleKey, {
+export function createSupabaseVerifier(url: string, publicKey: string): TokenVerifier {
+  const client = createClient(url, publicKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   })
 
   return async (token) => {
-    const { data, error } = await admin.auth.getUser(token)
+    const { data, error } = await client.auth.getUser(token)
 
     if (error || !data.user?.email) return null
 

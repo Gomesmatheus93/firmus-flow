@@ -18,6 +18,10 @@ const envSchema = z.object({
   // Sem elas, só /health responde; o resto devolve 503 com instrução.
   DATABASE_URL: optionalText,
   SUPABASE_URL: optionalText,
+  SUPABASE_ANON_KEY: optionalText,
+
+  // Só para operações de administrador, que ainda não existem. A validação de
+  // token usa a chave pública.
   SUPABASE_SERVICE_ROLE_KEY: optionalText,
 })
 
@@ -36,6 +40,6 @@ export function missingBackendConfig(): string[] {
   const missing: string[] = []
   if (!env.DATABASE_URL) missing.push('DATABASE_URL')
   if (!env.SUPABASE_URL) missing.push('SUPABASE_URL')
-  if (!env.SUPABASE_SERVICE_ROLE_KEY) missing.push('SUPABASE_SERVICE_ROLE_KEY')
+  if (!env.SUPABASE_ANON_KEY) missing.push('SUPABASE_ANON_KEY')
   return missing
 }

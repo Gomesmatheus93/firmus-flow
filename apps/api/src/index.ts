@@ -10,7 +10,7 @@ const app =
     ? createUnconfiguredApp(env.WEB_BASE_URL, missing)
     : createApp({
         db: createDb(env.DATABASE_URL!),
-        verifyToken: createSupabaseVerifier(env.SUPABASE_URL!, env.SUPABASE_SERVICE_ROLE_KEY!),
+        verifyToken: createSupabaseVerifier(env.SUPABASE_URL!, env.SUPABASE_ANON_KEY!),
         webBaseUrl: env.WEB_BASE_URL,
       })
 
