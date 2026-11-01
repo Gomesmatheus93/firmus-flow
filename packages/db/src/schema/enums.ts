@@ -6,6 +6,12 @@ import { pgEnum } from 'drizzle-orm/pg-core'
  */
 export const roleEnum = pgEnum('role', ['chefe', 'funcionario'])
 
+/**
+ * Papel na plataforma inteira, separado do papel dentro de uma empresa.
+ * Nulo = usuário comum. 'operador' = equipe da Firmus, com acesso de suporte.
+ */
+export const platformRoleEnum = pgEnum('platform_role', ['operador'])
+
 export const invitationStatusEnum = pgEnum('invitation_status', [
   'pendente',
   'aceito',

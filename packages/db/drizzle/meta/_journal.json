@@ -15,6 +15,13 @@
       "when": 1793318245009,
       "tag": "0001_eminent_gamora",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793538196043,
+      "tag": "0002_steep_unicorn",
+      "breakpoints": true
     }
   ]
 }

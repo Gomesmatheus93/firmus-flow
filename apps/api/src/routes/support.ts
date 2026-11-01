@@ -4,10 +4,19 @@ import { and, desc, eq } from 'drizzle-orm'
 import { Router } from 'express'
 import { notFound } from '../http/errors'
 import { pathParam } from '../http/params'
+import { blockOperator } from '../middleware/operator'
 
-/** Conversas do WhatsApp e leads qualificados. */
+/**
+ * Conversas do WhatsApp e leads qualificados.
+ *
+ * Tudo aqui é barrado para o operador da Firmus: são dados pessoais de
+ * clientes do nosso cliente, gente que nunca contratou a gente.
+ */
 export function supportRoutes(db: Database): Router {
   const router = Router()
+
+  router.use('/conversations', blockOperator)
+  router.use('/leads', blockOperator)
 
   router.get('/conversations', async (req, res) => {
     const { companyId } = req.company!

@@ -18,7 +18,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "db:generate": "pnpm --filter @firmus/db db:generate",
-    "db:migrate": "pnpm --filter @firmus/db db:migrate"
+    "db:migrate": "pnpm --filter @firmus/db db:migrate",
+    "db:operador": "pnpm --filter @firmus/db db:operador"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

@@ -14,6 +14,7 @@ export {
   leadStageEnum,
   messageAuthorEnum,
   messageDirectionEnum,
+  platformRoleEnum,
   roleEnum,
   scheduledPostStatusEnum,
 } from './enums'
@@ -24,6 +25,7 @@ export {
 } from './instagram-metrics'
 export { invitations, type Invitation, type NewInvitation } from './invitations'
 export { leads, type Lead, type NewLead } from './leads'
+export { operatorAccess, type NewOperatorAccess, type OperatorAccess } from './operator-access'
 export { memberships, type Membership, type NewMembership } from './memberships'
 export { messages, type Message, type NewMessage } from './messages'
 export { planEntries, type NewPlanEntry, type PlanEntry } from './plan-entries'

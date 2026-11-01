@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "db:operador": "node --env-file=../../.env scripts/promote-operator.mjs"
   },
   "dependencies": {
     "@firmus/shared": "workspace:*",

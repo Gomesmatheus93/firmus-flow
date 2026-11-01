@@ -7,6 +7,7 @@ import { errorHandler, notFoundHandler, unavailable } from './http/errors'
 import { requireAuth } from './middleware/auth'
 import { requireCompany } from './middleware/company'
 import { commentRuleRoutes } from './routes/comment-rules'
+import { adminRoutes } from './routes/admin'
 import { brandRoutes } from './routes/brand'
 import { companyRoutes } from './routes/companies'
 import { contentRoutes } from './routes/content'
@@ -45,6 +46,7 @@ export function createApp({ db, verifyToken, webBaseUrl }: AppDeps): Express {
 
   // Daqui para baixo, tudo exige login.
   app.use(requireAuth(db, verifyToken))
+  app.use(adminRoutes(db))
   app.use(meRoutes(db))
   app.use(companyRoutes(db))
 

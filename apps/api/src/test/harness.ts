@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
 import { companies, memberships, users } from '@firmus/db/schema'
+import { eq } from 'drizzle-orm'
 import { createTestDb } from '@firmus/db/testing'
 import type { Role } from '@firmus/shared'
 import { createApp } from '../app'
@@ -34,7 +35,8 @@ function uuidFromLabel(label: string): string {
 export async function createHarness() {
   const { db, close } = await createTestDb()
 
-  const knownUsers = new Map<string, AuthUser>()
+  // O verificador devolve identidade; o papel de plataforma vem do banco.
+  const knownUsers = new Map<string, Omit<AuthUser, 'platformRole'>>()
 
   const verifyToken: TokenVerifier = async (token) => knownUsers.get(token) ?? null
 
@@ -86,7 +88,18 @@ export async function createHarness() {
     return { userId }
   }
 
-  return { app, db, close, addUser, createCompanyWithBoss, addMember }
+  /**
+   * Cria um operador da Firmus: existe na tabela users, tem platform_role,
+   * e nao pertence a empresa nenhuma — exatamente como a conta do Matheus
+   * depois de `pnpm db:operador`.
+   */
+  async function addOperator(input: { userId: string; email: string; fullName: string }) {
+    const id = await saveUserRow(input.userId, input.email, input.fullName)
+    await db.update(users).set({ platformRole: 'operador' }).where(eq(users.id, id))
+    return { userId: id }
+  }
+
+  return { app, db, close, addUser, createCompanyWithBoss, addMember, addOperator }
 }
 
 export type Harness = Awaited<ReturnType<typeof createHarness>>

@@ -14,9 +14,9 @@ function readBearerToken(header: string | undefined): string | null {
 /**
  * Exige um token válido e anexa o usuário em req.auth.
  *
- * Também espelha o usuário na nossa tabela `users`: o Supabase é a fonte da
- * verdade do login, mas precisamos do nome e do e-mail no nosso banco para
- * montar telas sem ir ao Supabase a cada consulta.
+ * Também espelha o usuário na nossa tabela `users`. O `platformRole` vem da
+ * linha devolvida por esse espelhamento, e nunca do token: quem decide se
+ * alguém é operador é o nosso banco, não o Supabase nem o navegador.
  */
 export function requireAuth(db: Database, verifyToken: TokenVerifier): RequestHandler {
   return async (req, _res, next) => {
@@ -27,22 +27,27 @@ export function requireAuth(db: Database, verifyToken: TokenVerifier): RequestHa
       return
     }
 
-    const user = await verifyToken(token)
+    const identidade = await verifyToken(token)
 
-    if (!user) {
+    if (!identidade) {
       next(unauthorized('Sua sessão expirou. Entre de novo.', 'sessao_invalida'))
       return
     }
 
-    await db
+    const [linha] = await db
       .insert(users)
-      .values({ id: user.id, email: user.email, fullName: user.fullName })
+      .values({
+        id: identidade.id,
+        email: identidade.email,
+        fullName: identidade.fullName,
+      })
       .onConflictDoUpdate({
         target: users.id,
-        set: { email: user.email, fullName: user.fullName, updatedAt: new Date() },
+        set: { email: identidade.email, fullName: identidade.fullName, updatedAt: new Date() },
       })
+      .returning({ platformRole: users.platformRole })
 
-    req.auth = user
+    req.auth = { ...identidade, platformRole: linha?.platformRole ?? null }
     next()
   }
 }
