@@ -18,7 +18,6 @@ export default defineConfig({
           passWithNoTests: true,
           testTimeout: 30_000,
           hookTimeout: 30_000,
-          hookTimeout: 30_000,
         },
       },
       {
@@ -28,7 +27,6 @@ export default defineConfig({
           environment: 'node',
           passWithNoTests: true,
           testTimeout: 30_000,
-          hookTimeout: 30_000,
           hookTimeout: 30_000,
         },
       },
@@ -40,7 +38,6 @@ export default defineConfig({
           passWithNoTests: true,
           testTimeout: 30_000,
           hookTimeout: 30_000,
-          hookTimeout: 30_000,
         },
       },
       {
@@ -51,7 +48,6 @@ export default defineConfig({
           passWithNoTests: true,
           testTimeout: 30_000,
           hookTimeout: 30_000,
-          hookTimeout: 30_000,
         },
       },
       {
@@ -61,7 +57,6 @@ export default defineConfig({
           environment: 'node',
           passWithNoTests: true,
           testTimeout: 30_000,
-          hookTimeout: 30_000,
           hookTimeout: 30_000,
         },
       },

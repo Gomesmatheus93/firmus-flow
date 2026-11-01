@@ -1,5 +1,6 @@
-// O runtime dos agentes (runAgent, carregamento do Cérebro da Marca, registro de custo)
-// entra na Fase 2.1. Cada agente vira uma pasta em src/<nome>/.
+// O runtime vive em './runtime' e cada agente em './<nome>'.
+// Veja o SKILLS.md dentro da pasta de cada um para saber quais skills do
+// instagram-agent-skill alimentam aquele agente.
 export const AGENT_NAMES = [
   'marca',
   'auditoria',
@@ -7,6 +8,8 @@ export const AGENT_NAMES = [
   'conteudo',
   'design',
   'atendimento',
+  'tendencias',
+  'comentarios',
 ] as const
 
 export type AgentName = (typeof AGENT_NAMES)[number]
