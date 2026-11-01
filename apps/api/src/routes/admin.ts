@@ -3,6 +3,7 @@ import { companies, contentItems, leads, memberships } from '@firmus/db/schema'
 import { count, eq, sql } from 'drizzle-orm'
 import { Router } from 'express'
 import { requireOperator } from '../middleware/operator'
+import { adminOverviewRoutes } from './admin-overview'
 
 /**
  * Área da equipe da Firmus.
@@ -15,6 +16,7 @@ export function adminRoutes(db: Database): Router {
   const router = Router()
 
   router.use('/admin', requireOperator)
+  router.use(adminOverviewRoutes(db))
 
   router.get('/admin/companies', async (_req, res) => {
     const linhas = await db

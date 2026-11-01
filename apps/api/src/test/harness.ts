@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { companies, memberships, users } from '@firmus/db/schema'
+import { companies, exchangeRates, memberships, users } from '@firmus/db/schema'
 import { eq } from 'drizzle-orm'
 import { createTestDb } from '@firmus/db/testing'
 import type { Role } from '@firmus/shared'
@@ -41,6 +41,18 @@ export async function createHarness() {
   const verifyToken: TokenVerifier = async (token) => knownUsers.get(token) ?? null
 
   const app = createApp({ db, verifyToken, webBaseUrl: 'http://localhost:5173' })
+
+  // Semeia a cotação do dia para o painel não sair batendo na API do Banco
+  // Central durante os testes: rede em teste é lentidão e instabilidade.
+  await db
+    .insert(exchangeRates)
+    .values({
+      day: new Date().toISOString().slice(0, 10),
+      usdBrl: '5.0000',
+      quotedFor: new Date().toISOString().slice(0, 10),
+      source: 'teste',
+    })
+    .onConflictDoNothing()
 
   /** Registra um usuário no Supabase falso. Ele ainda não pertence a empresa nenhuma. */
   function addUser(user: { id: string; email: string; fullName: string }): string {

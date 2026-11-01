@@ -45,3 +45,19 @@ export const messageAuthorEnum = pgEnum('message_author', ['contato', 'ia', 'equ
 export const messageDirectionEnum = pgEnum('message_direction', ['entrada', 'saida'])
 
 export const leadStageEnum = pgEnum('lead_stage', ['novo', 'quente', 'frio', 'ganho', 'perdido'])
+
+export const billingIntervalEnum = pgEnum('billing_interval', ['mensal', 'anual'])
+
+export const subscriptionStatusEnum = pgEnum('subscription_status', [
+  'teste',
+  'ativa',
+  'inadimplente',
+  'cancelada',
+])
+
+export const invoiceStatusEnum = pgEnum('invoice_status', [
+  'aberta',
+  'paga',
+  'vencida',
+  'cancelada',
+])
