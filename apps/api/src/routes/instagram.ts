@@ -11,6 +11,17 @@ import { requireRole } from '../middleware/role'
 
 const connectSchema = z.object({
   accessToken: z.string().trim().min(20, 'Esse token parece curto demais.').max(1000),
+  /**
+   * Opcional. Quando informado, a consulta vai direto na conta em vez de a api
+   * tentar descobrir qual é — e descobrir nem sempre dá certo, porque depende
+   * de como o token foi gerado.
+   */
+  igAccountId: z
+    .string()
+    .trim()
+    .regex(/^\d*$/, 'O ID da conta é só números.')
+    .max(40)
+    .optional(),
 })
 
 /**
@@ -61,7 +72,7 @@ export function instagramRoutes(db: Database, fetchAccount: InstagramAccountFetc
     // Provar antes de guardar: token que a Meta não aceita não entra no banco.
     let conta
     try {
-      conta = await fetchAccount(corpo.data.accessToken)
+      conta = await fetchAccount(corpo.data.accessToken, corpo.data.igAccountId || undefined)
     } catch (erro) {
       if (erro instanceof InstagramApiError) throw badRequest(erro.message, 'token_recusado')
       throw erro

@@ -13,8 +13,12 @@ let rivalId: string
 
 const TOKEN = 'EAABsbCS1iHgBO7ZCexemploTokenLongoDeTeste123456'
 
+/** Guarda o id que a rota repassou, para o teste conferir. */
+let idPedido: string | undefined
+
 /** Meta falsa: aceita o token certo e recusa qualquer outro. */
-const metaFalsa: InstagramAccountFetcher = async (token) => {
+const metaFalsa: InstagramAccountFetcher = async (token, igAccountId) => {
+  idPedido = igAccountId
   if (token !== TOKEN) throw new InstagramApiError('Error validating access token: expired.')
 
   return {
@@ -57,6 +61,8 @@ beforeEach(async () => {
   rivalId = rival.companyId
 
   await h.addOperator({ userId: 'operador', email: 'suporte@firmus.tech', fullName: 'Suporte' })
+
+  idPedido = undefined
 })
 
 afterEach(async () => {
@@ -126,6 +132,33 @@ describe('conectar', () => {
       .where(eq(instagramConnections.companyId, auraId))
 
     expect(todas).toHaveLength(1)
+  })
+
+  it('repassa o ID da conta quando informado', async () => {
+    // O caminho certo quando a descoberta automatica nao da conta: com o id,
+    // a consulta vai direto na conta em vez de adivinhar.
+    const resposta = await request(h.app)
+      .post('/instagram/connection')
+      .set(asUser('chefe-aura'))
+      .send({ accessToken: TOKEN, igAccountId: '17841459743823633' })
+
+    expect(resposta.status).toBe(200)
+    expect(idPedido).toBe('17841459743823633')
+  })
+
+  it('sem o ID, deixa a api descobrir', async () => {
+    await conectar('chefe-aura')
+
+    expect(idPedido).toBeUndefined()
+  })
+
+  it('ID com letra é recusado', async () => {
+    const resposta = await request(h.app)
+      .post('/instagram/connection')
+      .set(asUser('chefe-aura'))
+      .send({ accessToken: TOKEN, igAccountId: 'abc123' })
+
+    expect(resposta.status).toBe(400)
   })
 
   it('token curto é recusado antes de chamar a Meta', async () => {

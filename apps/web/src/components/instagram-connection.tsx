@@ -36,8 +36,8 @@ export function InstagramConnection() {
   })
 
   const conectar = useMutation({
-    mutationFn: (accessToken: string) =>
-      api.post<{ account: Conta }>('/instagram/connection', { accessToken }),
+    mutationFn: (entrada: { accessToken: string; igAccountId?: string }) =>
+      api.post<{ account: Conta }>('/instagram/connection', entrada),
     onSuccess: async (resultado) => {
       setErro(null)
       setRecemConectada(resultado.account)
@@ -60,8 +60,12 @@ export function InstagramConnection() {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    const token = String(new FormData(event.currentTarget).get('accessToken') ?? '').trim()
-    if (token) conectar.mutate(token)
+    const campos = new FormData(event.currentTarget)
+
+    const accessToken = String(campos.get('accessToken') ?? '').trim()
+    const igAccountId = String(campos.get('igAccountId') ?? '').trim()
+
+    if (accessToken) conectar.mutate({ accessToken, igAccountId: igAccountId || undefined })
   }
 
   if (isPending) {
@@ -138,6 +142,26 @@ export function InstagramConnection() {
           token, com a conta profissional do Instagram atribuída. Ele é guardado cifrado e nunca
           volta para esta tela.
         </p>
+
+        <div className="mt-6 grid max-w-xl gap-2">
+          <Label htmlFor="igAccountId">
+            ID da conta do Instagram{' '}
+            <span className="font-normal text-ardosia">(opcional)</span>
+          </Label>
+          <Input
+            id="igAccountId"
+            name="igAccountId"
+            inputMode="numeric"
+            autoComplete="off"
+            placeholder="17841400000000000"
+            disabled={conectar.isPending}
+          />
+          <p className="text-xs leading-relaxed text-ardosia">
+            Deixe em branco que a plataforma tenta descobrir sozinha. Se ela não conseguir, o
+            número aparece no Gerenciador de Negócios, em Contas do Instagram, logo abaixo do @
+            do perfil.
+          </p>
+        </div>
 
         {erro && (
           <div className="mt-5 flex max-w-xl items-start gap-3 rounded-lg bg-amber-50 p-4">
