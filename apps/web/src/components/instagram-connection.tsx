@@ -12,6 +12,7 @@ import { formatDate } from '@/lib/dates'
 type Conexao = {
   username: string
   igAccountId: string
+  followersCount: number | null
   connectedAt: string
   lastVerifiedAt: string | null
 } | null
@@ -98,9 +99,14 @@ export function InstagramConnection() {
               {conexao.username}
             </a>
 
-            {recemConectada && (
+            {(recemConectada?.followersCount ?? conexao.followersCount) !== null && (
               <p className="tabular mt-2 text-sm text-ardosia">
-                {recemConectada.followersCount.toLocaleString('pt-BR')} seguidores
+                {(
+                  recemConectada?.followersCount ??
+                  conexao.followersCount ??
+                  0
+                ).toLocaleString('pt-BR')}{' '}
+                seguidores
               </p>
             )}
 

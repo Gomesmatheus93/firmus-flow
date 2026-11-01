@@ -68,8 +68,10 @@ export type MetricDay = {
   capturedOn: string
   followers: number | null
   reach: number | null
-  impressions: number | null
-  profileViews: number | null
+  /** Substituiu `impressions`, que a Meta deprecou. */
+  views: number | null
+  /** Contas que interagiram. Ocupou o lugar de `profileViews`, que saiu da API. */
+  accountsEngaged: number | null
   interactions: number | null
 }
 

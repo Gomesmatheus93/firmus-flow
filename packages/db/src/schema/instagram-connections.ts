@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
+import { integer, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
 import { companies } from './companies'
 
 /**
@@ -27,6 +27,13 @@ export const instagramConnections = pgTable('instagram_connections', {
 
   /** O token de acesso, cifrado. Nunca sai daqui para o navegador. */
   accessTokenCipher: text().notNull(),
+
+  /**
+   * Último número de seguidores visto. É cache de exibição: serve para o cartão
+   * de Configurações mostrar sem ir à rede. O histórico de verdade é
+   * `instagram_metrics`.
+   */
+  followersCount: integer(),
 
   connectedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   /** Última vez que a Meta confirmou que o token ainda vale. */

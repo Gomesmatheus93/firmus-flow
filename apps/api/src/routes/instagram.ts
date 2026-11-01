@@ -44,6 +44,7 @@ export function instagramRoutes(db: Database, fetchAccount: InstagramAccountFetc
       .select({
         username: instagramConnections.username,
         igAccountId: instagramConnections.igAccountId,
+        followersCount: instagramConnections.followersCount,
         connectedAt: instagramConnections.connectedAt,
         lastVerifiedAt: instagramConnections.lastVerifiedAt,
       })

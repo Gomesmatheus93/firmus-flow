@@ -34,6 +34,8 @@ type RespostaDaMeta = Record<string, unknown> & {
 
 /** Uma chamada à Graph API. Devolve o corpo, ou `null` quando a Meta recusou. */
 async function chamar(caminho: string, token: string, campos?: string): Promise<RespostaDaMeta> {
+  // `caminho` pode trazer querystring (ex.: "123/insights?metric=reach"); o
+  // construtor da URL preserva o que ja vem e os append abaixo acrescentam.
   const url = new URL(`https://graph.facebook.com/${versao()}/${caminho}`)
   if (campos) url.searchParams.set('fields', campos)
   url.searchParams.set('access_token', token)
@@ -137,4 +139,88 @@ export const fetchInstagramAccount: InstagramAccountFetcher = async (token, igAc
       'em Contas do Instagram, logo abaixo do @ do perfil.' +
       (tentativas.length > 0 ? ` (tentei: ${tentativas.join(' | ')})` : ''),
   )
+}
+
+/** O que uma coleta trouxe. Campo nulo = a Meta não entregou aquele número. */
+export type InstagramInsights = {
+  followers: number | null
+  reach: number | null
+  views: number | null
+  accountsEngaged: number | null
+  interactions: number | null
+  /** O que a Meta recusou, com o motivo dela. A tela mostra isso. */
+  recusadas: { metrica: string; motivo: string }[]
+}
+
+export type InstagramInsightsFetcher = (
+  token: string,
+  igAccountId: string,
+) => Promise<InstagramInsights>
+
+/** As métricas de perfil que a API aceita hoje, com period=day. */
+const METRICAS = ['reach', 'views', 'total_interactions', 'accounts_engaged'] as const
+
+/**
+ * Coleta as métricas do dia.
+ *
+ * **Uma métrica por chamada, de propósito.** A Meta aposenta métrica com
+ * frequência — `impressions` morreu em abril de 2025, `reach` já tem data
+ * marcada — e algumas não funcionam em conta pequena (`follower_count` exige
+ * 100 seguidores). Pedindo todas juntas, um nome recusado derrubaria a coleta
+ * inteira; pedindo uma a uma, o que funciona é guardado e o que falhou é
+ * relatado com a mensagem da Meta.
+ *
+ * Seguidores vêm do perfil, não das insights, porque ali sempre funciona.
+ */
+export const fetchInstagramInsights: InstagramInsightsFetcher = async (token, igAccountId) => {
+  const recusadas: { metrica: string; motivo: string }[] = []
+
+  const perfil = await chamar(igAccountId, token, 'followers_count')
+  const followers =
+    typeof perfil.followers_count === 'number' ? perfil.followers_count : null
+
+  if (perfil.error) {
+    recusadas.push({ metrica: 'followers_count', motivo: perfil.error.message ?? 'recusada' })
+  }
+
+  const valores = new Map<string, number>()
+
+  for (const metrica of METRICAS) {
+    const url = `${igAccountId}/insights?metric=${metrica}&period=day`
+    const resposta = await chamar(url, token)
+
+    if (resposta.error) {
+      recusadas.push({ metrica, motivo: resposta.error.message ?? 'recusada' })
+      continue
+    }
+
+    // A resposta vem como uma lista de métricas; cada uma traz `values` com um
+    // ponto por dia, ou `total_value` quando a métrica só aceita total.
+    const primeira = Array.isArray(resposta.data)
+      ? (resposta.data[0] as Record<string, unknown> | undefined)
+      : undefined
+
+    const total = (primeira?.total_value as { value?: unknown } | undefined)?.value
+    const serie = Array.isArray(primeira?.values)
+      ? (primeira.values.at(-1) as { value?: unknown } | undefined)?.value
+      : undefined
+
+    const valor = typeof total === 'number' ? total : typeof serie === 'number' ? serie : null
+
+    if (valor === null) {
+      recusadas.push({ metrica, motivo: 'a Meta respondeu sem número para este dia' })
+      continue
+    }
+
+    valores.set(metrica, valor)
+  }
+
+  return {
+    followers,
+    reach: valores.get('reach') ?? null,
+    views: valores.get('views') ?? null,
+    accountsEngaged: valores.get('accounts_engaged') ?? null,
+    interactions: valores.get('total_interactions') ?? null,
+    recusadas,
+  }
 }

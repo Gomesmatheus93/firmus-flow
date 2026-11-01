@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm'
 import { createTestDb } from '@firmus/db/testing'
 import type { Role } from '@firmus/shared'
 import type { ModelClient } from '@firmus/agents/runtime'
-import type { InstagramAccountFetcher } from '../meta/instagram'
+import type { InstagramAccountFetcher, InstagramInsightsFetcher } from '../meta/instagram'
 import { createApp } from '../app'
 import type { AuthUser, TokenVerifier } from '../auth/types'
 
@@ -38,6 +38,7 @@ export async function createHarness(
   options: {
     aiClient?: ModelClient | null
     fetchInstagramAccount?: InstagramAccountFetcher
+    fetchInstagramInsights?: InstagramInsightsFetcher
   } = {},
 ) {
   const { db, close } = await createTestDb()
@@ -54,6 +55,9 @@ export async function createHarness(
     aiClient: options.aiClient ?? null,
     ...(options.fetchInstagramAccount
       ? { fetchInstagramAccount: options.fetchInstagramAccount }
+      : {}),
+    ...(options.fetchInstagramInsights
+      ? { fetchInstagramInsights: options.fetchInstagramInsights }
       : {}),
   })
 

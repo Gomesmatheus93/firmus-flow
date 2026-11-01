@@ -7,7 +7,12 @@ import type { TokenVerifier } from './auth/types'
 import { errorHandler, notFoundHandler, unavailable } from './http/errors'
 import { requireAuth } from './middleware/auth'
 import { requireCompany } from './middleware/company'
-import { fetchInstagramAccount, type InstagramAccountFetcher } from './meta/instagram'
+import {
+  fetchInstagramAccount,
+  fetchInstagramInsights,
+  type InstagramAccountFetcher,
+  type InstagramInsightsFetcher,
+} from './meta/instagram'
 import { commentRuleRoutes } from './routes/comment-rules'
 import { adminRoutes } from './routes/admin'
 import { brandRoutes } from './routes/brand'
@@ -34,6 +39,8 @@ export type AppDeps = {
    * testes, para o caminho de produção rodar sem rede.
    */
   fetchInstagramAccount?: InstagramAccountFetcher
+  /** Coleta as métricas do perfil. Falsa nos testes, como a de cima. */
+  fetchInstagramInsights?: InstagramInsightsFetcher
   /**
    * Cliente da Anthropic, ou `null` quando a chave não está no .env.
    *
@@ -60,6 +67,7 @@ export function createApp({
   webBaseUrl,
   aiClient = null,
   fetchInstagramAccount: buscarConta = fetchInstagramAccount,
+  fetchInstagramInsights: buscarInsights = fetchInstagramInsights,
 }: AppDeps): Express {
   const app = baseApp(webBaseUrl)
 
@@ -84,7 +92,7 @@ export function createApp({
   app.use(trendRoutes(db))
   app.use(scheduledPostRoutes(db))
   app.use(commentRuleRoutes(db))
-  app.use(metricRoutes(db))
+  app.use(metricRoutes(db, buscarInsights))
   app.use(supportRoutes(db))
 
   app.use(notFoundHandler)
