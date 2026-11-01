@@ -5,8 +5,8 @@ import {
 } from '@firmus/shared'
 import { CalendarClock, Plus } from 'lucide-react'
 import { cn } from 'cn'
-import { Button } from '@/components/ui/button'
 import { AsyncState } from '@/components/async-state'
+import { PendingAction } from '@/components/pending-action'
 import { DataTable } from '@/components/data-table'
 import { MetaPending } from '@/components/meta-pending'
 import { PageHeader } from '@/components/page-header'
@@ -35,10 +35,11 @@ export function SchedulerPage() {
         title="Programador de postagem"
         description="A fila do que vai ao ar, com data e hora."
         actions={
-          <Button>
-            <Plus />
-            Agendar
-          </Button>
+          <PendingAction
+            icon={Plus}
+            label="Agendar"
+            waitingFor="espera a liberação da Meta"
+          />
         }
       />
 

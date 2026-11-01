@@ -1,7 +1,15 @@
-import { Bell, Menu, Search, Sparkles } from 'lucide-react'
+import { Menu, Sparkles } from 'lucide-react'
+import { Link } from 'react-router'
 import { Button } from '@/components/ui/button'
 
-/** Fica direto sobre o degradê: os controles são de vidro, como os painéis. */
+/**
+ * Fica direto sobre o degradê: os controles são de vidro, como os painéis.
+ *
+ * Tinha um campo de busca e um sino de notificações aqui. Os dois nunca
+ * tiveram função, e controle que aceita clique sem responder faz quem usa
+ * achar que a plataforma quebrou. Voltam quando busca e notificações
+ * existirem de verdade.
+ */
 export function Topbar({ onMenu }: { onMenu: () => void }) {
   return (
     <div className="flex items-center gap-3">
@@ -15,23 +23,11 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
         <Menu />
       </Button>
 
-      <div className="relative ml-auto">
-        <Search className="absolute top-1/2 left-4 size-4 -translate-y-1/2 text-ardosia" />
-        <input
-          type="search"
-          placeholder="Buscar"
-          aria-label="Buscar"
-          className="glass h-10 w-36 rounded-full pr-4 pl-10 text-sm text-foreground outline-none placeholder:text-ardosia focus-visible:ring-[3px] focus-visible:ring-azul/25 sm:w-64"
-        />
-      </div>
-
-      <Button variant="ghost" size="icon" className="glass rounded-full" aria-label="Notificações">
-        <Bell />
-      </Button>
-
-      <Button className="rounded-full px-5 shadow-card">
-        <Sparkles />
-        <span className="hidden sm:inline">Gerar conteúdo</span>
+      <Button asChild className="ml-auto rounded-full px-5 shadow-card">
+        <Link to="/criacao">
+          <Sparkles />
+          <span className="hidden sm:inline">Gerar conteúdo</span>
+        </Link>
       </Button>
     </div>
   )

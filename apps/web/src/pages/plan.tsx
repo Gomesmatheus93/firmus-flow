@@ -1,8 +1,8 @@
 import { contentTypeLabel, type ContentType } from '@firmus/shared'
 import { CalendarDays, Sparkles } from 'lucide-react'
 import { cn } from 'cn'
-import { Button } from '@/components/ui/button'
 import { AsyncState } from '@/components/async-state'
+import { PendingAction } from '@/components/pending-action'
 import { DataTable } from '@/components/data-table'
 import { PageHeader } from '@/components/page-header'
 import { useCompanyData } from '@/lib/queries'
@@ -32,10 +32,11 @@ export function PlanPage() {
         title="Planejamento"
         description="O que publicar, quando e com qual objetivo. Gerado a partir do Cérebro da Marca."
         actions={
-          <Button>
-            <Sparkles />
-            Gerar planejamento
-          </Button>
+          <PendingAction
+            icon={Sparkles}
+            label="Gerar planejamento"
+            waitingFor="espera o agente estrategista"
+          />
         }
       />
 

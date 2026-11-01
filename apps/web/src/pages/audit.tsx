@@ -1,8 +1,8 @@
 import type { AuditPriority } from '@firmus/shared'
 import { Check, Download, Gauge, RefreshCw } from 'lucide-react'
 import { cn } from 'cn'
-import { Button } from '@/components/ui/button'
 import { AsyncState } from '@/components/async-state'
+import { PendingAction } from '@/components/pending-action'
 import { PageHeader, SectionHeading } from '@/components/page-header'
 import { FeatureBlock, Panel } from '@/components/surface'
 import { formatDate } from '@/lib/dates'
@@ -41,15 +41,18 @@ export function AuditPage() {
         }
         actions={
           <>
-            <Button variant="outline">
-              <RefreshCw />
-              {audit ? 'Refazer' : 'Rodar auditoria'}
-            </Button>
+            <PendingAction
+              icon={RefreshCw}
+              label={audit ? 'Refazer' : 'Rodar auditoria'}
+              variant="outline"
+              waitingFor="espera o agente de auditoria"
+            />
             {audit && (
-              <Button>
-                <Download />
-                Baixar PDF
-              </Button>
+              <PendingAction
+                icon={Download}
+                label="Baixar PDF"
+                waitingFor="espera a geração do relatório"
+              />
             )}
           </>
         }

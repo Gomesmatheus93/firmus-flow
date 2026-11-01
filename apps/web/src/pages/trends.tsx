@@ -1,6 +1,6 @@
 import { ExternalLink, Flame, Search } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { AsyncState } from '@/components/async-state'
+import { PendingAction } from '@/components/pending-action'
 import { PageHeader } from '@/components/page-header'
 import { Panel } from '@/components/surface'
 import { formatDateTime } from '@/lib/dates'
@@ -22,10 +22,11 @@ export function TrendsPage() {
         title="Tendências"
         description="O que está em alta no nicho do cliente agora, pelo agente ig-viral."
         actions={
-          <Button>
-            <Search />
-            Buscar tendências
-          </Button>
+          <PendingAction
+            icon={Search}
+            label="Buscar tendências"
+            waitingFor="espera o agente de tendências"
+          />
         }
       />
 

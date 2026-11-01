@@ -2,8 +2,8 @@ import { contentTypeLabel, type ContentType } from '@firmus/shared'
 import { Sparkles } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from 'cn'
-import { Button } from '@/components/ui/button'
 import { AsyncState } from '@/components/async-state'
+import { PendingAction } from '@/components/pending-action'
 import { PageHeader } from '@/components/page-header'
 import { StatusBadge } from '@/components/status-badge'
 import { formatDate } from '@/lib/dates'
@@ -38,10 +38,11 @@ export function CreationPage() {
         title="Criação"
         description="Carrossel, post único, story e roteiro de reel. Tudo escrito a partir do Cérebro da Marca e revisado pelo humanizador antes de salvar."
         actions={
-          <Button>
-            <Sparkles />
-            Criar conteúdo
-          </Button>
+          <PendingAction
+            icon={Sparkles}
+            label="Criar conteúdo"
+            waitingFor="espera o agente de conteúdo"
+          />
         }
       />
 
