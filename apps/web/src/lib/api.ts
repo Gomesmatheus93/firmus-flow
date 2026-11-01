@@ -1,4 +1,5 @@
 import { apiBaseUrl } from './env'
+import { lerEmpresaEscolhida } from './operator'
 import { supabase } from './supabase'
 
 export class ApiError extends Error {
@@ -20,14 +21,21 @@ async function accessToken(): Promise<string | null> {
 
 /**
  * Chama a api anexando o token da sessão do Supabase.
+ *
+ * Quando há empresa escolhida (só acontece para a equipe da Firmus), manda
+ * também o cabeçalho X-Firmus-Company. A api confere o papel no banco antes
+ * de obedecer: para quem não é operador, o cabeçalho é ignorado.
+ *
  * O erro vem da api já em português, então repassamos a mensagem como está.
  */
 export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
   const token = await accessToken()
+  const empresa = lerEmpresaEscolhida()
 
   const headers = new Headers(init.headers)
   headers.set('Content-Type', 'application/json')
   if (token) headers.set('Authorization', `Bearer ${token}`)
+  if (empresa) headers.set('X-Firmus-Company', empresa.id)
 
   const response = await fetch(`${apiBaseUrl}${path}`, { ...init, headers })
 

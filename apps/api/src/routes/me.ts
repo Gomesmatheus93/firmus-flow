@@ -3,12 +3,17 @@ import { companies } from '@firmus/db/schema'
 import { eq } from 'drizzle-orm'
 import { Router } from 'express'
 import { unauthorized } from '../http/errors'
-import { loadCompanyContext } from '../middleware/company'
+import { resolveCompany } from '../middleware/company'
 
 /**
  * Quem sou eu e de qual empresa faço parte.
- * É a primeira chamada da web depois do login: se `company` vier nulo,
- * o usuário ainda não tem empresa e é mandado para criar uma.
+ *
+ * É a primeira chamada da web depois do login. Se `company` vier nulo, o
+ * usuário ainda não tem empresa — ou é um operador que ainda não escolheu
+ * nenhuma, o que a web distingue pelo `platformRole`.
+ *
+ * Resolver aqui não registra acesso: isto é "quem sou eu", não uma consulta
+ * aos dados do cliente. O registro acontece em requireCompany.
  */
 export function meRoutes(db: Database): Router {
   const router = Router()
@@ -16,7 +21,7 @@ export function meRoutes(db: Database): Router {
   router.get('/me', async (req, res) => {
     if (!req.auth) throw unauthorized()
 
-    const context = await loadCompanyContext(db, req.auth.id)
+    const context = await resolveCompany(db, req)
 
     if (!context) {
       res.json({ user: req.auth, company: null })
@@ -38,6 +43,7 @@ export function meRoutes(db: Database): Router {
             segment: company.segment,
             instagramHandle: company.instagramHandle,
             role: context.role,
+            viewedAsOperator: context.asOperator,
           }
         : null,
     })

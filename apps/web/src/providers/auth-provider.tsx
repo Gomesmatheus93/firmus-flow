@@ -6,7 +6,13 @@ import { isDemoMode } from '@/lib/env'
 import { supabase } from '@/lib/supabase'
 import { demoCompany, demoUser } from '@/lib/demo-session'
 
-export type SessionUser = { id: string; email: string; fullName: string }
+export type SessionUser = {
+  id: string
+  email: string
+  fullName: string
+  /** 'operador' só para a equipe da Firmus. Nulo para todo mundo mais. */
+  platformRole: 'operador' | null
+}
 
 export type SessionCompany = {
   id: string
@@ -14,6 +20,8 @@ export type SessionCompany = {
   segment: string | null
   instagramHandle: string | null
   role: Role
+  /** Verdadeiro quando é um operador da Firmus olhando a empresa de um cliente. */
+  viewedAsOperator?: boolean
 }
 
 type MeResponse = { user: SessionUser; company: SessionCompany | null }
@@ -38,7 +46,7 @@ const AuthContext = createContext<AuthValue | null>(null)
 const demoValue: AuthValue = {
   mode: 'demo',
   loading: false,
-  user: { id: 'demo', email: demoUser.email, fullName: demoUser.name },
+  user: { id: 'demo', email: demoUser.email, fullName: demoUser.name, platformRole: null },
   company: {
     id: 'demo',
     name: demoCompany.name,

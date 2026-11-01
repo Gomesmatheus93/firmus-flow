@@ -1,5 +1,9 @@
 import { defineConfig } from 'vitest/config'
 
+// Cada teste sobe um Postgres com PGlite num beforeEach. Isso e um hook, e o
+// limite de hook do Vitest e 10s por padrao — bem menor que o de teste. Sob
+// carga o hook estourava e o teste falhava sem motivo real.
+//
 // Um "project" por pacote: `pnpm test` roda todos de uma vez,
 // e a saída mostra de qual pacote veio cada teste.
 export default defineConfig({
@@ -13,6 +17,8 @@ export default defineConfig({
           environment: 'node',
           passWithNoTests: true,
           testTimeout: 30_000,
+          hookTimeout: 30_000,
+          hookTimeout: 30_000,
         },
       },
       {
@@ -22,6 +28,8 @@ export default defineConfig({
           environment: 'node',
           passWithNoTests: true,
           testTimeout: 30_000,
+          hookTimeout: 30_000,
+          hookTimeout: 30_000,
         },
       },
       {
@@ -31,6 +39,8 @@ export default defineConfig({
           environment: 'node',
           passWithNoTests: true,
           testTimeout: 30_000,
+          hookTimeout: 30_000,
+          hookTimeout: 30_000,
         },
       },
       {
@@ -40,6 +50,8 @@ export default defineConfig({
           environment: 'node',
           passWithNoTests: true,
           testTimeout: 30_000,
+          hookTimeout: 30_000,
+          hookTimeout: 30_000,
         },
       },
       {
@@ -49,6 +61,8 @@ export default defineConfig({
           environment: 'node',
           passWithNoTests: true,
           testTimeout: 30_000,
+          hookTimeout: 30_000,
+          hookTimeout: 30_000,
         },
       },
     ],

@@ -1,15 +1,15 @@
 import type { Database } from '@firmus/db'
 import { companies, memberships, operatorAccess } from '@firmus/db/schema'
 import { eq } from 'drizzle-orm'
-import type { RequestHandler } from 'express'
+import type { Request, RequestHandler } from 'express'
 import { forbidden, unauthorized } from '../http/errors'
 import type { AuthUser, CompanyContext } from '../auth/types'
 
-/** Cabeçalho pelo qual um operador escolhe qual empresa quer ver. */
+/** Cabeçalho pelo qual um operador da Firmus escolhe qual empresa quer ver. */
 export const COMPANY_HEADER = 'x-firmus-company'
 
 /**
- * Descobre a empresa do usuário logado, lendo a tabela memberships.
+ * Descobre a empresa do usuário pela tabela memberships.
  *
  * Este é o ponto único de onde sai o company_id do sistema. Nenhuma rota lê
  * company_id do corpo, da query ou da URL.
@@ -28,21 +28,17 @@ export async function loadCompanyContext(
 }
 
 /**
- * O caminho do operador da Firmus: ele escolhe uma empresa pelo cabeçalho.
+ * O caminho do operador: ele escolhe uma empresa pelo cabeçalho.
  *
- * O cabeçalho só é obedecido depois de o banco confirmar que aquele usuário é
- * operador. Para qualquer outra pessoa ele é ignorado em silêncio — do
- * contrário seria exatamente o buraco de confiar em company_id vindo do
- * navegador, que o CLAUDE.md proíbe.
- *
- * Toda entrada é registrada em operator_access: sem rastro, "ver tudo" vira
- * poder sem prestação de contas.
+ * O cabeçalho só vale depois de o banco confirmar que aquele usuário é
+ * operador. Para qualquer outra pessoa devolve null, e a requisição segue pelo
+ * caminho normal — do contrário seria o buraco de confiar em company_id vindo
+ * do navegador, que o CLAUDE.md proíbe.
  */
 async function loadOperatorContext(
   db: Database,
   user: AuthUser,
   companyId: string,
-  route: string,
 ): Promise<CompanyContext | null> {
   if (user.platformRole !== 'operador') return null
 
@@ -54,18 +50,35 @@ async function loadOperatorContext(
 
   if (!empresa) return null
 
-  await db.insert(operatorAccess).values({
-    operatorUserId: user.id,
-    companyId: empresa.id,
-    route,
-  })
-
-  // Vê como chefe para as telas funcionarem; o que ele não pode ver é barrado
+  // Vê como chefe para as telas funcionarem. O que ele não pode ver é barrado
   // por blockOperator, não pelo papel.
   return { companyId: empresa.id, role: 'chefe', asOperator: true }
 }
 
-/** Exige que o usuário pertença a alguma empresa. Use depois de requireAuth. */
+/**
+ * Resolve a empresa de uma requisição: a escolhida pelo operador, se houver e
+ * se ele for operador mesmo; senão a dele, pela tabela memberships.
+ */
+export async function resolveCompany(db: Database, req: Request): Promise<CompanyContext | null> {
+  if (!req.auth) return null
+
+  const escolhida = req.header(COMPANY_HEADER)?.trim()
+
+  if (escolhida) {
+    const contexto = await loadOperatorContext(db, req.auth, escolhida)
+    if (contexto) return contexto
+  }
+
+  return loadCompanyContext(db, req.auth.id)
+}
+
+/**
+ * Exige que o usuário tenha uma empresa — a dele, ou a que escolheu como
+ * operador. Use depois de requireAuth.
+ *
+ * Toda entrada de operador numa empresa cliente fica registrada em
+ * operator_access: sem rastro, "ver tudo" vira poder sem prestação de contas.
+ */
 export function requireCompany(db: Database): RequestHandler {
   return async (req, _res, next) => {
     if (!req.auth) {
@@ -73,22 +86,7 @@ export function requireCompany(db: Database): RequestHandler {
       return
     }
 
-    const escolhida = req.header(COMPANY_HEADER)?.trim()
-
-    if (escolhida) {
-      const contexto = await loadOperatorContext(db, req.auth, escolhida, req.path)
-
-      if (contexto) {
-        req.company = contexto
-        next()
-        return
-      }
-
-      // Não é operador, ou a empresa não existe: cai no caminho normal, como
-      // se o cabeçalho não tivesse vindo.
-    }
-
-    const contexto = await loadCompanyContext(db, req.auth.id)
+    const contexto = await resolveCompany(db, req)
 
     if (!contexto) {
       next(
@@ -98,6 +96,14 @@ export function requireCompany(db: Database): RequestHandler {
         ),
       )
       return
+    }
+
+    if (contexto.asOperator) {
+      await db.insert(operatorAccess).values({
+        operatorUserId: req.auth.id,
+        companyId: contexto.companyId,
+        route: req.path,
+      })
     }
 
     req.company = contexto

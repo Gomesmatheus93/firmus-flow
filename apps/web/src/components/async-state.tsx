@@ -1,4 +1,5 @@
-import { CircleAlert, type LucideIcon } from 'lucide-react'
+import { CircleAlert, ShieldAlert, type LucideIcon } from 'lucide-react'
+import { ApiError } from '@/lib/api'
 import type { ReactNode } from 'react'
 import { EmptyState } from '@/components/empty-state'
 
@@ -27,6 +28,16 @@ export function AsyncState({ isPending, error, isEmpty, empty, children }: Async
         {[0, 1, 2].map((row) => (
           <div key={row} className="h-12 animate-pulse rounded-lg bg-white/60" />
         ))}
+      </div>
+    )
+  }
+
+  // Bloqueio de privacidade não é falha: a tela explica, sem cara de erro.
+  if (error instanceof ApiError && error.code === 'bloqueado_para_operador') {
+    return (
+      <div className="surface flex items-start gap-3 p-5">
+        <ShieldAlert className="mt-0.5 size-4 shrink-0 text-amber-600" />
+        <p className="text-sm leading-relaxed text-grafite">{error.message}</p>
       </div>
     )
   }

@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate } from 'react-router'
-import { GuestOnly, RequireCompany, RequireUser } from '@/components/guards'
+import { GuestOnly, RequireCompany, RequireOperator, RequireUser } from '@/components/guards'
 import { AppShell } from '@/components/layout/app-shell'
+import { AdminPage } from '@/pages/admin'
 import { AnalyticsPage } from '@/pages/analytics'
 import { ApprovalsPage } from '@/pages/approvals'
 import { AuditPage } from '@/pages/audit'
@@ -37,6 +38,18 @@ export const router = createBrowserRouter([
   {
     element: <RequireUser />,
     children: [{ path: '/criar-empresa', element: <CreateCompanyPage /> }],
+  },
+
+  // Área da equipe da Firmus: exige o papel de operador, não uma empresa.
+  {
+    element: <RequireOperator />,
+    children: [
+      {
+        path: '/',
+        element: <AppShell />,
+        children: [{ path: 'admin', element: <AdminPage /> }],
+      },
+    ],
   },
 
   // Exige login e empresa. Tudo aqui dentro roda na casca da plataforma.

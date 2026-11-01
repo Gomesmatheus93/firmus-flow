@@ -95,8 +95,8 @@ function UserRow() {
 }
 
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
-  const { company } = useAuth()
-  const groups = visibleGroups(company?.role ?? 'funcionario')
+  const { company, user } = useAuth()
+  const groups = visibleGroups(company?.role ?? 'funcionario', user?.platformRole)
 
   return (
     <div className="glass-strong flex h-full flex-col rounded-2xl">

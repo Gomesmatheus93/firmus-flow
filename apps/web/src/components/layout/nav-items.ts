@@ -11,11 +11,12 @@ import {
   MessageSquareReply,
   MessagesSquare,
   Settings,
+  ShieldCheck,
   Sparkles,
   Users,
   type LucideIcon,
 } from 'lucide-react'
-import type { Role } from '@firmus/shared'
+import type { PlatformRole, Role } from '@firmus/shared'
 
 export type NavItem = {
   label: string
@@ -80,8 +81,16 @@ export const navGroups: NavGroup[] = [
   },
 ]
 
-export function visibleGroups(role: Role): NavGroup[] {
-  return navGroups
+/** Grupo que só a equipe da Firmus enxerga. */
+const firmusGroup: NavGroup = {
+  label: 'Firmus',
+  items: [{ label: 'Administração', to: '/admin', icon: ShieldCheck }],
+}
+
+export function visibleGroups(role: Role, platformRole?: PlatformRole | null): NavGroup[] {
+  const base = platformRole === 'operador' ? [firmusGroup, ...navGroups] : navGroups
+
+  return base
     .map((group) => ({
       ...group,
       items: group.items.filter((item) => !item.roles || item.roles.includes(role)),
