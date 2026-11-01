@@ -36,6 +36,13 @@
       "when": 1793553376198,
       "tag": "0004_powerful_radioactive_man",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793555958863,
+      "tag": "0005_fresh_arachne",
+      "breakpoints": true
     }
   ]
 }

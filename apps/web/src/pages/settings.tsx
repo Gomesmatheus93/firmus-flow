@@ -1,11 +1,12 @@
 import { useMutation } from '@tanstack/react-query'
-import { Building2, MessageCircle, UserRound } from 'lucide-react'
+import { AtSign, Building2, MessageCircle, UserRound } from 'lucide-react'
 import { useState, type ComponentProps, type FormEvent, type ReactNode } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { InstagramConnection } from '@/components/instagram-connection'
 import { MetaPending } from '@/components/meta-pending'
 import { Panel } from '@/components/surface'
 import { PageHeader } from '@/components/page-header'
@@ -97,6 +98,10 @@ export function SettingsPage() {
             <UserRound />
             Meu perfil
           </TabsTrigger>
+          <TabsTrigger value="instagram">
+            <AtSign />
+            Instagram
+          </TabsTrigger>
           <TabsTrigger value="whatsapp">
             <MessageCircle />
             WhatsApp
@@ -155,6 +160,20 @@ export function SettingsPage() {
               title="O e-mail é o seu login e não muda por aqui."
             />
           </SavingSection>
+        </TabsContent>
+
+        <TabsContent value="instagram" className="mt-6">
+          {isBoss ? (
+            <InstagramConnection />
+          ) : (
+            <Panel>
+              <p className="text-sm leading-relaxed text-grafite">
+                <span className="font-semibold text-noite">Isso é do chefe.</span> Conectar o
+                Instagram da empresa mexe no que os agentes publicam, então só quem administra
+                pode fazer.
+              </p>
+            </Panel>
+          )}
         </TabsContent>
 
         <TabsContent value="whatsapp" className="mt-6">

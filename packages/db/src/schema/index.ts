@@ -23,6 +23,11 @@ export {
   subscriptionStatusEnum,
 } from './enums'
 export {
+  instagramConnections,
+  type InstagramConnection,
+  type NewInstagramConnection,
+} from './instagram-connections'
+export {
   instagramMetrics,
   type InstagramMetric,
   type NewInstagramMetric,

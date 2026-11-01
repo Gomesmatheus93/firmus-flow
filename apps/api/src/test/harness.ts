@@ -4,6 +4,7 @@ import { eq } from 'drizzle-orm'
 import { createTestDb } from '@firmus/db/testing'
 import type { Role } from '@firmus/shared'
 import type { ModelClient } from '@firmus/agents/runtime'
+import type { InstagramAccountFetcher } from '../meta/instagram'
 import { createApp } from '../app'
 import type { AuthUser, TokenVerifier } from '../auth/types'
 
@@ -33,7 +34,12 @@ function uuidFromLabel(label: string): string {
  * acreditaria no Supabase — e todo o resto do caminho (memberships, papéis,
  * filtro por company_id) é o código de produção, sem simulação.
  */
-export async function createHarness(options: { aiClient?: ModelClient | null } = {}) {
+export async function createHarness(
+  options: {
+    aiClient?: ModelClient | null
+    fetchInstagramAccount?: InstagramAccountFetcher
+  } = {},
+) {
   const { db, close } = await createTestDb()
 
   // O verificador devolve identidade; o papel de plataforma vem do banco.
@@ -46,6 +52,9 @@ export async function createHarness(options: { aiClient?: ModelClient | null } =
     verifyToken,
     webBaseUrl: 'http://localhost:5173',
     aiClient: options.aiClient ?? null,
+    ...(options.fetchInstagramAccount
+      ? { fetchInstagramAccount: options.fetchInstagramAccount }
+      : {}),
   })
 
   // Semeia a cotação do dia para o painel não sair batendo na API do Banco

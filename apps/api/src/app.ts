@@ -7,11 +7,13 @@ import type { TokenVerifier } from './auth/types'
 import { errorHandler, notFoundHandler, unavailable } from './http/errors'
 import { requireAuth } from './middleware/auth'
 import { requireCompany } from './middleware/company'
+import { fetchInstagramAccount, type InstagramAccountFetcher } from './meta/instagram'
 import { commentRuleRoutes } from './routes/comment-rules'
 import { adminRoutes } from './routes/admin'
 import { brandRoutes } from './routes/brand'
 import { companyRoutes } from './routes/companies'
 import { companySettingsRoutes } from './routes/company-settings'
+import { instagramRoutes } from './routes/instagram'
 import { contentRoutes } from './routes/content'
 import { healthRouter } from './routes/health'
 import { invitationRoutes } from './routes/invitations'
@@ -27,6 +29,11 @@ export type AppDeps = {
   db: Database
   verifyToken: TokenVerifier
   webBaseUrl: string
+  /**
+   * Busca a conta do Instagram na Graph API. Trocado por uma função falsa nos
+   * testes, para o caminho de produção rodar sem rede.
+   */
+  fetchInstagramAccount?: InstagramAccountFetcher
   /**
    * Cliente da Anthropic, ou `null` quando a chave não está no .env.
    *
@@ -47,7 +54,13 @@ function baseApp(webBaseUrl: string): Express {
   return app
 }
 
-export function createApp({ db, verifyToken, webBaseUrl, aiClient = null }: AppDeps): Express {
+export function createApp({
+  db,
+  verifyToken,
+  webBaseUrl,
+  aiClient = null,
+  fetchInstagramAccount: buscarConta = fetchInstagramAccount,
+}: AppDeps): Express {
   const app = baseApp(webBaseUrl)
 
   // Público: quem abre um link de convite ainda não tem conta.
@@ -64,6 +77,7 @@ export function createApp({ db, verifyToken, webBaseUrl, aiClient = null }: AppD
   app.use(requireCompany(db))
   app.use(teamRoutes(db, webBaseUrl))
   app.use(companySettingsRoutes(db))
+  app.use(instagramRoutes(db, buscarConta))
   app.use(brandRoutes(db, aiClient))
   app.use(contentRoutes(db))
   app.use(planRoutes(db))
