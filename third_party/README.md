@@ -26,19 +26,25 @@ legendas, carrossel, reels, humanização de texto, entre outras).
 ### Como usamos
 
 As skills são **material de referência** para os prompts dos nossos agentes em
-`packages/agents/`. O mapeamento planejado:
+`packages/agents/`. Cada agente tem um `SKILLS.md` na pasta dele explicando o que
+aproveita de cada skill; esta tabela é o índice.
 
 | Skill | Nosso agente |
 | --- | --- |
+| `templates/voice.md` | `marca` |
 | `ig-profile`, `ig-audit` | `auditoria` |
 | `ig-plan` | `estrategista` |
-| `ig-caption`, `ig-reel`, `ig-carousel` | `conteudo` |
-| `ig-human` | humanizador de texto, usado pelo `conteudo` |
+| `ig-caption`, `ig-reel`, `ig-carousel`, `ig-story`, `ig-repurpose` | `conteudo` |
+| `ig-human` | filtro de saída do `conteudo` — não é agente |
+| `ig-carousel` (parte de arquivo) | `design` |
+| `ig-dm` | `atendimento` |
+| `ig-reply`, `ig-comment` | `comentarios` |
+| `ig-viral` | `tendencias` |
 
 Os scripts Python das skills (`ig-human/humanize.py`, `ig-caption/caption.py` e outros)
 **não são executados** pela plataforma. Quando precisarmos da lógica deles, ela é
 portada para TypeScript no nosso código, com a lista de palavras adaptada para o
-português do Brasil.
+português do Brasil. A lista de quais portar está no `SKILLS.md` do agente que vai usar.
 
 ### Obrigações da licença MIT
 
