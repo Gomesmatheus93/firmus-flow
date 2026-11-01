@@ -39,7 +39,7 @@ export function AdminPage() {
   return (
     <>
       <PageHeader
-        title="Administração"
+        title="Empresas"
         description="Todas as empresas na plataforma. Entrar numa delas abre as telas com os dados daquele cliente — e fica registrado."
       />
 

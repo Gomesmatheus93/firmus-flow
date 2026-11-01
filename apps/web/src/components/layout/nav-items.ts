@@ -1,6 +1,7 @@
 import {
   BarChart3,
   Brain,
+  Building2,
   CalendarDays,
   CalendarClock,
   CheckCheck,
@@ -10,6 +11,7 @@ import {
   LayoutDashboard,
   MessageSquareReply,
   MessagesSquare,
+  Receipt,
   Settings,
   ShieldCheck,
   Sparkles,
@@ -84,7 +86,11 @@ export const navGroups: NavGroup[] = [
 /** Grupo que só a equipe da Firmus enxerga. */
 const firmusGroup: NavGroup = {
   label: 'Firmus',
-  items: [{ label: 'Administração', to: '/admin', icon: ShieldCheck }],
+  items: [
+    { label: 'Visão geral', to: '/admin', icon: ShieldCheck },
+    { label: 'Empresas', to: '/admin/empresas', icon: Building2 },
+    { label: 'Planos', to: '/admin/planos', icon: Receipt },
+  ],
 }
 
 export function visibleGroups(role: Role, platformRole?: PlatformRole | null): NavGroup[] {

@@ -2,6 +2,8 @@ import { createBrowserRouter, Navigate } from 'react-router'
 import { GuestOnly, RequireCompany, RequireOperator, RequireUser } from '@/components/guards'
 import { AppShell } from '@/components/layout/app-shell'
 import { AdminPage } from '@/pages/admin'
+import { AdminOverviewPage } from '@/pages/admin-overview'
+import { AdminPlansPage } from '@/pages/admin-plans'
 import { AnalyticsPage } from '@/pages/analytics'
 import { ApprovalsPage } from '@/pages/approvals'
 import { AuditPage } from '@/pages/audit'
@@ -47,7 +49,11 @@ export const router = createBrowserRouter([
       {
         path: '/',
         element: <AppShell />,
-        children: [{ path: 'admin', element: <AdminPage /> }],
+        children: [
+          { path: 'admin', element: <AdminOverviewPage /> },
+          { path: 'admin/empresas', element: <AdminPage /> },
+          { path: 'admin/planos', element: <AdminPlansPage /> },
+        ],
       },
     ],
   },
