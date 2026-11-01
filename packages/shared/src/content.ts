@@ -13,7 +13,13 @@ export const contentTypeLabel: Record<ContentType, string> = {
 }
 
 /** Onde a peça está no fluxo de aprovação. */
-export const contentStatusSchema = z.enum(['rascunho', 'aguardando', 'ajustar', 'aprovado'])
+export const contentStatusSchema = z.enum([
+  'rascunho',
+  'aguardando',
+  'ajustar',
+  'aprovado',
+  'rejeitado',
+])
 
 export type ContentStatus = z.infer<typeof contentStatusSchema>
 
@@ -22,4 +28,5 @@ export const contentStatusLabel: Record<ContentStatus, string> = {
   aguardando: 'Aguardando aprovação',
   ajustar: 'Pedido de ajuste',
   aprovado: 'Aprovado',
+  rejeitado: 'Rejeitado',
 }

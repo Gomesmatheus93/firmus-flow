@@ -7,6 +7,7 @@ const tone: Record<ContentStatus, { pill: string; dot: string }> = {
   aguardando: { pill: 'bg-azul/10 text-azul', dot: 'bg-azul' },
   ajustar: { pill: 'bg-amber-50 text-amber-700', dot: 'bg-amber-500' },
   aprovado: { pill: 'bg-emerald-50 text-emerald-700', dot: 'bg-emerald-500' },
+  rejeitado: { pill: 'bg-red-50 text-red-700', dot: 'bg-red-500' },
 }
 
 export function StatusBadge({ status, className }: { status: ContentStatus; className?: string }) {

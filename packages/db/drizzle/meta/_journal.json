@@ -29,6 +29,13 @@
       "when": 1793539349006,
       "tag": "0003_crazy_vanisher",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793553376198,
+      "tag": "0004_powerful_radioactive_man",
+      "breakpoints": true
     }
   ]
 }

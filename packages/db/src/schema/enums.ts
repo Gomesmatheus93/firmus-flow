@@ -26,6 +26,7 @@ export const contentStatusEnum = pgEnum('content_status', [
   'aguardando',
   'ajustar',
   'aprovado',
+  'rejeitado',
 ])
 
 export const scheduledPostStatusEnum = pgEnum('scheduled_post_status', [
