@@ -11,6 +11,7 @@ import { AcceptInvitePage } from '@/pages/auth/accept-invite'
 import { SignInPage } from '@/pages/auth/sign-in'
 import { SignUpPage } from '@/pages/auth/sign-up'
 import { BrandPage } from '@/pages/brand'
+import { BrandBuildPage } from '@/pages/brand-build'
 import { CommentAutomationPage } from '@/pages/comment-automation'
 import { ConversationsPage } from '@/pages/conversations'
 import { CreateCompanyPage } from '@/pages/create-company'
@@ -69,6 +70,7 @@ export const router = createBrowserRouter([
           { index: true, element: <Navigate to="/painel" replace /> },
           { path: 'painel', element: <DashboardPage /> },
           { path: 'marca', element: <BrandPage /> },
+          { path: 'marca/montar', element: <BrandBuildPage /> },
           { path: 'auditoria', element: <AuditPage /> },
           { path: 'planejamento', element: <PlanPage /> },
           { path: 'criacao', element: <CreationPage /> },

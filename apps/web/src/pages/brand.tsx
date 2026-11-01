@@ -1,6 +1,7 @@
 import type { AuditFindings, FaqItem, ToneOfVoice } from '@firmus/shared'
-import { AtSign, Brain, Check, Pencil, X } from 'lucide-react'
+import { AtSign, Brain, Check, RefreshCw, X } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { Link } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { AsyncState } from '@/components/async-state'
 import { PageHeader, SectionHeading } from '@/components/page-header'
@@ -66,10 +67,14 @@ export function BrandPage() {
         title="Cérebro da Marca"
         description="Tudo que a plataforma sabe sobre a empresa. Todos os agentes leem daqui — se algo estiver errado, o conteúdo sai errado."
         actions={
-          <Button variant="outline" disabled={!brain}>
-            <Pencil />
-            Editar
-          </Button>
+          brain && (
+            <Button asChild variant="outline">
+              <Link to="/marca/montar">
+                <RefreshCw />
+                Refazer o Cérebro
+              </Link>
+            </Button>
+          )
         }
       />
 
@@ -82,7 +87,11 @@ export function BrandPage() {
           title: 'Cérebro da Marca vazio',
           description:
             'O onboarding de marca é o primeiro passo: contexto, serviços, público, tom de voz, cores e Instagram. Sem isso, nenhum agente consegue escrever como a empresa.',
-          action: <Button>Começar o onboarding</Button>,
+          action: (
+            <Button asChild>
+              <Link to="/marca/montar">Começar o onboarding</Link>
+            </Button>
+          ),
         }}
       >
         {brain && (
