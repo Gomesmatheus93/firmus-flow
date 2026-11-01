@@ -18,6 +18,17 @@ function daysAgo(days: number, now = new Date()): Date {
 const toCents = (reais: number) => Math.round(reais * 100)
 
 /**
+ * Embrulha uma data para usar dentro de um template `sql` cru.
+ *
+ * Em `gte(coluna, data)` o Drizzle sabe o tipo da coluna e converte o Date
+ * sozinho. Dentro de um `sql` ele nao sabe de nada: entrega o objeto Date ao
+ * driver. O postgres-js, que e o de producao, recusa ("must be of type string
+ * or Buffer"); o PGlite dos testes aceita de boa vontade. Foi por isso que
+ * /admin passou nos testes e quebrou no Supabase.
+ */
+const comoData = (date: Date) => sql`${date.toISOString()}::timestamptz`
+
+/**
  * Visão geral do negócio, para a conta de operador.
  *
  * Tudo agregado da plataforma inteira — é a única parte do sistema que olha
@@ -34,7 +45,7 @@ export function adminOverviewRoutes(db: Database): Router {
     const [totais] = await db
       .select({
         total: count(companies.id),
-        novasNoMes: sql<number>`count(*) filter (where ${companies.createdAt} >= ${inicioDoMes})::int`,
+        novasNoMes: sql<number>`count(*) filter (where ${companies.createdAt} >= ${comoData(inicioDoMes)})::int`,
       })
       .from(companies)
 
@@ -95,7 +106,7 @@ export function adminOverviewRoutes(db: Database): Router {
       .where(
         and(
           lt(subscriptions.startedAt, inicioDoMes),
-          sql`(${subscriptions.canceledAt} is null or ${subscriptions.canceledAt} >= ${inicioDoMes})`,
+          sql`(${subscriptions.canceledAt} is null or ${subscriptions.canceledAt} >= ${comoData(inicioDoMes)})`,
         ),
       )
 
