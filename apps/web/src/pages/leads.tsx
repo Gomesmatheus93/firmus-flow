@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { AsyncState } from '@/components/async-state'
 import { DataTable } from '@/components/data-table'
 import { PageHeader } from '@/components/page-header'
+import { baixarCsv, toCsv } from '@/lib/csv'
 import { formatDate } from '@/lib/dates'
 import { useCompanyData } from '@/lib/queries'
 import type { LeadRow } from '@/lib/api-types'
@@ -22,13 +23,29 @@ export function LeadsPage() {
     leads: [],
   })
 
+  function exportar() {
+    const csv = toCsv(
+      ['Nome', 'Interesse', 'Origem', 'Situação', 'Entrou em'],
+      data.leads.map((lead) => [
+        lead.name,
+        lead.interest,
+        lead.source,
+        leadStageLabel[lead.stage],
+        formatDate(lead.createdAt),
+      ]),
+    )
+
+    const dia = new Date().toISOString().slice(0, 10)
+    baixarCsv(`leads-${dia}.csv`, csv)
+  }
+
   return (
     <>
       <PageHeader
         title="Leads"
         description="Contatos que a IA qualificou durante as conversas no WhatsApp."
         actions={
-          <Button variant="outline" disabled={data.leads.length === 0}>
+          <Button variant="outline" disabled={data.leads.length === 0} onClick={exportar}>
             <Download />
             Exportar CSV
           </Button>

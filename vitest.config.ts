@@ -52,6 +52,18 @@ export default defineConfig({
       },
       {
         test: {
+          // Só lógica pura por enquanto (formatação, cálculo). Testar
+          // componente exige jsdom, que é dependência nova — quando precisar.
+          name: 'web',
+          root: './apps/web',
+          environment: 'node',
+          passWithNoTests: true,
+          testTimeout: 30_000,
+          hookTimeout: 30_000,
+        },
+      },
+      {
+        test: {
           name: 'agents',
           root: './packages/agents',
           environment: 'node',
