@@ -22,7 +22,10 @@ const inviteSchema = z.object({
 export function teamRoutes(db: Database, webBaseUrl: string): Router {
   const router = Router()
 
-  router.use(requireRole('chefe'))
+  // O caminho '/team' aqui nao e decoracao: sem ele, router.use() casa com
+  // QUALQUER rota que entre neste roteador. Como ele e montado antes dos
+  // outros, o funcionario levava 403 em toda a plataforma, nao so na Equipe.
+  router.use('/team', requireRole('chefe'))
 
   router.get('/team', async (req, res) => {
     const { companyId } = req.company!

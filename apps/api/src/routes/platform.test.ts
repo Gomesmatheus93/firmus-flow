@@ -181,3 +181,26 @@ describe('automação de comentários', () => {
     expect(lista.body.rules[0].active).toBe(true)
   })
 })
+
+describe('o funcionario enxerga a plataforma', () => {
+  /**
+   * Regressao: o requireRole('chefe') da Equipe estava montado sem caminho.
+   * Como aquele roteador entra antes dos outros, o funcionario levava 403 em
+   * TODAS as telas, nao so na Equipe.
+   */
+  it('funcionario acessa as telas que nao sao de chefe', async () => {
+    await twoCompaniesWithData()
+
+    for (const rota of ['/me', '/brand', '/content', '/plan', '/leads', '/conversations']) {
+      const response = await request(h.app).get(rota).set(asUser('func-aura'))
+      expect(response.status, `funcionario em ${rota}`).toBe(200)
+    }
+  })
+
+  it('e continua barrado so onde deve', async () => {
+    await twoCompaniesWithData()
+
+    const response = await request(h.app).get('/team').set(asUser('func-aura'))
+    expect(response.status).toBe(403)
+  })
+})
