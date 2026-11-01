@@ -6,9 +6,23 @@ import { env, missingBackendConfig } from './env'
 
 const missing = missingBackendConfig()
 
-// Sem chave fica null, e as rotas de agente devolvem 503 com instrução. O
-// construtor do SDK estoura quando não acha chave nenhuma, então nem chamamos.
-const aiClient = env.ANTHROPIC_API_KEY ? new Anthropic({ apiKey: env.ANTHROPIC_API_KEY }) : null
+/**
+ * Cliente da Anthropic, ou `null` quando não há credencial — aí as rotas de
+ * agente devolvem 503 com instrução e o resto da plataforma funciona.
+ *
+ * A checagem é nossa, e não do SDK, porque **o construtor do SDK não reclama
+ * de credencial faltando**: ele constrói numa boa e só falha na primeira
+ * chamada, com erro de autenticação. Conferi. Se a gente confiasse nele, o 503
+ * honesto ("preencha a chave") viraria um 500 no meio do trabalho.
+ *
+ * Além da ANTHROPIC_API_KEY o SDK também aceita ANTHROPIC_AUTH_TOKEN, então as
+ * duas valem aqui. Quem usa perfil do `ant auth login` vai cair no 503 — é o
+ * erro certo para errar: diz o que fazer, em vez de confundir.
+ */
+const aiClient =
+  env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN
+    ? new Anthropic(env.ANTHROPIC_API_KEY ? { apiKey: env.ANTHROPIC_API_KEY } : {})
+    : null
 
 const app =
   missing.length > 0
@@ -32,7 +46,8 @@ app.listen(env.API_PORT, () => {
 
   if (!aiClient) {
     console.warn(
-      '[api] ANTHROPIC_API_KEY não preenchida: os agentes devolvem 503 até você preenchê-la.',
+      '[api] Sem credencial da Anthropic: os agentes devolvem 503. ' +
+        'Preencha ANTHROPIC_API_KEY no .env da raiz.',
     )
   }
 })
