@@ -1,3 +1,4 @@
+import type { ModelClient } from '@firmus/agents/runtime'
 import type { Database } from '@firmus/db'
 import cors from 'cors'
 import express, { type Express } from 'express'
@@ -25,6 +26,13 @@ export type AppDeps = {
   db: Database
   verifyToken: TokenVerifier
   webBaseUrl: string
+  /**
+   * Cliente da Anthropic, ou `null` quando a chave não está no .env.
+   *
+   * Recebido por parâmetro como todo o resto: é o que deixa o teste rodar os
+   * agentes sem rede e sem gastar dinheiro de verdade.
+   */
+  aiClient?: ModelClient | null
 }
 
 function baseApp(webBaseUrl: string): Express {
@@ -38,7 +46,7 @@ function baseApp(webBaseUrl: string): Express {
   return app
 }
 
-export function createApp({ db, verifyToken, webBaseUrl }: AppDeps): Express {
+export function createApp({ db, verifyToken, webBaseUrl, aiClient = null }: AppDeps): Express {
   const app = baseApp(webBaseUrl)
 
   // Público: quem abre um link de convite ainda não tem conta.
@@ -54,7 +62,7 @@ export function createApp({ db, verifyToken, webBaseUrl }: AppDeps): Express {
   // requireCompany é quem define o company_id de toda consulta abaixo.
   app.use(requireCompany(db))
   app.use(teamRoutes(db, webBaseUrl))
-  app.use(brandRoutes(db))
+  app.use(brandRoutes(db, aiClient))
   app.use(contentRoutes(db))
   app.use(planRoutes(db))
   app.use(trendRoutes(db))

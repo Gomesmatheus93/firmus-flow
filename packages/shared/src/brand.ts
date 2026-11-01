@@ -49,3 +49,28 @@ export const auditFindingsSchema = z.object({
 })
 
 export type AuditFindings = z.infer<typeof auditFindingsSchema>
+
+/**
+ * O que o agente `marca` devolve ao montar o Cérebro.
+ *
+ * Todo campo é obrigatório, e nenhum é opcional ou nulo, porque é isso que a
+ * saída estruturada da Anthropic exige — ela transforma este schema em JSON
+ * Schema e cobra o formato do modelo. Ausência se diz com string vazia ou lista
+ * vazia, nunca com campo faltando.
+ *
+ * `missing` é o campo que torna isso honesto: em vez de preencher público-alvo
+ * com palpite, o agente deixa vazio e escreve aqui a pergunta que falta fazer
+ * ao dono. É a mesma regra das telas — estado vazio honesto, nunca exemplo.
+ */
+export const brandBrainDraftSchema = z.object({
+  context: z.string(),
+  services: z.array(z.string()),
+  audience: z.string(),
+  differentiators: z.array(z.string()),
+  toneOfVoice: toneOfVoiceSchema,
+  faq: z.array(faqItemSchema),
+  /** O que o chefe ainda precisa informar, como pergunta em português. */
+  missing: z.array(z.string()),
+})
+
+export type BrandBrainDraft = z.infer<typeof brandBrainDraftSchema>

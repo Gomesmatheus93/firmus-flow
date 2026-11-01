@@ -23,6 +23,12 @@ const envSchema = z.object({
   // Só para operações de administrador, que ainda não existem. A validação de
   // token usa a chave pública.
   SUPABASE_SERVICE_ROLE_KEY: optionalText,
+
+  // Sem a chave, a plataforma abre e tudo funciona menos os agentes: as rotas
+  // que chamam IA devolvem 503 dizendo o que falta. Não entra em
+  // missingBackendConfig de propósito — falta de IA não derruba a api inteira.
+  ANTHROPIC_API_KEY: optionalText,
+  ANTHROPIC_MODEL: optionalText,
 })
 
 const parsed = envSchema.safeParse(process.env)

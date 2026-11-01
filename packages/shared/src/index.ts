@@ -5,10 +5,12 @@ export { invitationStatusSchema, type InvitationStatus } from './invitations'
 export {
   auditFindingsSchema,
   auditPrioritySchema,
+  brandBrainDraftSchema,
   faqItemSchema,
   toneOfVoiceSchema,
   type AuditFindings,
   type AuditPriority,
+  type BrandBrainDraft,
   type FaqItem,
   type ToneOfVoice,
 } from './brand'
