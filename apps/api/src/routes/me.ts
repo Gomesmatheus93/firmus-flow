@@ -1,8 +1,9 @@
 import type { Database } from '@firmus/db'
-import { companies } from '@firmus/db/schema'
+import { companies, users } from '@firmus/db/schema'
 import { eq } from 'drizzle-orm'
 import { Router } from 'express'
-import { unauthorized } from '../http/errors'
+import { z } from 'zod'
+import { badRequest, unauthorized } from '../http/errors'
 import { resolveCompany } from '../middleware/company'
 
 /**
@@ -47,6 +48,31 @@ export function meRoutes(db: Database): Router {
           }
         : null,
     })
+  })
+
+  /**
+   * O usuário editando o próprio nome.
+   *
+   * Não passa por requireCompany de propósito: é dado da pessoa, não da
+   * empresa, e vale até para quem ainda não entrou em nenhuma. O id vem da
+   * sessão, então ninguém edita o nome de outro.
+   */
+  router.patch('/me', async (req, res) => {
+    if (!req.auth) throw unauthorized()
+
+    const corpo = z
+      .object({ fullName: z.string().trim().min(2, 'Diga seu nome.').max(120) })
+      .safeParse(req.body)
+
+    if (!corpo.success) throw badRequest(z.prettifyError(corpo.error))
+
+    const [user] = await db
+      .update(users)
+      .set({ fullName: corpo.data.fullName })
+      .where(eq(users.id, req.auth.id))
+      .returning({ id: users.id, email: users.email, fullName: users.fullName })
+
+    res.json({ user })
   })
 
   return router

@@ -11,6 +11,7 @@ import { commentRuleRoutes } from './routes/comment-rules'
 import { adminRoutes } from './routes/admin'
 import { brandRoutes } from './routes/brand'
 import { companyRoutes } from './routes/companies'
+import { companySettingsRoutes } from './routes/company-settings'
 import { contentRoutes } from './routes/content'
 import { healthRouter } from './routes/health'
 import { invitationRoutes } from './routes/invitations'
@@ -62,6 +63,7 @@ export function createApp({ db, verifyToken, webBaseUrl, aiClient = null }: AppD
   // requireCompany é quem define o company_id de toda consulta abaixo.
   app.use(requireCompany(db))
   app.use(teamRoutes(db, webBaseUrl))
+  app.use(companySettingsRoutes(db))
   app.use(brandRoutes(db, aiClient))
   app.use(contentRoutes(db))
   app.use(planRoutes(db))
