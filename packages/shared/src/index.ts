@@ -3,6 +3,16 @@
 export { platformRoleSchema, roleSchema, type PlatformRole, type Role } from './roles'
 export { invitationStatusSchema, type InvitationStatus } from './invitations'
 export {
+  accountEngagementScore,
+  postEngagementScore,
+  type AudienceSlice,
+  type DailyPoint,
+  type InstagramPost,
+  type InstagramProfile,
+  type InstagramSnapshot,
+  type InstagramTotals,
+} from './analytics'
+export {
   auditFindingsSchema,
   auditPrioritySchema,
   brandBrainDraftSchema,

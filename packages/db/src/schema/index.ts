@@ -32,6 +32,12 @@ export {
   type InstagramMetric,
   type NewInstagramMetric,
 } from './instagram-metrics'
+export {
+  instagramSnapshots,
+  type InstagramSnapshotRow,
+  type NewInstagramSnapshotRow,
+} from './instagram-snapshots'
+export { instagramMedia, type InstagramMediaRow, type NewInstagramMediaRow } from './instagram-media'
 export { exchangeRates, type ExchangeRate, type NewExchangeRate } from './exchange-rates'
 export { invoices, type Invoice, type NewInvoice } from './invoices'
 export { invitations, type Invitation, type NewInvitation } from './invitations'

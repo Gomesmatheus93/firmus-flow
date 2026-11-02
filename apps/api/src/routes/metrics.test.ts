@@ -1,10 +1,16 @@
 import { randomBytes } from 'node:crypto'
-import { instagramConnections, instagramMetrics } from '@firmus/db/schema'
+import {
+  instagramConnections,
+  instagramMedia,
+  instagramMetrics,
+  instagramSnapshots,
+} from '@firmus/db/schema'
 import { encrypt } from '@firmus/shared/crypto'
 import { eq } from 'drizzle-orm'
 import request from 'supertest'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { InstagramInsights, InstagramInsightsFetcher } from '../meta/instagram'
+import type { InstagramOverview, InstagramOverviewFetcher } from '../meta/instagram-overview'
 import { asUser, createHarness, type Harness } from '../test/harness'
 
 let h: Harness
@@ -23,7 +29,83 @@ const tudoCerto: InstagramInsights = {
   recusadas: [],
 }
 
+/** O retrato de 30 dias, com dois posts. */
+const retratoCerto: InstagramOverview = {
+  snapshot: {
+    profile: {
+      username: 'somosfirmus',
+      name: 'Firmus Tech',
+      biography: null,
+      website: null,
+      profilePictureUrl: null,
+      followers: 1234,
+      follows: 10,
+      mediaCount: 2,
+    },
+    since: '2026-10-03T00:00:00.000Z',
+    until: '2026-11-02T00:00:00.000Z',
+    totals: {
+      reach: 5000,
+      views: 9000,
+      accountsEngaged: 300,
+      interactions: 700,
+      likes: 500,
+      comments: 100,
+      shares: 50,
+      saves: 50,
+      replies: 0,
+      reposts: 0,
+      follows: 40,
+      unfollows: 5,
+      profileLinksTaps: 9,
+    },
+    contactTaps: { CALL: 9 },
+    reachByDay: [{ date: '2026-11-01', value: 5000 }],
+    newFollowersByDay: [],
+    audience: null,
+    onlineByHour: null,
+  },
+  posts: [
+    {
+      igMediaId: 'p1',
+      caption: 'Post bom',
+      mediaType: 'IMAGE',
+      mediaProductType: 'FEED',
+      permalink: null,
+      thumbnailUrl: null,
+      postedAt: '2026-10-30T15:00:00.000Z',
+      likes: 50,
+      comments: 10,
+      reach: 1000,
+      views: 1500,
+      saves: 5,
+      shares: 5,
+      profileVisits: 3,
+      totalInteractions: 70,
+    },
+    {
+      igMediaId: 'p2',
+      caption: 'Post fraco',
+      mediaType: 'IMAGE',
+      mediaProductType: 'FEED',
+      permalink: null,
+      thumbnailUrl: null,
+      postedAt: '2026-10-20T15:00:00.000Z',
+      likes: 30,
+      comments: 0,
+      reach: 1000,
+      views: 1200,
+      saves: 0,
+      shares: 0,
+      profileVisits: 1,
+      totalInteractions: 30,
+    },
+  ],
+  recusadas: [],
+}
+
 let resposta: InstagramInsights = tudoCerto
+let retrato: InstagramOverview = retratoCerto
 /** Guarda o token que a rota repassou, para provar que foi decifrado. */
 let tokenRecebido: string | undefined
 
@@ -31,6 +113,8 @@ const metaFalsa: InstagramInsightsFetcher = async (token) => {
   tokenRecebido = token
   return resposta
 }
+
+const retratoFalso: InstagramOverviewFetcher = async () => retrato
 
 async function conectarNoBanco(companyId: string) {
   await h.db.insert(instagramConnections).values({
@@ -44,9 +128,13 @@ async function conectarNoBanco(companyId: string) {
 beforeEach(async () => {
   process.env.FIRMUS_ENCRYPTION_KEY = randomBytes(32).toString('base64')
   resposta = tudoCerto
+  retrato = retratoCerto
   tokenRecebido = undefined
 
-  h = await createHarness({ fetchInstagramInsights: metaFalsa })
+  h = await createHarness({
+    fetchInstagramInsights: metaFalsa,
+    fetchInstagramOverview: retratoFalso,
+  })
 
   const aura = await h.createCompanyWithBoss({
     companyName: 'Studio Aura',
@@ -134,6 +222,63 @@ describe('atualizar as métricas', () => {
 
     expect(ligacao!.followersCount).toBe(1234)
     expect(ligacao!.lastVerifiedAt).not.toBeNull()
+  })
+})
+
+describe('o retrato para o Analytics', () => {
+  it('guarda o retrato e os posts, e a leitura devolve o score', async () => {
+    await conectarNoBanco(auraId)
+    await atualizar('chefe-aura')
+
+    const r = await request(h.app).get('/metrics').set(asUser('func-aura'))
+
+    expect(r.body.snapshot.totals.views).toBe(9000)
+    expect(r.body.snapshot.profile.username).toBe('somosfirmus')
+    // O mais novo primeiro.
+    expect(r.body.posts.map((p: { igMediaId: string }) => p.igMediaId)).toEqual(['p1', 'p2'])
+    // p1: 70 interações em 1000 = 7; p2: 30 em 1000 = 3; média 5.
+    expect(r.body.posts[0].score).toBe(7)
+    expect(r.body.score).toBe(5)
+  })
+
+  it('atualizar de novo corrige os posts, não duplica', async () => {
+    await conectarNoBanco(auraId)
+    await atualizar('chefe-aura')
+
+    retrato = {
+      ...retratoCerto,
+      posts: retratoCerto.posts.map((p) => (p.igMediaId === 'p1' ? { ...p, likes: 90 } : p)),
+    }
+    await atualizar('chefe-aura')
+
+    const posts = await h.db
+      .select()
+      .from(instagramMedia)
+      .where(eq(instagramMedia.companyId, auraId))
+    expect(posts).toHaveLength(2)
+    expect(posts.find((p) => p.igMediaId === 'p1')!.likes).toBe(90)
+    expect(
+      await h.db.select().from(instagramSnapshots).where(eq(instagramSnapshots.companyId, auraId)),
+    ).toHaveLength(1)
+  })
+
+  it('a recusa que vem das duas coletas aparece uma vez só', async () => {
+    await conectarNoBanco(auraId)
+    const recusa = { metrica: 'reach', motivo: 'metric not supported' }
+    resposta = { ...tudoCerto, recusadas: [recusa] }
+    retrato = { ...retratoCerto, recusadas: [recusa] }
+
+    const r = await atualizar('chefe-aura')
+
+    expect(r.body.refused).toEqual([recusa])
+  })
+
+  it('sem atualização ainda, a leitura devolve retrato nulo e nenhum post', async () => {
+    const r = await request(h.app).get('/metrics').set(asUser('chefe-aura'))
+
+    expect(r.body.snapshot).toBeNull()
+    expect(r.body.posts).toEqual([])
+    expect(r.body.score).toBeNull()
   })
 })
 
@@ -230,5 +375,15 @@ describe('isolamento entre empresas', () => {
 
     expect(await diasDe(auraId)).toHaveLength(1)
     expect(await diasDe(rivalId)).toHaveLength(0)
+  })
+
+  it('a rival não lê o retrato nem os posts da Aura', async () => {
+    await conectarNoBanco(auraId)
+    await atualizar('chefe-aura')
+
+    const r = await request(h.app).get('/metrics').set(asUser('chefe-rival'))
+
+    expect(r.body.snapshot).toBeNull()
+    expect(r.body.posts).toEqual([])
   })
 })

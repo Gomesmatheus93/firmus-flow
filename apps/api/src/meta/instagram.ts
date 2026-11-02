@@ -27,13 +27,17 @@ export type InstagramAccountFetcher = (
 
 export class InstagramApiError extends Error {}
 
-type RespostaDaMeta = Record<string, unknown> & {
+export type RespostaDaMeta = Record<string, unknown> & {
   error?: { message?: string; code?: number }
   data?: unknown[]
 }
 
 /** Uma chamada à Graph API. Devolve o corpo, ou `null` quando a Meta recusou. */
-async function chamar(caminho: string, token: string, campos?: string): Promise<RespostaDaMeta> {
+export async function chamar(
+  caminho: string,
+  token: string,
+  campos?: string,
+): Promise<RespostaDaMeta> {
   // `caminho` pode trazer querystring (ex.: "123/insights?metric=reach"); o
   // construtor da URL preserva o que ja vem e os append abaixo acrescentam.
   const url = new URL(`https://graph.facebook.com/${versao()}/${caminho}`)
@@ -192,8 +196,7 @@ export const fetchInstagramInsights: InstagramInsightsFetcher = async (token, ig
   const recusadas: { metrica: string; motivo: string }[] = []
 
   const perfil = await chamar(igAccountId, token, 'followers_count')
-  const followers =
-    typeof perfil.followers_count === 'number' ? perfil.followers_count : null
+  const followers = typeof perfil.followers_count === 'number' ? perfil.followers_count : null
 
   if (perfil.error) {
     recusadas.push({ metrica: 'followers_count', motivo: perfil.error.message ?? 'recusada' })

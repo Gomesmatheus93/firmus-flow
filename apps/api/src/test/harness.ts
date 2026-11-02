@@ -5,6 +5,7 @@ import { createTestDb } from '@firmus/db/testing'
 import type { Role } from '@firmus/shared'
 import type { ModelClient } from '@firmus/agents/runtime'
 import type { InstagramAccountFetcher, InstagramInsightsFetcher } from '../meta/instagram'
+import type { InstagramOverviewFetcher } from '../meta/instagram-overview'
 import { createApp } from '../app'
 import type { AuthUser, TokenVerifier } from '../auth/types'
 
@@ -39,6 +40,7 @@ export async function createHarness(
     aiClient?: ModelClient | null
     fetchInstagramAccount?: InstagramAccountFetcher
     fetchInstagramInsights?: InstagramInsightsFetcher
+    fetchInstagramOverview?: InstagramOverviewFetcher
   } = {},
 ) {
   const { db, close } = await createTestDb()
@@ -58,6 +60,9 @@ export async function createHarness(
       : {}),
     ...(options.fetchInstagramInsights
       ? { fetchInstagramInsights: options.fetchInstagramInsights }
+      : {}),
+    ...(options.fetchInstagramOverview
+      ? { fetchInstagramOverview: options.fetchInstagramOverview }
       : {}),
   })
 

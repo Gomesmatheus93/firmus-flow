@@ -23,6 +23,10 @@ import { contentRoutes } from './routes/content'
 import { healthRouter } from './routes/health'
 import { invitationRoutes } from './routes/invitations'
 import { meRoutes } from './routes/me'
+import {
+  fetchInstagramOverview,
+  type InstagramOverviewFetcher,
+} from './meta/instagram-overview'
 import { metricRoutes } from './routes/metrics'
 import { planRoutes } from './routes/plan'
 import { scheduledPostRoutes } from './routes/scheduled-posts'
@@ -41,6 +45,8 @@ export type AppDeps = {
   fetchInstagramAccount?: InstagramAccountFetcher
   /** Coleta as métricas do perfil. Falsa nos testes, como a de cima. */
   fetchInstagramInsights?: InstagramInsightsFetcher
+  /** O retrato completo para o Analytics: perfil, 30 dias, público e posts. */
+  fetchInstagramOverview?: InstagramOverviewFetcher
   /**
    * Cliente da Anthropic, ou `null` quando a chave não está no .env.
    *
@@ -68,6 +74,7 @@ export function createApp({
   aiClient = null,
   fetchInstagramAccount: buscarConta = fetchInstagramAccount,
   fetchInstagramInsights: buscarInsights = fetchInstagramInsights,
+  fetchInstagramOverview: buscarRetrato = fetchInstagramOverview,
 }: AppDeps): Express {
   const app = baseApp(webBaseUrl)
 
@@ -92,7 +99,7 @@ export function createApp({
   app.use(trendRoutes(db))
   app.use(scheduledPostRoutes(db))
   app.use(commentRuleRoutes(db))
-  app.use(metricRoutes(db, buscarInsights))
+  app.use(metricRoutes(db, buscarInsights, buscarRetrato))
   app.use(supportRoutes(db))
 
   app.use(notFoundHandler)
