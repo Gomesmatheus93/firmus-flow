@@ -2,6 +2,8 @@ import type {
   CommentTrigger,
   ContentStatus,
   ContentType,
+  InstagramPost,
+  InstagramSnapshot,
   ConversationStatus,
   LeadStage,
   ScheduledPostStatus,
@@ -73,6 +75,22 @@ export type MetricDay = {
   /** Contas que interagiram. Ocupou o lugar de `profileViews`, que saiu da API. */
   accountsEngaged: number | null
   interactions: number | null
+}
+
+/** Um post com o Score de Engajamento já calculado pela api. */
+export type AnalyticsPost = InstagramPost & { score: number | null }
+
+/** O que `GET /metrics` devolve. */
+export type MetricsResponse = {
+  days: MetricDay[]
+  snapshot:
+    | (InstagramSnapshot & {
+        fetchedAt: string
+        refused: { metrica: string; motivo: string }[]
+      })
+    | null
+  posts: AnalyticsPost[]
+  score: number | null
 }
 
 export type ConversationRow = {

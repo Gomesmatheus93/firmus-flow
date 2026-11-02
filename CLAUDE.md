@@ -168,6 +168,12 @@ cortados a 45°, sem brilho e sem gradiente — e a interface segue isso:
 5. **Tipografia faz o trabalho.** Rótulo de seção com a utilidade `label` (maiúsculas,
    11px, `tracking-[0.14em]`); número grande com `tabular`.
 
+**Exceção: a tela de Analytics** (decisão do Matheus, 02/11/2026). Ela segue uma
+referência própria: cabeçalho do perfil com faixa pastel, cartão de Score de
+Engajamento e cartões de métrica com ícone em degradê colorido e um tom pastel no
+canto. Os tons vivem num lugar só, em `apps/web/src/components/analytics/blocks.tsx`.
+A exceção vale só para essa tela.
+
 - Fontes: Michroma só na assinatura "FIRMUS FLOW"; Inter em todo o resto.
 - O logo de verdade está em `apps/web/src/assets/firmus-symbol.png`, recortado do kit.
   Dentro do painel quem assina é o produto ("FIRMUS FLOW"), não a empresa
