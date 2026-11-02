@@ -161,6 +161,22 @@ export type InstagramInsightsFetcher = (
 const METRICAS = ['reach', 'views', 'total_interactions', 'accounts_engaged'] as const
 
 /**
+ * Quais métricas a Meta só entrega como total, e não como série dia a dia.
+ *
+ * A documentação diz: `metric_type=time_series` vale só para `reach` (e para a
+ * finada `impressions`); todas as outras aceitam **apenas** `total_value`. Sem
+ * esse parâmetro a Meta recusa a métrica — foi o que deixou views, contas
+ * engajadas e interações vazias na primeira coleta real do @somosfirmus.
+ */
+const SO_TOTAL = new Set(['views', 'total_interactions', 'accounts_engaged', 'profile_links_taps'])
+
+/** O caminho da consulta de uma métrica do perfil, com o tipo que ela exige. */
+export function insightsPath(igAccountId: string, metrica: string): string {
+  const tipo = SO_TOTAL.has(metrica) ? '&metric_type=total_value' : ''
+  return `${igAccountId}/insights?metric=${metrica}&period=day${tipo}`
+}
+
+/**
  * Coleta as métricas do dia.
  *
  * **Uma métrica por chamada, de propósito.** A Meta aposenta métrica com
@@ -186,7 +202,7 @@ export const fetchInstagramInsights: InstagramInsightsFetcher = async (token, ig
   const valores = new Map<string, number>()
 
   for (const metrica of METRICAS) {
-    const url = `${igAccountId}/insights?metric=${metrica}&period=day`
+    const url = insightsPath(igAccountId, metrica)
     const resposta = await chamar(url, token)
 
     if (resposta.error) {
