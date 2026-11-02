@@ -11,7 +11,7 @@ import {
 } from 'recharts'
 import { Button } from '@/components/ui/button'
 import { AsyncState } from '@/components/async-state'
-import { MetaPending } from '@/components/meta-pending'
+import { InstagramConnection } from '@/components/instagram-connection'
 import { PageHeader, SectionHeading } from '@/components/page-header'
 import { StatStrip } from '@/components/stat-card'
 import { Panel } from '@/components/surface'
@@ -111,10 +111,20 @@ export function AnalyticsPage() {
         }
       />
 
-      {/* Só aparece quando não há conexão. Antes ele dizia "aguardando a Meta"
-          mesmo com a conta ligada, o que era falso. */}
-      {isBoss && !conectado && (
-        <MetaPending permission="instagram_manage_insights" what="Ler as métricas do perfil" />
+      {/* Sem conexão, o Analytics vazio é o lugar onde o chefe procura como
+          ligar o Instagram — então a conexão aparece aqui mesmo, e não só em
+          Configurações. É o mesmo componente das duas telas, para elas nunca
+          divergirem. Espera a consulta responder para não piscar o formulário
+          para quem já está conectado. */}
+      {isBoss && ligacao && !conectado && (
+        <section className="space-y-3">
+          <SectionHeading>Conectar o Instagram</SectionHeading>
+          <p className="max-w-2xl text-sm leading-relaxed text-ardosia">
+            Ligue a conta profissional da empresa para a plataforma começar a guardar as métricas.
+            Também dá para fazer isso em Configurações → Instagram.
+          </p>
+          <InstagramConnection />
+        </section>
       )}
 
       {erroMeta && (
@@ -156,7 +166,9 @@ export function AnalyticsPage() {
           title: 'Nenhuma métrica ainda',
           description: conectado
             ? 'O Instagram está conectado. Clique em "Atualizar agora" para buscar o primeiro dia — e se a conta foi convertida há pouco, o Instagram ainda leva alguns dias acumulando dado.'
-            : 'Conecte o Instagram da empresa em Configurações para a plataforma começar a guardar um registro por dia.',
+            : isBoss
+              ? 'Conecte o Instagram da empresa logo acima para a plataforma começar a guardar um registro por dia.'
+              : 'Quando o chefe conectar o Instagram da empresa, as métricas passam a aparecer aqui.',
         }}
       >
         <StatStrip
