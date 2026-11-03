@@ -10,7 +10,13 @@ describe('CSV para o Excel em português', () => {
   })
 
   it('campo vazio ou nulo vira coluna vazia, não a palavra null', () => {
-    const csv = toCsv(['Nome', 'Interesse'], [['Ana', null], ['Bruno', undefined]])
+    const csv = toCsv(
+      ['Nome', 'Interesse'],
+      [
+        ['Ana', null],
+        ['Bruno', undefined],
+      ],
+    )
 
     expect(csv).toBe('Nome;Interesse\r\nAna;\r\nBruno;')
   })

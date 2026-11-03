@@ -23,16 +23,14 @@ import { contentRoutes } from './routes/content'
 import { healthRouter } from './routes/health'
 import { invitationRoutes } from './routes/invitations'
 import { meRoutes } from './routes/me'
-import {
-  fetchInstagramOverview,
-  type InstagramOverviewFetcher,
-} from './meta/instagram-overview'
+import { fetchInstagramOverview, type InstagramOverviewFetcher } from './meta/instagram-overview'
 import { metricRoutes } from './routes/metrics'
 import { planRoutes } from './routes/plan'
 import { scheduledPostRoutes } from './routes/scheduled-posts'
 import { supportRoutes } from './routes/support'
 import { teamRoutes } from './routes/team'
 import { trendRoutes } from './routes/trends'
+import type { AssetUrlSigner } from './storage/supabase'
 
 export type AppDeps = {
   db: Database
@@ -54,6 +52,11 @@ export type AppDeps = {
    * agentes sem rede e sem gastar dinheiro de verdade.
    */
   aiClient?: ModelClient | null
+  /**
+   * Gera os links temporários das imagens no Storage, ou `null` sem a chave
+   * de administrador — aí as peças aparecem sem imagem.
+   */
+  signAssetUrls?: AssetUrlSigner | null
 }
 
 function baseApp(webBaseUrl: string): Express {
@@ -72,6 +75,7 @@ export function createApp({
   verifyToken,
   webBaseUrl,
   aiClient = null,
+  signAssetUrls = null,
   fetchInstagramAccount: buscarConta = fetchInstagramAccount,
   fetchInstagramInsights: buscarInsights = fetchInstagramInsights,
   fetchInstagramOverview: buscarRetrato = fetchInstagramOverview,
@@ -94,7 +98,7 @@ export function createApp({
   app.use(companySettingsRoutes(db))
   app.use(instagramRoutes(db, buscarConta))
   app.use(brandRoutes(db, aiClient))
-  app.use(contentRoutes(db))
+  app.use(contentRoutes(db, signAssetUrls))
   app.use(planRoutes(db))
   app.use(trendRoutes(db))
   app.use(scheduledPostRoutes(db))

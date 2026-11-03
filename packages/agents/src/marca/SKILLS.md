@@ -3,8 +3,8 @@
 Material de referência em `third_party/instagram-agent-skill/` (MIT, Jake Schincariol).
 Não editamos nada lá: o que a gente aproveita é escrito no `prompt.md` daqui.
 
-| Skill | O que aproveitar |
-| --- | --- |
+| Skill                | O que aproveitar      |
+| -------------------- | --------------------- |
 | `templates/voice.md` | o molde do tom de voz |
 
 ## O que o `voice.md` ensina
@@ -19,7 +19,7 @@ Ele é um formulário que o criador preenche à mão sobre a própria voz. Para 
   ele não tem permissão de fazer** (conselho de classe, NDA, política do empregador)
 - "prova que eu posso usar": número e caso real que ele assume
 
-A frase mais importante do arquivo é sobre essa última seção: *as skills nunca inventam
+A frase mais importante do arquivo é sobre essa última seção: _as skills nunca inventam
 um número, então se esta seção estiver vazia todo rascunho volta com um marcador no
-lugar do número*. É a mesma regra do CLAUDE.md para as telas — estado vazio honesto,
+lugar do número_. É a mesma regra do CLAUDE.md para as telas — estado vazio honesto,
 nunca exemplo. No nosso caso o vazio vira o campo `missing`.

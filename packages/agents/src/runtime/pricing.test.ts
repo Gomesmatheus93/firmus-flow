@@ -5,9 +5,9 @@ describe('custo de uma chamada', () => {
   it('cobra entrada e saída com preços diferentes', () => {
     // opus-5-5: US$ 4 por milhão na entrada, US$ 20 na saída.
     // 1M de entrada + 1M de saída = 4 + 20 = US$ 24.
-    expect(callCostUsd('claude-opus-5-5', { inputTokens: 1_000_000, outputTokens: 1_000_000 })).toBe(
-      '24.00000000',
-    )
+    expect(
+      callCostUsd('claude-opus-5-5', { inputTokens: 1_000_000, outputTokens: 1_000_000 }),
+    ).toBe('24.00000000')
   })
 
   it('guarda oito casas, porque a chamada barata custa fração de centavo', () => {

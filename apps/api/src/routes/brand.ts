@@ -1,3 +1,4 @@
+import { AuditUnavailableError, runAudit } from '@firmus/agents/auditoria'
 import { buildBrandBrain } from '@firmus/agents/marca'
 import type { ModelClient } from '@firmus/agents/runtime'
 import type { Database } from '@firmus/db'
@@ -5,7 +6,7 @@ import { brandBrains } from '@firmus/db/schema'
 import { eq } from 'drizzle-orm'
 import { Router } from 'express'
 import { z } from 'zod'
-import { badRequest, unavailable } from '../http/errors'
+import { badRequest, conflict, unavailable } from '../http/errors'
 import { requireRole } from '../middleware/role'
 import { usdBrlRate } from '../money/ptax'
 
@@ -91,6 +92,49 @@ export function brandRoutes(db: Database, aiClient: ModelClient | null): Router 
       .returning()
 
     res.json({ brain, missing: draft.missing })
+  })
+
+  /**
+   * Roda a auditoria do Instagram e guarda o resultado no Cérebro.
+   *
+   * Sem `requireRole`: o funcionário também pode rodar (decisão do Matheus,
+   * 03/11/2026). A auditoria só lê a marca e reescreve o diagnóstico — não
+   * muda nada do que o chefe configurou.
+   */
+  router.post('/brand/audit', async (req, res) => {
+    const { companyId } = req.company!
+
+    if (!aiClient) {
+      throw unavailable(
+        'A IA ainda não está configurada. Preencha ANTHROPIC_API_KEY no .env da raiz.',
+        'ia_nao_configurada',
+      )
+    }
+
+    // Sem Instagram ou sem dados é 409: o pedido é válido, a empresa é que
+    // ainda não está no estado que a auditoria precisa.
+    const { findings } = await runAudit({
+      db,
+      client: aiClient,
+      usdBrlRate: () => usdBrlRate(db),
+      companyId,
+    }).catch((erro: unknown) => {
+      if (erro instanceof AuditUnavailableError) throw conflict(erro.message, erro.reason)
+      throw erro
+    })
+
+    // Só a coluna da auditoria. O resto do Cérebro é do chefe e do agente
+    // `marca`, e não pode ser zerado por quem roda a auditoria.
+    const [brain] = await db
+      .insert(brandBrains)
+      .values({ companyId, auditFindings: findings })
+      .onConflictDoUpdate({
+        target: brandBrains.companyId,
+        set: { auditFindings: findings, updatedAt: new Date() },
+      })
+      .returning()
+
+    res.json({ brain })
   })
 
   return router

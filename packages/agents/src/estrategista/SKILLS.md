@@ -3,8 +3,8 @@
 Material de referência em `third_party/instagram-agent-skill/` (MIT, Jake Schincariol).
 Não editamos nada lá: o que a gente aproveita é escrito no `prompt.md` daqui.
 
-| Skill | O que aproveitar |
-| --- | --- |
+| Skill     | O que aproveitar                                                     |
+| --------- | -------------------------------------------------------------------- |
 | `ig-plan` | a semana: o que postar, em que formato, quando, e com quem interagir |
 
 ## Notas

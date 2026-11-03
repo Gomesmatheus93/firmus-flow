@@ -3,8 +3,8 @@
 Material de referência em `third_party/instagram-agent-skill/` (MIT, Jake Schincariol).
 Não editamos nada lá: o que a gente aproveita é escrito no `prompt.md` daqui.
 
-| Skill | O que aproveitar |
-| --- | --- |
+| Skill         | O que aproveitar                                                        |
+| ------------- | ----------------------------------------------------------------------- |
 | `ig-carousel` | só a parte de arquivo: 1080x1350, quantos slides, o que cabe em cada um |
 
 ## Notas

@@ -14,9 +14,12 @@ import {
   Receipt,
   Settings,
   ShieldCheck,
-  Sparkles,
   Users,
   type LucideIcon,
+  FileImage,
+  GalleryHorizontalEnd,
+  BookOpen,
+  FileVideoCamera,
 } from 'lucide-react'
 import type { PlatformRole, Role } from '@firmus/shared'
 
@@ -24,6 +27,7 @@ export type NavItem = {
   label: string
   to: string
   icon: LucideIcon
+  description?: string
   /** Ausente = todos os papéis veem. */
   roles?: Role[]
 }
@@ -45,12 +49,51 @@ export const navGroups: NavGroup[] = [
       { label: 'Auditoria', to: '/auditoria', icon: Gauge },
     ],
   },
+
   {
     label: 'Conteúdo',
     items: [
-      { label: 'Planejamento', to: '/planejamento', icon: CalendarDays },
-      { label: 'Criação', to: '/criacao', icon: Sparkles },
-      { label: 'Aprovações', to: '/aprovacoes', icon: CheckCheck },
+      {
+        label: 'Planejamento',
+        to: '/planejamento',
+        icon: CalendarDays,
+        description: 'O calendário de postagens',
+      },
+      {
+        label: 'Aprovações',
+        to: '/aprovacoes',
+        icon: CheckCheck,
+        description: 'O que espera sua decisão',
+      },
+    ],
+  },
+  {
+    label: 'Criar',
+    items: [
+      {
+        label: 'Carrossel',
+        to: '/criar/carrossel',
+        icon: GalleryHorizontalEnd,
+        description: 'Slides para o feed',
+      },
+      {
+        label: 'Post',
+        to: '/criar/post',
+        icon: FileImage,
+        description: 'Arte e legenda para o feed',
+      },
+      {
+        label: 'Post Story',
+        to: '/criar/story',
+        icon: BookOpen,
+        description: 'Sequência do dia em 9:16',
+      },
+      {
+        label: 'Roteiro de reels',
+        to: '/criar/reel',
+        icon: FileVideoCamera,
+        description: 'Gancho e roteiro falado',
+      },
     ],
   },
   {

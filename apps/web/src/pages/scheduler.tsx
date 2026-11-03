@@ -35,11 +35,7 @@ export function SchedulerPage() {
         title="Programador de postagem"
         description="A fila do que vai ao ar, com data e hora."
         actions={
-          <PendingAction
-            icon={Plus}
-            label="Agendar"
-            waitingFor="espera a liberação da Meta"
-          />
+          <PendingAction icon={Plus} label="Agendar" waitingFor="espera a liberação da Meta" />
         }
       />
 

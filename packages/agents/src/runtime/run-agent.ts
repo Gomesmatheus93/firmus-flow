@@ -70,9 +70,13 @@ export async function runAgent<T>({
   // O Cérebro é lido por empresa, sempre. Regra 3 do CLAUDE.md.
   const brain = await loadBrain(db, companyId)
 
-  const system = [instrucoes, '', '# Cérebro da Marca desta empresa', '', brainToPrompt(brain)].join(
-    '\n',
-  )
+  const system = [
+    instrucoes,
+    '',
+    '# Cérebro da Marca desta empresa',
+    '',
+    brainToPrompt(brain),
+  ].join('\n')
 
   // A cotação é buscada antes da chamada, de propósito: se o Banco Central
   // estiver fora do ar, melhor descobrir sem ter gasto token ainda.

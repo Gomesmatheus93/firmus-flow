@@ -84,7 +84,11 @@ describe('dados da empresa', () => {
   })
 
   it('o operador da Firmus também não: suporte lê, não renomeia', async () => {
-    const resposta = await salvar('operador', { name: 'Nome Trocado' }, { 'x-firmus-company': auraId })
+    const resposta = await salvar(
+      'operador',
+      { name: 'Nome Trocado' },
+      { 'x-firmus-company': auraId },
+    )
 
     expect(resposta.status).toBe(403)
     expect((await empresa()).name).toBe('Studio Aura')
@@ -105,7 +109,10 @@ describe('meu perfil', () => {
   })
 
   it('nome vazio é recusado', async () => {
-    const resposta = await request(h.app).patch('/me').set(asUser('func-aura')).send({ fullName: '' })
+    const resposta = await request(h.app)
+      .patch('/me')
+      .set(asUser('func-aura'))
+      .send({ fullName: '' })
 
     expect(resposta.status).toBe(400)
   })

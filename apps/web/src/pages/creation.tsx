@@ -5,10 +5,12 @@ import { cn } from 'cn'
 import { AsyncState } from '@/components/async-state'
 import { PendingAction } from '@/components/pending-action'
 import { PageHeader } from '@/components/page-header'
+import { SlideStrip } from '@/components/slide-strip'
 import { StatusBadge } from '@/components/status-badge'
 import { formatDate } from '@/lib/dates'
 import { useCompanyData } from '@/lib/queries'
 import type { ContentItem } from '@/lib/api-types'
+import { useParams } from 'react-router'
 
 const filters: ({ value: 'todos' } | { value: ContentType })[] = [
   { value: 'todos' },
@@ -22,7 +24,7 @@ const filterLabel = (value: 'todos' | ContentType) =>
   value === 'todos' ? 'Tudo' : contentTypeLabel[value]
 
 export function CreationPage() {
-  const [filter, setFilter] = useState<'todos' | ContentType>('todos')
+  const { tipo } = useParams()
 
   const { data, isPending, error } = useCompanyData<{ items: ContentItem[] }>(
     ['content'],
@@ -30,7 +32,7 @@ export function CreationPage() {
     { items: [] },
   )
 
-  const items = filter === 'todos' ? data.items : data.items.filter((i) => i.type === filter)
+  const items = data.items.filter((i) => i.type === tipo)
 
   return (
     <>
@@ -89,6 +91,8 @@ export function CreationPage() {
                 </div>
                 <StatusBadge status={item.status} />
               </div>
+
+              <SlideStrip title={item.title} images={item.images} />
 
               {item.caption && (
                 <p className="mt-3 line-clamp-2 max-w-3xl text-sm leading-relaxed text-ardosia">

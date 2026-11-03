@@ -169,8 +169,8 @@ export function SettingsPage() {
             <Panel>
               <p className="text-sm leading-relaxed text-grafite">
                 <span className="font-semibold text-noite">Isso é do chefe.</span> Conectar o
-                Instagram da empresa mexe no que os agentes publicam, então só quem administra
-                pode fazer.
+                Instagram da empresa mexe no que os agentes publicam, então só quem administra pode
+                fazer.
               </p>
             </Panel>
           )}

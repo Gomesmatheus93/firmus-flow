@@ -101,18 +101,14 @@ export function InstagramConnection() {
 
             {(recemConectada?.followersCount ?? conexao.followersCount) !== null && (
               <p className="tabular mt-2 text-sm text-ardosia">
-                {(
-                  recemConectada?.followersCount ??
-                  conexao.followersCount ??
-                  0
-                ).toLocaleString('pt-BR')}{' '}
+                {(recemConectada?.followersCount ?? conexao.followersCount ?? 0).toLocaleString(
+                  'pt-BR',
+                )}{' '}
                 seguidores
               </p>
             )}
 
-            <p className="mt-3 text-xs text-ardosia">
-              ligado em {formatDate(conexao.connectedAt)}
-            </p>
+            <p className="mt-3 text-xs text-ardosia">ligado em {formatDate(conexao.connectedAt)}</p>
           </div>
 
           <Button
@@ -144,15 +140,14 @@ export function InstagramConnection() {
         </div>
 
         <p className="mt-3 max-w-xl text-xs leading-relaxed text-ardosia">
-          O token sai do Gerenciador de Negócios da Meta, em Usuários do sistema → Gerar novo
-          token, com a conta profissional do Instagram atribuída. Ele é guardado cifrado e nunca
-          volta para esta tela.
+          O token sai do Gerenciador de Negócios da Meta, em Usuários do sistema → Gerar novo token,
+          com a conta profissional do Instagram atribuída. Ele é guardado cifrado e nunca volta para
+          esta tela.
         </p>
 
         <div className="mt-6 grid max-w-xl gap-2">
           <Label htmlFor="igAccountId">
-            ID da conta do Instagram{' '}
-            <span className="font-normal text-ardosia">(opcional)</span>
+            ID da conta do Instagram <span className="font-normal text-ardosia">(opcional)</span>
           </Label>
           <Input
             id="igAccountId"
@@ -163,9 +158,8 @@ export function InstagramConnection() {
             disabled={conectar.isPending}
           />
           <p className="text-xs leading-relaxed text-ardosia">
-            Deixe em branco que a plataforma tenta descobrir sozinha. Se ela não conseguir, o
-            número aparece no Gerenciador de Negócios, em Contas do Instagram, logo abaixo do @
-            do perfil.
+            Deixe em branco que a plataforma tenta descobrir sozinha. Se ela não conseguir, o número
+            aparece no Gerenciador de Negócios, em Contas do Instagram, logo abaixo do @ do perfil.
           </p>
         </div>
 

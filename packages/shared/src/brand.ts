@@ -44,11 +44,33 @@ export const auditFindingsSchema = z.object({
       detail: z.string(),
     }),
   ),
+  /**
+   * O que a auditoria não teve como ver: destaques, fixados, stories, foto. A
+   * Meta não entrega isso pela API, e área sem dado não ganha nota — vai para
+   * cá, para a tela dizer o que ficou de fora em vez de chutar.
+   *
+   * Opcional porque auditoria guardada antes deste campo não tem ele.
+   */
+  notEvaluated: z.array(z.string()).optional(),
   /** Quando a auditoria rodou, em ISO 8601 UTC. */
   generatedAt: z.string(),
 })
 
 export type AuditFindings = z.infer<typeof auditFindingsSchema>
+
+/**
+ * O que o agente `auditoria` devolve.
+ *
+ * Sem `generatedAt`: a hora quem marca é o servidor, não a IA — modelo não
+ * sabe que horas são. Sem `overallScore`: a nota geral é a média das áreas,
+ * conta que o código faz sem errar. E `notEvaluated` vira obrigatório, porque
+ * a saída estruturada exige todo campo presente (lista vazia quando viu tudo).
+ */
+export const auditDraftSchema = auditFindingsSchema
+  .omit({ overallScore: true, generatedAt: true, notEvaluated: true })
+  .extend({ notEvaluated: z.array(z.string()) })
+
+export type AuditDraft = z.infer<typeof auditDraftSchema>
 
 /**
  * O que o agente `marca` devolve ao montar o Cérebro.

@@ -104,7 +104,8 @@ export function BrandBuildPage() {
               que você escreveu continua aqui — nada se perdeu.
             </p>
             <p className="mt-2">
-              Preencha <code className="rounded bg-white/70 px-1.5 py-0.5 text-xs">ANTHROPIC_API_KEY</code>{' '}
+              Preencha{' '}
+              <code className="rounded bg-white/70 px-1.5 py-0.5 text-xs">ANTHROPIC_API_KEY</code>{' '}
               no arquivo <code className="rounded bg-white/70 px-1.5 py-0.5 text-xs">.env</code> da
               raiz do projeto e tente de novo.
             </p>

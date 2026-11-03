@@ -3,10 +3,10 @@
 Material de referência em `third_party/instagram-agent-skill/` (MIT, Jake Schincariol).
 Não editamos nada lá: o que a gente aproveita é escrito no `prompt.md` daqui.
 
-| Skill | O que aproveitar |
-| --- | --- |
-| `ig-reply` | comentários nos posts **da própria empresa**: quais valem resposta, em que ordem, e como lidar com crítica, hater e lead no meio |
-| `ig-comment` | comentário em post **de outra pessoa**, soando como gente com opinião e não como robô |
+| Skill        | O que aproveitar                                                                                                                 |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| `ig-reply`   | comentários nos posts **da própria empresa**: quais valem resposta, em que ordem, e como lidar com crítica, hater e lead no meio |
+| `ig-comment` | comentário em post **de outra pessoa**, soando como gente com opinião e não como robô                                            |
 
 ## Por que é um agente separado do `atendimento`
 

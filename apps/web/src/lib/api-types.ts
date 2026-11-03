@@ -20,6 +20,8 @@ export type ContentItem = {
   reviewNote: string | null
   createdAt: string
   authorName: string | null
+  /** Links temporários das imagens dos slides, na ordem. Vazio quando ainda não há imagem. */
+  images: string[]
 }
 
 export type PlanEntry = {

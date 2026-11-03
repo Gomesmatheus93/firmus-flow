@@ -13,11 +13,13 @@ export {
   type InstagramTotals,
 } from './analytics'
 export {
+  auditDraftSchema,
   auditFindingsSchema,
   auditPrioritySchema,
   brandBrainDraftSchema,
   faqItemSchema,
   toneOfVoiceSchema,
+  type AuditDraft,
   type AuditFindings,
   type AuditPriority,
   type BrandBrainDraft,

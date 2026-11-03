@@ -3,6 +3,7 @@ import { createDb } from '@firmus/db'
 import { createApp, createUnconfiguredApp } from './app'
 import { createSupabaseVerifier } from './auth/supabase'
 import { env, missingBackendConfig } from './env'
+import { createSupabaseSigner } from './storage/supabase'
 
 const missing = missingBackendConfig()
 
@@ -24,6 +25,16 @@ const aiClient =
     ? new Anthropic(env.ANTHROPIC_API_KEY ? { apiKey: env.ANTHROPIC_API_KEY } : {})
     : null
 
+/** Sem a chave de administrador as peças aparecem sem imagem; o resto funciona. */
+const signAssetUrls =
+  env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY
+    ? createSupabaseSigner(
+        env.SUPABASE_URL,
+        env.SUPABASE_SERVICE_ROLE_KEY,
+        env.SUPABASE_STORAGE_BUCKET,
+      )
+    : null
+
 const app =
   missing.length > 0
     ? createUnconfiguredApp(env.WEB_BASE_URL, missing)
@@ -32,6 +43,7 @@ const app =
         verifyToken: createSupabaseVerifier(env.SUPABASE_URL!, env.SUPABASE_ANON_KEY!),
         webBaseUrl: env.WEB_BASE_URL,
         aiClient,
+        signAssetUrls,
       })
 
 app.listen(env.API_PORT, () => {

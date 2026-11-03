@@ -24,7 +24,7 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
       </Button>
 
       <Button asChild className="ml-auto rounded-full px-5 shadow-card">
-        <Link to="/criacao">
+        <Link to="/criar/carrossel">
           <Sparkles />
           <span className="hidden sm:inline">Gerar conteúdo</span>
         </Link>

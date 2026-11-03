@@ -20,9 +20,11 @@ const envSchema = z.object({
   SUPABASE_URL: optionalText,
   SUPABASE_ANON_KEY: optionalText,
 
-  // Só para operações de administrador, que ainda não existem. A validação de
-  // token usa a chave pública.
+  // Chave de administrador. Hoje só o Storage usa: o bucket é privado, e é
+  // com ela que a api gera os links temporários das imagens. A validação de
+  // token continua com a chave pública. Sem ela, as peças aparecem sem imagem.
   SUPABASE_SERVICE_ROLE_KEY: optionalText,
+  SUPABASE_STORAGE_BUCKET: z.string().default('brand-assets'),
 
   // Sem a chave, a plataforma abre e tudo funciona menos os agentes: as rotas
   // que chamam IA devolvem 503 dizendo o que falta. Não entra em

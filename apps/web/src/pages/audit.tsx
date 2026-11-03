@@ -1,13 +1,31 @@
 import type { AuditPriority } from '@firmus/shared'
-import { Check, Download, Gauge, RefreshCw } from 'lucide-react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Check, CircleDashed, Download, Gauge, RefreshCw, TriangleAlert } from 'lucide-react'
+import { useState } from 'react'
+import { Link } from 'react-router'
+import { toast } from 'sonner'
 import { cn } from 'cn'
 import { AsyncState } from '@/components/async-state'
 import { PendingAction } from '@/components/pending-action'
 import { PageHeader, SectionHeading } from '@/components/page-header'
 import { FeatureBlock, Panel } from '@/components/surface'
+import { Button } from '@/components/ui/button'
+import { ApiError, api } from '@/lib/api'
 import { formatDate } from '@/lib/dates'
 import { useCompanyData } from '@/lib/queries'
+import { useAuth } from '@/providers/auth-provider'
 import type { BrandBrain } from './brand'
+
+/**
+ * Erros que não são de quem clicou, e sim do estado da empresa: cada um vira
+ * um bloco fixo na tela com o caminho para resolver, em vez de um toast que
+ * some sozinho.
+ */
+const bloqueios: Record<string, { to?: string; linkLabel?: string }> = {
+  ia_nao_configurada: {},
+  sem_instagram: { to: '/configuracoes', linkLabel: 'Ir para Configurações' },
+  sem_dados: { to: '/analytics', linkLabel: 'Ir para o Analytics' },
+}
 
 const priorityTone: Record<AuditPriority, string> = {
   alta: 'bg-destructive',
@@ -30,6 +48,28 @@ export function AuditPage() {
 
   const audit = data.brain?.auditFindings ?? null
 
+  const { mode } = useAuth()
+  const queryClient = useQueryClient()
+  const [bloqueio, setBloqueio] = useState<ApiError | null>(null)
+
+  const auditar = useMutation({
+    mutationFn: () => api.post<{ brain: BrandBrain }>('/brand/audit'),
+    onSuccess: async () => {
+      setBloqueio(null)
+      await queryClient.invalidateQueries({ queryKey: ['brand'] })
+      toast.success('Auditoria pronta.')
+    },
+    onError: (error: Error) => {
+      if (error instanceof ApiError && error.code in bloqueios) {
+        setBloqueio(error)
+        return
+      }
+      toast.error(error.message)
+    },
+  })
+
+  const caminho = bloqueio ? bloqueios[bloqueio.code] : undefined
+
   return (
     <>
       <PageHeader
@@ -41,12 +81,18 @@ export function AuditPage() {
         }
         actions={
           <>
-            <PendingAction
-              icon={RefreshCw}
-              label={audit ? 'Refazer' : 'Rodar auditoria'}
+            <Button
               variant="outline"
-              waitingFor="espera o agente de auditoria"
-            />
+              disabled={mode === 'demo' || auditar.isPending}
+              onClick={() => auditar.mutate()}
+            >
+              <RefreshCw className={cn(auditar.isPending && 'animate-spin')} />
+              {auditar.isPending
+                ? 'Auditando… pode levar um minuto'
+                : audit
+                  ? 'Refazer'
+                  : 'Rodar auditoria'}
+            </Button>
             {audit && (
               <PendingAction
                 icon={Download}
@@ -57,6 +103,20 @@ export function AuditPage() {
           </>
         }
       />
+
+      {bloqueio && (
+        <Panel className="flex items-start gap-3">
+          <TriangleAlert className="mt-0.5 size-4 shrink-0 text-amber-600" />
+          <div className="min-w-0 text-sm leading-relaxed text-grafite">
+            <p>{bloqueio.message}</p>
+            {caminho?.to && (
+              <Button asChild variant="outline" className="mt-3">
+                <Link to={caminho.to}>{caminho.linkLabel}</Link>
+              </Button>
+            )}
+          </div>
+        </Panel>
+      )}
 
       <AsyncState
         isPending={isPending}
@@ -145,6 +205,24 @@ export function AuditPage() {
                   ))}
                 </ul>
               </section>
+            )}
+
+            {audit.notEvaluated && audit.notEvaluated.length > 0 && (
+              <Panel>
+                <SectionHeading>O que a auditoria não conseguiu ver</SectionHeading>
+                <p className="mt-3 text-sm text-ardosia">
+                  A Meta não entrega estes dados. Eles ficaram sem nota, em vez de ganhar um chute.
+                  Vale conferir você mesmo.
+                </p>
+                <ul className="mt-4 space-y-2.5">
+                  {audit.notEvaluated.map((item) => (
+                    <li key={item} className="flex gap-2.5 text-sm text-grafite">
+                      <CircleDashed className="mt-0.5 size-4 shrink-0 text-ardosia" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </Panel>
             )}
           </>
         )}

@@ -6,6 +6,23 @@ import { Router } from 'express'
 import { z } from 'zod'
 import { badRequest, notFound } from '../http/errors'
 import { requireRole } from '../middleware/role'
+import type { AssetUrlSigner } from '../storage/supabase'
+
+/**
+ * O pedaço do `body` que interessa aqui: o caminho da imagem de cada slide no
+ * bucket. O resto do body varia por formato e passa reto.
+ */
+const slidesSchema = z.object({
+  slides: z.array(z.object({ imagePath: z.string().optional() }).loose()),
+})
+
+/** Os caminhos de imagem da peça, na ordem dos slides. */
+function imagePaths(body: unknown): string[] {
+  const parsed = slidesSchema.safeParse(body)
+  if (!parsed.success) return []
+
+  return parsed.data.slides.map((s) => s.imagePath).filter((p): p is string => Boolean(p))
+}
 
 /**
  * Peças criadas para o Instagram. Serve a tela de Criação e a de Aprovações.
@@ -26,7 +43,7 @@ const reviewSchema = z
     path: ['reviewNote'],
   })
 
-export function contentRoutes(db: Database): Router {
+export function contentRoutes(db: Database, signAssetUrls: AssetUrlSigner | null): Router {
   const router = Router()
 
   // Com o caminho na frente: sem ele, `router.use` pegaria tambem o GET abaixo
@@ -49,6 +66,7 @@ export function contentRoutes(db: Database): Router {
         status: contentItems.status,
         title: contentItems.title,
         caption: contentItems.caption,
+        body: contentItems.body,
         reviewNote: contentItems.reviewNote,
         createdAt: contentItems.createdAt,
         authorName: users.fullName,
@@ -58,7 +76,24 @@ export function contentRoutes(db: Database): Router {
       .where(where)
       .orderBy(desc(contentItems.createdAt))
 
-    res.json({ items })
+    // Só assina caminho dentro da pasta da empresa da sessão. O body veio do
+    // banco já filtrado por companyId, mas um caminho errado gravado ali não
+    // pode virar link para a imagem de outra empresa. Regra 3.
+    const pasta = `${companyId}/`
+    const caminhos = items.map((item) => imagePaths(item.body).filter((p) => p.startsWith(pasta)))
+
+    // Uma chamada ao Storage para a página inteira, não uma por peça.
+    const links = signAssetUrls ? await signAssetUrls(caminhos.flat()) : []
+
+    let inicio = 0
+    const resposta = items.map(({ body: _body, ...item }, n) => {
+      const daPeca = links.slice(inicio, inicio + caminhos[n]!.length)
+      inicio += caminhos[n]!.length
+
+      return { ...item, images: daPeca.filter((u): u is string => u != null) }
+    })
+
+    res.json({ items: resposta })
   })
 
   /**

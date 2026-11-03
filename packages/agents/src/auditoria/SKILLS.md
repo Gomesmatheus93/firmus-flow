@@ -3,10 +3,10 @@
 Material de referência em `third_party/instagram-agent-skill/` (MIT, Jake Schincariol).
 Não editamos nada lá: o que a gente aproveita é escrito no `prompt.md` daqui.
 
-| Skill | O que aproveitar |
-| --- | --- |
+| Skill                        | O que aproveitar                                                                        |
+| ---------------------------- | --------------------------------------------------------------------------------------- |
 | `ig-profile` + `rubric.json` | nota do perfil em 12 partes: campo de nome, bio, link, destaques, os três fixados, feed |
-| `ig-audit` | post-mortem do que já foi postado: o que funcionou, por quê, o que parar de fazer |
+| `ig-audit`                   | post-mortem do que já foi postado: o que funcionou, por quê, o que parar de fazer       |
 
 ## Notas
 

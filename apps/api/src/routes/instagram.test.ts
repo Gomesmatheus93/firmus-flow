@@ -195,9 +195,7 @@ describe('desconectar', () => {
   it('apaga a ligação', async () => {
     await conectar('chefe-aura')
 
-    const resposta = await request(h.app)
-      .delete('/instagram/connection')
-      .set(asUser('chefe-aura'))
+    const resposta = await request(h.app).delete('/instagram/connection').set(asUser('chefe-aura'))
 
     expect(resposta.status).toBe(204)
     expect(await linhaDe(auraId)).toBeUndefined()

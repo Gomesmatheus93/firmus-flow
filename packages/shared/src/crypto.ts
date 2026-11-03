@@ -37,7 +37,7 @@ function lerChave(chaveBase64 = process.env.FIRMUS_ENCRYPTION_KEY): Buffer {
   if (!chaveBase64) {
     throw new EncryptionKeyError(
       'FIRMUS_ENCRYPTION_KEY não está no .env. Gere uma com: ' +
-        'node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'base64\'))"',
+        "node -e \"console.log(require('crypto').randomBytes(32).toString('base64'))\"",
     )
   }
 

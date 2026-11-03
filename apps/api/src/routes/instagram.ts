@@ -16,12 +16,7 @@ const connectSchema = z.object({
    * tentar descobrir qual é — e descobrir nem sempre dá certo, porque depende
    * de como o token foi gerado.
    */
-  igAccountId: z
-    .string()
-    .trim()
-    .regex(/^\d*$/, 'O ID da conta é só números.')
-    .max(40)
-    .optional(),
+  igAccountId: z.string().trim().regex(/^\d*$/, 'O ID da conta é só números.').max(40).optional(),
 })
 
 /**

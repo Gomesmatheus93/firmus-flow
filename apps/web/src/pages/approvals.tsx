@@ -17,6 +17,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { AsyncState } from '@/components/async-state'
 import { PageHeader } from '@/components/page-header'
 import { PendingAction } from '@/components/pending-action'
+import { SlideStrip } from '@/components/slide-strip'
 import { api } from '@/lib/api'
 import { formatDate } from '@/lib/dates'
 import { useCompanyData } from '@/lib/queries'
@@ -116,6 +117,7 @@ export function ApprovalsPage() {
                     {item.authorName ? ` por ${item.authorName}` : ''}
                   </p>
                   <h2 className="mt-1.5 text-sm font-medium text-noite">{item.title}</h2>
+                  <SlideStrip title={item.title} images={item.images} />
                 </div>
 
                 {isBoss ? (

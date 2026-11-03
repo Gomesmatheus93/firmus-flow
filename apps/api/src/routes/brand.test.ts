@@ -1,5 +1,5 @@
 import type { ModelClient } from '@firmus/agents/runtime'
-import { brandBrains } from '@firmus/db/schema'
+import { brandBrains, instagramConnections, instagramMedia } from '@firmus/db/schema'
 import { eq } from 'drizzle-orm'
 import request from 'supertest'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -40,7 +40,7 @@ const descricao =
   'Tenho um estúdio de estética em Mossoró. Faço limpeza de pele e microagulhamento, ' +
   'atendo só com horário marcado e o protocolo é de quatro sessões.'
 
-async function cenario(aiClient = iaFalsa()) {
+async function cenario(aiClient: ModelClient | null = iaFalsa()) {
   h = await createHarness({ aiClient })
 
   const aura = await h.createCompanyWithBoss({
@@ -180,5 +180,89 @@ describe('sem IA configurada', () => {
     expect(resposta.status).toBe(503)
     expect(resposta.body.error.code).toBe('ia_nao_configurada')
     expect(resposta.body.error.message).toContain('ANTHROPIC_API_KEY')
+  })
+})
+
+/** O que o agente `auditoria` devolveria. */
+const rascunhoAuditoria = {
+  areas: [
+    { label: 'Bio', score: 3 },
+    { label: 'Link', score: 8 },
+  ],
+  strengths: [],
+  issues: [{ priority: 'alta', title: 'A bio não diz para quem é', detail: 'Pela bio atual.' }],
+  notEvaluated: ['Destaques: a API da Meta não mostra.'],
+}
+
+async function conectarInstagram(companyId: string) {
+  await h.db.insert(instagramConnections).values({
+    companyId,
+    igAccountId: '1789',
+    username: 'studioaura',
+    accessTokenCipher: 'cifrado',
+  })
+
+  await h.db.insert(instagramMedia).values({
+    companyId,
+    igMediaId: 'post-1',
+    caption: 'Limpeza de pele',
+    mediaType: 'IMAGE',
+    postedAt: new Date('2026-10-28T15:00:00Z'),
+    reach: 200,
+  })
+}
+
+const auditar = (quem: string) => request(h.app).post('/brand/audit').set(asUser(quem))
+
+describe('auditoria', () => {
+  it('o funcionário pode rodar', async () => {
+    const aura = await cenario(iaFalsa(rascunhoAuditoria))
+    await conectarInstagram(aura.companyId)
+
+    const resposta = await auditar('func-aura')
+
+    expect(resposta.status).toBe(200)
+    expect(resposta.body.brain.auditFindings.overallScore).toBe(5.5)
+  })
+
+  it('sem Instagram conectado devolve 409 dizendo o que fazer', async () => {
+    await cenario(iaFalsa(rascunhoAuditoria))
+
+    const resposta = await auditar('chefe-aura')
+
+    expect(resposta.status).toBe(409)
+    expect(resposta.body.error.code).toBe('sem_instagram')
+    expect(resposta.body.error.message).toContain('Conecte o Instagram')
+  })
+
+  it('guarda a auditoria sem apagar o resto do Cérebro', async () => {
+    const aura = await cenario(iaFalsa(rascunhoAuditoria))
+    await conectarInstagram(aura.companyId)
+    await h.db.insert(brandBrains).values({
+      companyId: aura.companyId,
+      audience: 'mulheres de 25 a 45 anos de Mossoró',
+      colorPalette: ['#1C8CFF'],
+    })
+
+    await auditar('chefe-aura')
+
+    const [brain] = await h.db
+      .select()
+      .from(brandBrains)
+      .where(eq(brandBrains.companyId, aura.companyId))
+
+    expect(brain!.auditFindings!.notEvaluated).toContain('Destaques: a API da Meta não mostra.')
+    expect(brain!.audience).toBe('mulheres de 25 a 45 anos de Mossoró')
+    expect(brain!.colorPalette).toEqual(['#1C8CFF'])
+  })
+
+  it('sem IA configurada devolve 503', async () => {
+    const aura = await cenario(null)
+    await conectarInstagram(aura.companyId)
+
+    const resposta = await auditar('chefe-aura')
+
+    expect(resposta.status).toBe(503)
+    expect(resposta.body.error.code).toBe('ia_nao_configurada')
   })
 })
