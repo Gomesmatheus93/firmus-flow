@@ -48,3 +48,26 @@ export function createSupabaseSigner(
     return paths.map((path) => porCaminho.get(path) ?? null)
   }
 }
+
+/** Apaga arquivos do bucket. Falha de Storage não deve derrubar quem chamou. */
+export type AssetRemover = (paths: string[]) => Promise<void>
+
+export function createSupabaseRemover(
+  url: string,
+  serviceRoleKey: string,
+  bucket: string,
+): AssetRemover {
+  const client = createClient(url, serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  })
+
+  return async (paths) => {
+    if (paths.length === 0) return
+
+    const { error } = await client.storage.from(bucket).remove(paths)
+
+    // A peça já saiu do banco; o arquivo que sobrar é lixo, não dado exposto:
+    // o bucket é privado e ninguém mais gera link para ele.
+    if (error) console.error('[api] não consegui apagar as imagens:', error.message)
+  }
+}

@@ -3,6 +3,11 @@ export { brandBrains, type BrandBrain, type NewBrandBrain } from './brand-brains
 export { commentEvents, type CommentEvent, type NewCommentEvent } from './comment-events'
 export { commentRules, type CommentRule, type NewCommentRule } from './comment-rules'
 export { companies, type Company, type NewCompany } from './companies'
+export {
+  companyTemplates,
+  type CompanyTemplate,
+  type NewCompanyTemplate,
+} from './company-templates'
 export { contacts, type Contact, type NewContact } from './contacts'
 export { contentItems, type ContentItem, type NewContentItem } from './content-items'
 export { conversations, type Conversation, type NewConversation } from './conversations'

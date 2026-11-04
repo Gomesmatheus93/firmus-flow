@@ -1,14 +1,17 @@
 import { contentTypeLabel, contentTypeSchema } from '@firmus/shared'
-import { Sparkles } from 'lucide-react'
-import { AsyncState } from '@/components/async-state'
-import { PendingAction } from '@/components/pending-action'
-import { PageHeader } from '@/components/page-header'
-import { SlideStrip } from '@/components/slide-strip'
-import { StatusBadge } from '@/components/status-badge'
-import { formatDate } from '@/lib/dates'
-import { useCompanyData } from '@/lib/queries'
-import type { ContentItem } from '@/lib/api-types'
+import { ArrowLeft, Sparkles, Trash2 } from 'lucide-react'
+import { useState } from 'react'
 import { Navigate, useParams } from 'react-router'
+import { AsyncState } from '@/components/async-state'
+import { ContentGallery } from '@/components/creation/content-gallery'
+import { CreationForm } from '@/components/creation/creation-form'
+import { DeletePieceDialog } from '@/components/creation/delete-piece-dialog'
+import { formatConfig } from '@/components/creation/format-config'
+import { PieceWorkspace } from '@/components/creation/piece-workspace'
+import { PageHeader, SectionHeading } from '@/components/page-header'
+import { Button } from '@/components/ui/button'
+import { useCompanyData } from '@/lib/queries'
+import type { ContentItem, PlanEntry } from '@/lib/api-types'
 
 export function CreationPage() {
   const { tipo } = useParams()
@@ -19,26 +22,34 @@ export function CreationPage() {
     '/content',
     { items: [] },
   )
+  const { data: plano } = useCompanyData<{ entries: PlanEntry[] }>(['plan'], '/plan', {
+    entries: [],
+  })
+
+  /** A peça aberta na área de trabalho. `null` mostra a galeria. */
+  const [abertaId, setAbertaId] = useState<string | null>(null)
+  /** A peça esperando a confirmação de exclusão. */
+  const [excluindo, setExcluindo] = useState<ContentItem | null>(null)
 
   if (!conferido.success) {
     return <Navigate to="/criar/carrossel" replace />
   }
 
-  const items = data.items.filter((i) => i.type === conferido.data)
+  const format = conferido.data
+  const config = formatConfig[format]
+  const items = data.items.filter((i) => i.type === format)
+  // Se a peça aberta foi excluída (ou é de outro formato), volta à galeria.
+  const aberta = items.find((i) => i.id === abertaId) ?? null
+
+  // Pauta deste formato que ainda não virou peça.
+  const pautas = plano.entries.filter((p) => p.format === format && p.contentItemId === null)
 
   return (
     <>
-      <PageHeader
-        title={contentTypeLabel[conferido.data]}
-        description="Carrossel, post único, story e roteiro de reel. Tudo escrito a partir do Cérebro da Marca e revisado pelo humanizador antes de salvar."
-        actions={
-          <PendingAction
-            icon={Sparkles}
-            label="Criar conteúdo"
-            waitingFor="espera o agente de conteúdo"
-          />
-        }
-      />
+      <PageHeader title={contentTypeLabel[format]} description={config.description} />
+
+      {/* O `key` zera os campos ao trocar de formato pelo menu. */}
+      <CreationForm key={format} format={format} pautas={pautas} />
 
       <AsyncState
         isPending={isPending}
@@ -46,42 +57,58 @@ export function CreationPage() {
         isEmpty={items.length === 0}
         empty={{
           icon: Sparkles,
-          title: 'Nada criado ainda',
-          description:
-            'Quando o agente de conteúdo gerar carrosséis, posts, stories ou roteiros, eles aparecem aqui para revisão.',
+          title: `Nenhum ${config.noun} ainda`,
+          description: `Quando o agente de conteúdo criar, cada ${config.noun} aparece aqui com a prévia e o texto de cada ${config.unit.one}, para revisar antes de aprovar.`,
         }}
       >
-        <ul className="surface divide-y divide-border overflow-hidden">
-          {items.map((item) => (
-            <li key={item.id} className="p-5 transition-colors hover:bg-white/45">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="text-xs text-ardosia">
-                    {contentTypeLabel[item.type]} · {formatDate(item.createdAt)}
-                    {item.authorName ? ` · ${item.authorName}` : ''}
-                  </p>
-                  <h2 className="mt-1.5 text-sm font-medium text-noite">{item.title}</h2>
-                </div>
-                <StatusBadge status={item.status} />
+        <section className="space-y-4">
+          {aberta ? (
+            <>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <Button variant="outline" size="sm" onClick={() => setAbertaId(null)}>
+                  <ArrowLeft />
+                  Todas as peças
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive hover:text-destructive"
+                  onClick={() => setExcluindo(aberta)}
+                >
+                  <Trash2 />
+                  Excluir
+                </Button>
               </div>
-
-              <SlideStrip title={item.title} images={item.images} />
-
-              {item.caption && (
-                <p className="mt-3 line-clamp-2 max-w-3xl text-sm leading-relaxed text-ardosia">
-                  {item.caption}
-                </p>
-              )}
-
-              {item.reviewNote && (
-                <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
-                  Pedido de ajuste: {item.reviewNote}
-                </p>
-              )}
-            </li>
-          ))}
-        </ul>
+              {/* O `key` volta para o primeiro slide ao abrir outra peça. */}
+              <PieceWorkspace key={aberta.id} item={aberta} format={format} />
+            </>
+          ) : (
+            <>
+              <SectionHeading
+                aside={
+                  <span className="tabular text-xs text-ardosia">
+                    {items.length} {items.length === 1 ? 'peça' : 'peças'}
+                  </span>
+                }
+              >
+                Peças
+              </SectionHeading>
+              <ContentGallery
+                items={items}
+                aspect={config.aspect}
+                onOpen={(item) => setAbertaId(item.id)}
+                onDelete={setExcluindo}
+              />
+            </>
+          )}
+        </section>
       </AsyncState>
+
+      <DeletePieceDialog
+        item={excluindo}
+        onClose={() => setExcluindo(null)}
+        onDeleted={() => setAbertaId(null)}
+      />
     </>
   )
 }

@@ -64,6 +64,13 @@
       "when": 1793662014549,
       "tag": "0008_burly_inhumans",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793802977118,
+      "tag": "0009_company_templates",
+      "breakpoints": true
     }
   ]
 }

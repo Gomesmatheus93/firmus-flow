@@ -64,6 +64,16 @@ export default defineConfig({
       },
       {
         test: {
+          name: 'templates',
+          root: './packages/templates',
+          environment: 'node',
+          passWithNoTests: true,
+          testTimeout: 30_000,
+          hookTimeout: 30_000,
+        },
+      },
+      {
+        test: {
           name: 'agents',
           root: './packages/agents',
           environment: 'node',

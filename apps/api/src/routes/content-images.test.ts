@@ -140,3 +140,51 @@ describe('imagens dos slides', () => {
     expect(contagem).toEqual([1, 2])
   })
 })
+
+describe('texto dos slides', () => {
+  it('devolve o texto de cada slide junto do link da imagem dele', async () => {
+    const { sign } = assinadorFalso()
+    const { auraId } = await cenario(sign)
+    await h.db.insert(contentItems).values({
+      companyId: auraId,
+      type: 'carrossel',
+      status: 'aguardando',
+      title: 'Cinco mitos',
+      body: {
+        slides: [
+          {
+            label: 'Capa',
+            title: 'Cinco mitos',
+            body: 'Arraste',
+            imagePath: `${auraId}/a/sumiu.png`,
+          },
+          { title: 'Mito 1', body: '  ', imagePath: `${auraId}/a/slide-02.png` },
+        ],
+      },
+    })
+
+    const resposta = await listar('chefe-aura')
+
+    // A imagem do primeiro sumiu, mas o texto dele continua no lugar certo.
+    expect(resposta.body.items[0].slides).toEqual([
+      { label: 'Capa', title: 'Cinco mitos', body: 'Arraste', imageUrl: null },
+      {
+        label: null,
+        title: 'Mito 1',
+        body: null,
+        imageUrl: `https://storage.test/${auraId}/a/slide-02.png?token=x`,
+      },
+    ])
+  })
+
+  it('peça sem slides devolve lista vazia', async () => {
+    const { auraId } = await cenario(null)
+    await h.db
+      .insert(contentItems)
+      .values({ companyId: auraId, type: 'post', status: 'rascunho', title: 'Sem body' })
+
+    const resposta = await listar('chefe-aura')
+
+    expect(resposta.body.items[0].slides).toEqual([])
+  })
+})

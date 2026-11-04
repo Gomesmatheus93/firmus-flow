@@ -11,6 +11,15 @@ import type {
 
 /** O que cada rota da api devolve. Um lugar só, para a tela e a api não divergirem. */
 
+/** Um slide, quadro ou cena da peça: o texto e o link temporário da imagem. */
+export type ContentSlide = {
+  label: string | null
+  title: string | null
+  body: string | null
+  /** Vale por uma hora. `null` enquanto a imagem não foi renderizada. */
+  imageUrl: string | null
+}
+
 export type ContentItem = {
   id: string
   type: ContentType
@@ -22,6 +31,10 @@ export type ContentItem = {
   authorName: string | null
   /** Links temporários das imagens dos slides, na ordem. Vazio quando ainda não há imagem. */
   images: string[]
+  /** Texto e imagem de cada slide, na ordem. Vazio quando a peça não tem slides. */
+  slides: ContentSlide[]
+  /** Chave do modelo visual usado (ex.: 'kit-carrossel'), ou `null`. */
+  template: string | null
 }
 
 export type PlanEntry = {
@@ -30,6 +43,8 @@ export type PlanEntry = {
   format: ContentType
   theme: string
   goal: string | null
+  /** A peça criada a partir desta pauta, ou `null` enquanto ninguém criou. */
+  contentItemId: string | null
 }
 
 export type TrendReport = {

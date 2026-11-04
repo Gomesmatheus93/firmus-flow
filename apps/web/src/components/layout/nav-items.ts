@@ -27,6 +27,7 @@ export type NavItem = {
   label: string
   to: string
   icon: LucideIcon
+  /** Linha curta embaixo do nome, no menu. Ausente = só o nome. */
   description?: string
   /** Ausente = todos os papéis veem. */
   roles?: Role[]

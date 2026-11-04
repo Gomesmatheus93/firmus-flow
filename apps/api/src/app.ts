@@ -29,8 +29,9 @@ import { planRoutes } from './routes/plan'
 import { scheduledPostRoutes } from './routes/scheduled-posts'
 import { supportRoutes } from './routes/support'
 import { teamRoutes } from './routes/team'
+import { templateRoutes } from './routes/templates'
 import { trendRoutes } from './routes/trends'
-import type { AssetUrlSigner } from './storage/supabase'
+import type { AssetRemover, AssetUrlSigner } from './storage/supabase'
 
 export type AppDeps = {
   db: Database
@@ -57,6 +58,8 @@ export type AppDeps = {
    * de administrador — aí as peças aparecem sem imagem.
    */
   signAssetUrls?: AssetUrlSigner | null
+  /** Apaga imagens do Storage ao excluir uma peça. `null` sem a chave. */
+  removeAssets?: AssetRemover | null
 }
 
 function baseApp(webBaseUrl: string): Express {
@@ -76,6 +79,7 @@ export function createApp({
   webBaseUrl,
   aiClient = null,
   signAssetUrls = null,
+  removeAssets = null,
   fetchInstagramAccount: buscarConta = fetchInstagramAccount,
   fetchInstagramInsights: buscarInsights = fetchInstagramInsights,
   fetchInstagramOverview: buscarRetrato = fetchInstagramOverview,
@@ -98,7 +102,8 @@ export function createApp({
   app.use(companySettingsRoutes(db))
   app.use(instagramRoutes(db, buscarConta))
   app.use(brandRoutes(db, aiClient))
-  app.use(contentRoutes(db, signAssetUrls))
+  app.use(contentRoutes(db, signAssetUrls, removeAssets))
+  app.use(templateRoutes(db))
   app.use(planRoutes(db))
   app.use(trendRoutes(db))
   app.use(scheduledPostRoutes(db))

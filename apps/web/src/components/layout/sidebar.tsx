@@ -34,7 +34,20 @@ function SidebarLink({ item, onNavigate }: { item: NavItem; onNavigate?: () => v
       {({ isActive }) => (
         <>
           <Icon className={cn('size-4 shrink-0', isActive ? 'text-ciano' : 'text-ardosia')} />
-          <span className="truncate">{item.label}</span>
+          <span className="min-w-0">
+            <span className="block truncate">{item.label}</span>
+            {item.description && (
+              <span
+                className={cn(
+                  'block truncate text-xs font-normal',
+                  // No item ativo o fundo é azul noite: o ardósia some ali.
+                  isActive ? 'text-white/65' : 'text-ardosia',
+                )}
+              >
+                {item.description}
+              </span>
+            )}
+          </span>
         </>
       )}
     </NavLink>

@@ -53,6 +53,9 @@ importers:
       '@firmus/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@firmus/templates':
+        specifier: workspace:*
+        version: link:../../packages/templates
       '@supabase/supabase-js':
         specifier: ^2.118.0
         version: 2.118.0(@opentelemetry/api@1.10.0)
@@ -102,6 +105,9 @@ importers:
       '@firmus/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@firmus/templates':
+        specifier: workspace:*
+        version: link:../../packages/templates
       '@supabase/supabase-js':
         specifier: ^2.118.0
         version: 2.118.0(@opentelemetry/api@1.10.0)
@@ -244,6 +250,16 @@ importers:
       zod:
         specifier: ^4.6.7
         version: 4.6.7
+    devDependencies:
+      typescript:
+        specifier: ~6.0.3
+        version: 6.0.3
+
+  packages/templates:
+    dependencies:
+      '@firmus/shared':
+        specifier: workspace:*
+        version: link:../shared
     devDependencies:
       typescript:
         specifier: ~6.0.3
