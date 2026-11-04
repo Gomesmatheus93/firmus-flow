@@ -1,7 +1,5 @@
-import { contentTypeLabel, type ContentType } from '@firmus/shared'
+import { contentTypeLabel } from '@firmus/shared'
 import { Sparkles } from 'lucide-react'
-import { useState } from 'react'
-import { cn } from 'cn'
 import { AsyncState } from '@/components/async-state'
 import { PendingAction } from '@/components/pending-action'
 import { PageHeader } from '@/components/page-header'
@@ -11,17 +9,6 @@ import { formatDate } from '@/lib/dates'
 import { useCompanyData } from '@/lib/queries'
 import type { ContentItem } from '@/lib/api-types'
 import { useParams } from 'react-router'
-
-const filters: ({ value: 'todos' } | { value: ContentType })[] = [
-  { value: 'todos' },
-  { value: 'carrossel' },
-  { value: 'post' },
-  { value: 'story' },
-  { value: 'reel' },
-]
-
-const filterLabel = (value: 'todos' | ContentType) =>
-  value === 'todos' ? 'Tudo' : contentTypeLabel[value]
 
 export function CreationPage() {
   const { tipo } = useParams()
@@ -47,25 +34,6 @@ export function CreationPage() {
           />
         }
       />
-
-      <div className="flex flex-wrap gap-2" role="group" aria-label="Filtrar por formato">
-        {filters.map((option) => (
-          <button
-            key={option.value}
-            type="button"
-            onClick={() => setFilter(option.value)}
-            aria-pressed={filter === option.value}
-            className={cn(
-              'rounded-full px-4 py-1.5 text-sm font-medium transition-colors',
-              filter === option.value
-                ? 'bg-noite text-white'
-                : 'glass text-grafite hover:bg-white/80',
-            )}
-          >
-            {filterLabel(option.value)}
-          </button>
-        ))}
-      </div>
 
       <AsyncState
         isPending={isPending}
