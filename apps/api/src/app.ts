@@ -20,6 +20,7 @@ import { companyRoutes } from './routes/companies'
 import { companySettingsRoutes } from './routes/company-settings'
 import { instagramRoutes } from './routes/instagram'
 import { contentRoutes } from './routes/content'
+import { feedRoutes } from './routes/feed'
 import { healthRouter } from './routes/health'
 import { invitationRoutes } from './routes/invitations'
 import { meRoutes } from './routes/me'
@@ -104,6 +105,7 @@ export function createApp({
   app.use(brandRoutes(db, aiClient))
   app.use(contentRoutes(db, signAssetUrls, removeAssets))
   app.use(templateRoutes(db))
+  app.use(feedRoutes(db, signAssetUrls))
   app.use(planRoutes(db))
   app.use(trendRoutes(db))
   app.use(scheduledPostRoutes(db))

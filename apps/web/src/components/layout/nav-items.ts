@@ -18,6 +18,7 @@ import {
   type LucideIcon,
   FileImage,
   GalleryHorizontalEnd,
+  Grid3x3,
   BookOpen,
   FileVideoCamera,
 } from 'lucide-react'
@@ -108,6 +109,12 @@ export const navGroups: NavGroup[] = [
     label: 'Publicação',
     items: [
       { label: 'Programador', to: '/programador', icon: CalendarClock },
+      {
+        label: 'Prévia do feed',
+        to: '/feed',
+        icon: Grid3x3,
+        description: 'Como o perfil vai ficar',
+      },
       { label: 'Comentários', to: '/comentarios', icon: MessageSquareReply },
     ],
   },

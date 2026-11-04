@@ -17,6 +17,7 @@ import { ConversationsPage } from '@/pages/conversations'
 import { CreateCompanyPage } from '@/pages/create-company'
 import { CreationPage } from '@/pages/creation'
 import { DashboardPage } from '@/pages/dashboard'
+import { FeedPage } from '@/pages/feed'
 import { LeadsPage } from '@/pages/leads'
 import { NotFoundPage } from '@/pages/not-found'
 import { PlanPage } from '@/pages/plan'
@@ -79,6 +80,7 @@ export const router = createBrowserRouter([
           { path: 'tendencias', element: <TrendsPage /> },
           { path: 'analytics', element: <AnalyticsPage /> },
           { path: 'programador', element: <SchedulerPage /> },
+          { path: 'feed', element: <FeedPage /> },
           { path: 'comentarios', element: <CommentAutomationPage /> },
           { path: 'conversas', element: <ConversationsPage /> },
           { path: 'leads', element: <LeadsPage /> },
