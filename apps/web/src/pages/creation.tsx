@@ -1,4 +1,4 @@
-import { contentTypeLabel } from '@firmus/shared'
+import { contentTypeLabel, contentTypeSchema } from '@firmus/shared'
 import { Sparkles } from 'lucide-react'
 import { AsyncState } from '@/components/async-state'
 import { PendingAction } from '@/components/pending-action'
@@ -8,10 +8,11 @@ import { StatusBadge } from '@/components/status-badge'
 import { formatDate } from '@/lib/dates'
 import { useCompanyData } from '@/lib/queries'
 import type { ContentItem } from '@/lib/api-types'
-import { useParams } from 'react-router'
+import { Navigate, useParams } from 'react-router'
 
 export function CreationPage() {
   const { tipo } = useParams()
+  const conferido = contentTypeSchema.safeParse(tipo)
 
   const { data, isPending, error } = useCompanyData<{ items: ContentItem[] }>(
     ['content'],
@@ -19,12 +20,16 @@ export function CreationPage() {
     { items: [] },
   )
 
-  const items = data.items.filter((i) => i.type === tipo)
+  if (!conferido.success) {
+    return <Navigate to="/criar/carrossel" replace />
+  }
+
+  const items = data.items.filter((i) => i.type === conferido.data)
 
   return (
     <>
       <PageHeader
-        title="Criação"
+        title={contentTypeLabel[conferido.data]}
         description="Carrossel, post único, story e roteiro de reel. Tudo escrito a partir do Cérebro da Marca e revisado pelo humanizador antes de salvar."
         actions={
           <PendingAction
