@@ -3,39 +3,76 @@ import { Link } from 'react-router'
 import { cn } from 'cn'
 import { FormatBadge } from '@/components/format-badge'
 import { SectionHeading } from '@/components/page-header'
-import type { PlanEntry } from '@/lib/api-types'
+import { StatusBadge } from '@/components/status-badge'
+import type { ContentItem, PlanEntry } from '@/lib/api-types'
 import { addDays, dayMonth, groupByWeek, todayInSaoPaulo, weekdayShort } from '@/lib/calendar'
 
-/** Uma pauta: formato, tema, objetivo e o caminho para criar a peça. */
-function EntryCard({ entry }: { entry: PlanEntry }) {
+/**
+ * Uma pauta: formato, tema, objetivo e o caminho para criar a peça. Quando a
+ * peça já existe e tem imagem, a capa dela aparece no topo do card: é o post
+ * que vai sair naquele dia.
+ */
+function EntryCard({ entry, peca }: { entry: PlanEntry; peca: ContentItem | undefined }) {
   const criada = entry.contentItemId !== null
+  const capa = peca?.images[0]
 
   return (
-    <article className="rounded-lg border border-border bg-white/80 p-3 shadow-card">
-      <FormatBadge format={entry.format} />
-      <h4 className="mt-2 text-sm leading-snug font-medium text-noite">{entry.theme}</h4>
-      {entry.goal && (
-        <p className="mt-1.5 line-clamp-3 text-xs leading-relaxed text-ardosia">{entry.goal}</p>
+    <article className="overflow-hidden rounded-lg border border-border bg-white/80 shadow-card">
+      {capa && (
+        <Link
+          to={`/criar/${entry.format}`}
+          aria-label={`Abrir a peça ${peca.title}`}
+          className="relative block"
+        >
+          <img
+            src={capa}
+            alt={`Capa de ${peca.title}`}
+            loading="lazy"
+            className={cn(
+              'w-full object-cover',
+              entry.format === 'story' || entry.format === 'reel'
+                ? 'aspect-[9/16]'
+                : 'aspect-[4/5]',
+            )}
+          />
+          {peca.images.length > 1 && (
+            <span className="tabular absolute right-1.5 bottom-1.5 rounded-full bg-noite/75 px-1.5 py-0.5 text-[0.65rem] font-medium text-white">
+              {peca.images.length} slides
+            </span>
+          )}
+        </Link>
       )}
-
-      <div className="mt-3 border-t border-border pt-2.5">
-        {criada ? (
-          <Link
-            to={`/criar/${entry.format}`}
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 hover:underline"
-          >
-            <Check className="size-3.5" />
-            Peça criada
-          </Link>
-        ) : (
-          <Link
-            to={`/criar/${entry.format}`}
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-azul hover:underline"
-          >
-            Criar {entry.format === 'reel' ? 'roteiro' : 'peça'}
-            <ArrowRight className="size-3.5" />
-          </Link>
+      <div className="p-3">
+        <FormatBadge format={entry.format} />
+        <h4 className="mt-2 text-sm leading-snug font-medium text-noite">{entry.theme}</h4>
+        {entry.goal && (
+          <p className="mt-1.5 line-clamp-3 text-xs leading-relaxed text-ardosia">{entry.goal}</p>
         )}
+
+        <div className="mt-3 border-t border-border pt-2.5">
+          {criada ? (
+            <Link
+              to={`/criar/${entry.format}`}
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 hover:underline"
+            >
+              <Check className="size-3.5" />
+              Peça criada
+            </Link>
+          ) : (
+            <Link
+              to={`/criar/${entry.format}`}
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-azul hover:underline"
+            >
+              Criar {entry.format === 'reel' ? 'roteiro' : 'peça'}
+              <ArrowRight className="size-3.5" />
+            </Link>
+          )}
+          {peca && (
+            <div className="mt-2">
+              <StatusBadge status={peca.status} className="max-w-full whitespace-normal" />
+            </div>
+          )}
+        </div>
       </div>
     </article>
   )
@@ -48,7 +85,14 @@ function EntryCard({ entry }: { entry: PlanEntry }) {
  * lista e os dias vazios somem: rolar por cinco "nada aqui" no celular não
  * ajuda ninguém.
  */
-export function PlanCalendar({ entries }: { entries: PlanEntry[] }) {
+export function PlanCalendar({
+  entries,
+  pecas,
+}: {
+  entries: PlanEntry[]
+  /** As peças da empresa, pelo id, para o card mostrar a capa. */
+  pecas: Map<string, ContentItem>
+}) {
   const semanas = groupByWeek(entries)
   const hoje = todayInSaoPaulo()
 
@@ -97,7 +141,11 @@ export function PlanCalendar({ entries }: { entries: PlanEntry[] }) {
                     ) : (
                       <div className="space-y-2.5">
                         {dia.entries.map((entry) => (
-                          <EntryCard key={entry.id} entry={entry} />
+                          <EntryCard
+                            key={entry.id}
+                            entry={entry}
+                            peca={entry.contentItemId ? pecas.get(entry.contentItemId) : undefined}
+                          />
                         ))}
                       </div>
                     )}
