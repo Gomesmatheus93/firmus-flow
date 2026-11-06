@@ -33,7 +33,8 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
   const empresa = lerEmpresaEscolhida()
 
   const headers = new Headers(init.headers)
-  headers.set('Content-Type', 'application/json')
+  // Arquivo vai com o tipo dele (image/png...); o resto é JSON.
+  if (!headers.has('Content-Type')) headers.set('Content-Type', 'application/json')
   if (token) headers.set('Authorization', `Bearer ${token}`)
   if (empresa) headers.set('X-Firmus-Company', empresa.id)
 
@@ -66,4 +67,9 @@ export const api = {
   patch: <T>(path: string, body?: unknown) =>
     apiFetch<T>(path, { method: 'PATCH', body: body ? JSON.stringify(body) : undefined }),
   delete: <T>(path: string) => apiFetch<T>(path, { method: 'DELETE' }),
+  put: <T>(path: string, body?: unknown) =>
+    apiFetch<T>(path, { method: 'PUT', body: body ? JSON.stringify(body) : undefined }),
+  /** Envia um arquivo como corpo da requisição, com o tipo dele. */
+  upload: <T>(path: string, file: File) =>
+    apiFetch<T>(path, { method: 'POST', body: file, headers: { 'Content-Type': file.type } }),
 }

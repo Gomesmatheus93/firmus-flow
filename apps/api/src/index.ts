@@ -3,7 +3,11 @@ import { createDb } from '@firmus/db'
 import { createApp, createUnconfiguredApp } from './app'
 import { createSupabaseVerifier } from './auth/supabase'
 import { env, missingBackendConfig } from './env'
-import { createSupabaseRemover, createSupabaseSigner } from './storage/supabase'
+import {
+  createSupabaseRemover,
+  createSupabaseSigner,
+  createSupabaseUploader,
+} from './storage/supabase'
 
 const missing = missingBackendConfig()
 
@@ -44,6 +48,15 @@ const removeAssets =
       )
     : null
 
+const uploadAsset =
+  env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY
+    ? createSupabaseUploader(
+        env.SUPABASE_URL,
+        env.SUPABASE_SERVICE_ROLE_KEY,
+        env.SUPABASE_STORAGE_BUCKET,
+      )
+    : null
+
 const app =
   missing.length > 0
     ? createUnconfiguredApp(env.WEB_BASE_URL, missing)
@@ -54,6 +67,7 @@ const app =
         aiClient,
         signAssetUrls,
         removeAssets,
+        uploadAsset,
       })
 
 app.listen(env.API_PORT, () => {

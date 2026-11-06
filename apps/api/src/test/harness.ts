@@ -6,7 +6,7 @@ import type { Role } from '@firmus/shared'
 import type { ModelClient } from '@firmus/agents/runtime'
 import type { InstagramAccountFetcher, InstagramInsightsFetcher } from '../meta/instagram'
 import type { InstagramOverviewFetcher } from '../meta/instagram-overview'
-import type { AssetRemover, AssetUrlSigner } from '../storage/supabase'
+import type { AssetRemover, AssetUploader, AssetUrlSigner } from '../storage/supabase'
 import { createApp } from '../app'
 import type { AuthUser, TokenVerifier } from '../auth/types'
 
@@ -41,6 +41,7 @@ export async function createHarness(
     aiClient?: ModelClient | null
     signAssetUrls?: AssetUrlSigner | null
     removeAssets?: AssetRemover | null
+    uploadAsset?: AssetUploader | null
     fetchInstagramAccount?: InstagramAccountFetcher
     fetchInstagramInsights?: InstagramInsightsFetcher
     fetchInstagramOverview?: InstagramOverviewFetcher
@@ -60,6 +61,7 @@ export async function createHarness(
     aiClient: options.aiClient ?? null,
     signAssetUrls: options.signAssetUrls ?? null,
     removeAssets: options.removeAssets ?? null,
+    uploadAsset: options.uploadAsset ?? null,
     ...(options.fetchInstagramAccount
       ? { fetchInstagramAccount: options.fetchInstagramAccount }
       : {}),

@@ -24,6 +24,7 @@ import { feedRoutes } from './routes/feed'
 import { healthRouter } from './routes/health'
 import { invitationRoutes } from './routes/invitations'
 import { meRoutes } from './routes/me'
+import { onboardingRoutes } from './routes/onboarding'
 import { fetchInstagramOverview, type InstagramOverviewFetcher } from './meta/instagram-overview'
 import { metricRoutes } from './routes/metrics'
 import { planRoutes } from './routes/plan'
@@ -32,7 +33,7 @@ import { supportRoutes } from './routes/support'
 import { teamRoutes } from './routes/team'
 import { templateRoutes } from './routes/templates'
 import { trendRoutes } from './routes/trends'
-import type { AssetRemover, AssetUrlSigner } from './storage/supabase'
+import type { AssetRemover, AssetUploader, AssetUrlSigner } from './storage/supabase'
 
 export type AppDeps = {
   db: Database
@@ -61,6 +62,8 @@ export type AppDeps = {
   signAssetUrls?: AssetUrlSigner | null
   /** Apaga imagens do Storage ao excluir uma peça. `null` sem a chave. */
   removeAssets?: AssetRemover | null
+  /** Envia arquivos (o logo do onboarding) ao Storage. `null` sem a chave. */
+  uploadAsset?: AssetUploader | null
 }
 
 function baseApp(webBaseUrl: string): Express {
@@ -81,6 +84,7 @@ export function createApp({
   aiClient = null,
   signAssetUrls = null,
   removeAssets = null,
+  uploadAsset = null,
   fetchInstagramAccount: buscarConta = fetchInstagramAccount,
   fetchInstagramInsights: buscarInsights = fetchInstagramInsights,
   fetchInstagramOverview: buscarRetrato = fetchInstagramOverview,
@@ -103,6 +107,7 @@ export function createApp({
   app.use(companySettingsRoutes(db))
   app.use(instagramRoutes(db, buscarConta))
   app.use(brandRoutes(db, aiClient))
+  app.use(onboardingRoutes({ db, aiClient, signAssetUrls, uploadAsset }))
   app.use(contentRoutes(db, signAssetUrls, removeAssets))
   app.use(templateRoutes(db))
   app.use(feedRoutes(db, signAssetUrls))

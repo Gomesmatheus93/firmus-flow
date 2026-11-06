@@ -64,3 +64,20 @@ export {
   type LeadStage,
   type MessageAuthor,
 } from './support'
+export {
+  answersToDescription,
+  hexColorSchema,
+  isBrainComplete,
+  ONBOARDING_KEYS,
+  ONBOARDING_MIN_CHARS,
+  onboardingAnswerSchema,
+  onboardingConfirmSchema,
+  onboardingQuestions,
+  onboardingStatusSchema,
+  onboardingVisualSchema,
+  type OnboardingAnswers,
+  type OnboardingConfirm,
+  type OnboardingKey,
+  type OnboardingStatus,
+  type OnboardingVisual,
+} from './onboarding'

@@ -1,3 +1,4 @@
+import type { BrandBrainDraft } from '@firmus/shared'
 import type {
   CommentTrigger,
   ContentStatus,
@@ -126,4 +127,16 @@ export type LeadRow = {
   source: string | null
   stage: LeadStage
   createdAt: string
+}
+
+export type OnboardingState = {
+  brainComplete: boolean
+  onboarding: {
+    currentStep: number
+    answers: Partial<Record<'oferta' | 'cliente' | 'diferencial' | 'tom', string>>
+    visual: { colors: string[]; instagram: string; logoUrl: string | null }
+    status: 'respondendo' | 'gerando' | 'revisao' | 'concluido' | 'erro' | 'sem_ia'
+    draft: BrandBrainDraft | null
+    errorMessage: string | null
+  }
 }

@@ -1,5 +1,10 @@
 export { agentRuns, type AgentRun, type NewAgentRun } from './agent-runs'
 export { brandBrains, type BrandBrain, type NewBrandBrain } from './brand-brains'
+export {
+  brandOnboardings,
+  type BrandOnboarding,
+  type NewBrandOnboarding,
+} from './brand-onboardings'
 export { commentEvents, type CommentEvent, type NewCommentEvent } from './comment-events'
 export { commentRules, type CommentRule, type NewCommentRule } from './comment-rules'
 export { companies, type Company, type NewCompany } from './companies'

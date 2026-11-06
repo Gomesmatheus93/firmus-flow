@@ -71,3 +71,25 @@ export function createSupabaseRemover(
     if (error) console.error('[api] não consegui apagar as imagens:', error.message)
   }
 }
+
+/** Envia um arquivo ao bucket, substituindo o que estiver no mesmo caminho. */
+export type AssetUploader = (path: string, body: Buffer, contentType: string) => Promise<void>
+
+export function createSupabaseUploader(
+  url: string,
+  serviceRoleKey: string,
+  bucket: string,
+): AssetUploader {
+  const client = createClient(url, serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  })
+
+  return async (path, body, contentType) => {
+    const { error } = await client.storage
+      .from(bucket)
+      .upload(path, body, { contentType, upsert: true })
+
+    // Aqui o erro sobe: quem enviou precisa saber que o arquivo não foi salvo.
+    if (error) throw new Error(`Não consegui salvar o arquivo: ${error.message}`)
+  }
+}

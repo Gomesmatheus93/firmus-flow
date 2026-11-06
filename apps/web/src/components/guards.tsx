@@ -1,5 +1,7 @@
 import { Navigate, Outlet } from 'react-router'
 import { Splash } from '@/components/splash'
+import type { OnboardingState } from '@/lib/api-types'
+import { useCompanyData } from '@/lib/queries'
 import { useAuth } from '@/providers/auth-provider'
 
 /**
@@ -52,6 +54,33 @@ export function GuestOnly() {
   if (loading) return <Splash />
   if (user && mode === 'supabase') {
     return <Navigate to={company ? '/painel' : '/criar-empresa'} replace />
+  }
+
+  return <Outlet />
+}
+
+/**
+ * Manda o chefe para o onboarding enquanto o Cérebro da Marca não estiver
+ * completo. Funcionário e operador nunca são mandados: quem responde pela
+ * marca é o chefe da própria empresa.
+ *
+ * Sem IA configurada (`sem_ia`) o chefe passa: as respostas estão salvas e o
+ * Cérebro sai quando a IA estiver ativa — prender ele na tela não ajuda.
+ */
+export function RequireOnboarding() {
+  const { company, mode } = useAuth()
+  const ehChefe = mode === 'supabase' && company?.role === 'chefe' && !company.viewedAsOperator
+
+  const { data, isPending } = useCompanyData<OnboardingState | null>(
+    ['onboarding'],
+    '/onboarding',
+    null,
+  )
+
+  if (!ehChefe) return <Outlet />
+  if (isPending) return <Splash />
+  if (data && !data.brainComplete && data.onboarding.status !== 'sem_ia') {
+    return <Navigate to="/onboarding" replace />
   }
 
   return <Outlet />
