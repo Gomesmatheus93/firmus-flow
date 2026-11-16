@@ -24,6 +24,10 @@ export const cor = {
 export type TemplateAssets = {
   /** O "F" facetado da Firmus, em PNG. */
   symbolUrl: string
+  /** O logo da empresa dona do modelo, quando ela enviou um. */
+  logoUrl?: string | null
+  /** O nome da empresa: entra em texto quando não há logo, num post de verdade. */
+  marca?: string | null
 }
 
 const FONTES =
@@ -116,9 +120,10 @@ export function espacoFoto({
 }
 
 /** O documento de um slide, com as fontes e o tamanho do feed (1080x1350). */
-export function pagina(corpo: string, fundo: string = cor.gelo) {
+/** `fontes`: endereço do Google Fonts de um modelo que usa outra família. */
+export function pagina(corpo: string, fundo: string = cor.gelo, fontes?: string) {
   return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
-<link href="${FONTES}" rel="stylesheet">
+<link href="${FONTES}" rel="stylesheet">${fontes ? `\n<link href="${fontes}" rel="stylesheet">` : ''}
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   html, body { width:${WIDTH}px; height:${HEIGHT}px; }

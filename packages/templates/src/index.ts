@@ -3,17 +3,24 @@ import type { TemplateAssets } from './base'
 import { renderBrutalist, type BrutalistSlide } from './styles/brutalist'
 import { renderEditorial, type EditorialSlide } from './styles/editorial'
 import { renderKit, type KitSlide } from './styles/kit'
+import { renderLave, type LaveSlide } from './styles/lave'
 import { renderPaper, type PaperSlide } from './styles/paper'
 
 export { HEIGHT, WIDTH, type TemplateAssets } from './base'
-export { renderBrutalist, renderEditorial, renderKit, renderPaper }
-export type { BrutalistSlide, EditorialSlide, KitSlide, PaperSlide }
+export { renderBrutalist, renderEditorial, renderKit, renderLave, renderPaper }
+export type { BrutalistSlide, EditorialSlide, KitSlide, LaveSlide, PaperSlide }
 
 /**
  * Os modelos que existem. A chave é o que fica gravado no banco
  * (`company_templates`), então trocar uma é migration, não renomeação.
  */
-export const TEMPLATE_KEYS = ['kit-carrossel', 'editorial', 'papel-etiqueta', 'brutalista'] as const
+export const TEMPLATE_KEYS = [
+  'kit-carrossel',
+  'editorial',
+  'papel-etiqueta',
+  'brutalista',
+  'lave-seque',
+] as const
 
 export type TemplateKey = (typeof TEMPLATE_KEYS)[number]
 
@@ -302,6 +309,62 @@ export const templates: Record<TemplateKey, Template> = {
         },
       ],
       renderBrutalist,
+    ),
+  },
+
+  'lave-seque': {
+    key: 'lave-seque',
+    name: 'Lave Seque',
+    description:
+      'Fundo branco com estampa de lavanderia, manchas marinho nos cantos e título em marinho e verde.',
+    formats: ['carrossel', 'post'],
+    preview: previa<LaveSlide>(
+      [
+        {
+          label: 'Capa',
+          slide: {
+            kind: 'capa',
+            emoji: '🤝',
+            etiqueta: '15/09 | dia do cliente',
+            linha1: 'Obrigado',
+            linha2: 'cliente!',
+            subtitulo: 'Sua preferência é o que nos motiva a continuar.',
+            apoio: 'Você é essencial para o nosso sucesso.',
+          },
+        },
+        {
+          label: 'Texto',
+          slide: {
+            kind: 'texto',
+            etiqueta: 'dica da semana',
+            titulo: 'Roupa *branquinha* por mais tempo',
+            paragrafos: [
+              'Separe as peças brancas das coloridas antes de lavar.',
+              'E deixe o resto *com a gente*: a gente cuida de cada peça.',
+            ],
+          },
+        },
+        {
+          label: 'Lista',
+          slide: {
+            kind: 'lista',
+            etiqueta: 'nossos serviços',
+            titulo: 'Aqui sua roupa *é bem cuidada*',
+            itens: ['Lavagem', 'Secagem', 'Passadoria', 'Edredons e cobertores'],
+          },
+        },
+        {
+          label: 'Chamada final',
+          slide: {
+            kind: 'chamada',
+            linha1: 'Traga sua',
+            linha2: 'roupa!',
+            texto: 'Chama a gente no *WhatsApp* e combine a coleta.',
+            botao: 'Link na bio',
+          },
+        },
+      ],
+      renderLave,
     ),
   },
 }
