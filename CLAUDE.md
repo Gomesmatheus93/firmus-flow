@@ -158,20 +158,27 @@ Paleta oficial, extraída dos arquivos do logo em `Documents/firmus tech/logo`:
 | Azul noite  | `#0B1F3A` | títulos e blocos de assinatura            |
 | Grafite     | `#1A1D23` | corpo de texto                            |
 | Ardósia     | `#5A6B82` | texto secundário                          |
-| Gelo        | `#F4F7FB` | fundo da plataforma                       |
-| Régua       | `#E3E9F2` | bordas e divisórias                       |
+| Gelo        | `#F4F7FB` | fundo de bloco interno, campo, linha      |
+| Fundo       | `#F3F6FB` | fundo da página                           |
+| Régua       | `#E6ECF4` | bordas e divisórias                       |
+| Lateral     | `#0A1A33` | só a barra lateral                        |
 
-**A plataforma é clara.** O logo da Firmus é chapado e angular — planos sólidos
-cortados a 45°, sem brilho e sem gradiente — e a interface segue isso:
+**Estilo SaaS moderno** (aprovado pelo Matheus em 18/11/2026, a partir de quatro
+referências de dashboards SaaS). A plataforma é clara, com a cor da Firmus:
 
-1. **Zero desfoque, zero brilho, zero gradiente.** Nem no fundo, nem na borda, nem no
-   botão. Sombra só em camada flutuante (menu, diálogo).
-2. **Profundidade vem de régua de 1px e troca de fundo**, nada mais.
-3. **Cartão só quando agrupa de verdade.** Métricas vão numa tira única dividida por
-   réguas, não em caixas soltas.
-4. **Chanfro de 45°** (utilidade `chamfer`): no máximo uma vez por tela.
-5. **Tipografia faz o trabalho.** Rótulo de seção com a utilidade `label` (maiúsculas,
-   11px, `tracking-[0.14em]`); número grande com `tabular`.
+1. **Barra lateral azul-noite** de cima a baixo, ícone + nome, item ativo numa pílula
+   Azul Firmus. Quem está logado fica no topo, à direita, com o menu de perfil.
+2. **Fundo chapado** (`fundo`) e **cartões brancos sólidos** (utilidade `surface`, ou o
+   componente `Panel`): canto de 18px, sombra suave, sem borda dura. Nada de vidro fosco
+   nem desfoque.
+3. **Cartão de métrica** (`StatStrip`): ícone num quadradinho azul claro (`icon-chip`),
+   rótulo, número grande `tabular`. No máximo um cartão `accent` por tela, preenchido.
+4. **Bloco de destaque** (`FeatureBlock`, utilidade `highlight`): degradê do Azul Firmus
+   ao azul-noite. **No máximo um por tela**, senão deixa de ser destaque.
+5. **Selo de variação** ("+12%") só com comparação real. Busca e notificações só quando
+   existirem de verdade: controle que não responde parece defeito.
+6. Tabela com a classe `data-table` (vira ficha no celular); listas de navegação em
+   linhas com `icon-chip` e seta.
 
 **Exceção: a tela de Analytics** (decisão do Matheus, 02/11/2026). Ela segue uma
 referência própria: cabeçalho do perfil com faixa pastel, cartão de Score de

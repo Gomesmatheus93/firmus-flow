@@ -13,7 +13,7 @@ export function AppShell() {
     <div className="min-h-dvh">
       <Backdrop />
 
-      <aside className="fixed inset-y-3 left-3 z-40 hidden w-[16.5rem] lg:block">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 lg:block">
         <Sidebar />
       </aside>
 
@@ -22,21 +22,21 @@ export function AppShell() {
           <button
             type="button"
             aria-label="Fechar menu"
-            className="absolute inset-0 bg-noite/30 backdrop-blur-sm"
+            className="absolute inset-0 bg-noite/40"
             onClick={() => setMenuOpen(false)}
           />
-          <div className="animate-in slide-in-from-left absolute inset-y-3 left-3 w-[16.5rem] duration-150">
+          <div className="animate-in slide-in-from-left absolute inset-y-0 left-0 w-64 duration-150">
             <Sidebar onNavigate={() => setMenuOpen(false)} />
           </div>
         </div>
       )}
 
-      <div className="lg:pl-[17.25rem]">
-        <div className="mx-auto max-w-[86rem] px-4 py-4 lg:px-6 lg:py-5">
+      <div className="lg:pl-64">
+        <div className="mx-auto max-w-[86rem] px-4 py-4 lg:px-8 lg:py-5">
           <Topbar onMenu={() => setMenuOpen(true)} />
           <DemoBanner />
           <OperatorBanner />
-          <main className="mt-6 space-y-5">
+          <main className="mt-5 space-y-5">
             <Outlet />
           </main>
         </div>

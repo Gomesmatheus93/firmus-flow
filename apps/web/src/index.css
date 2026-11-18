@@ -11,22 +11,23 @@
   --color-ardosia: #5a6b82;
   --color-gelo: #f4f7fb;
 
-  /* Base do degradê de fundo. Os borrões coloridos vêm do componente Backdrop. */
-  --color-fundo: #eef3fa;
-  --color-regua: #e4ebf5;
+  /* Fundo chapado, cinza-azulado bem claro: os cartões brancos se destacam
+     dele pela sombra, como nas referências SaaS aprovadas em 18/11/2026. */
+  --color-fundo: #f3f6fb;
+  --color-regua: #e6ecf4;
+  /* Azul-noite um pouco mais fundo, só para a barra lateral. */
+  --color-lateral: #0a1a33;
 
   --font-display: 'Michroma', ui-sans-serif, system-ui, sans-serif;
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
 
-  --shadow-card: 0 1px 2px rgb(11 31 58 / 0.04), 0 4px 16px rgb(11 31 58 / 0.06);
+  --shadow-card: 0 1px 2px rgb(11 31 58 / 0.04), 0 6px 20px rgb(11 31 58 / 0.05);
   --shadow-panel: 0 2px 6px rgb(11 31 58 / 0.05), 0 12px 32px rgb(11 31 58 / 0.08);
   --shadow-float: 0 8px 32px rgb(11 31 58 / 0.16), 0 2px 8px rgb(11 31 58 / 0.08);
 }
 
 /* ===================================================== Tokens do shadcn/ui
-   `--card` fica branco sólido: menus, diálogos e campos precisam ser opacos
-   para o texto não competir com o que está atrás. O vidro é a utilidade
-   `glass`, aplicada nos painéis da página. */
+   Tudo opaco: cartão, menu, diálogo e campo são brancos sólidos. */
 :root {
   --radius: 1rem;
 
@@ -100,54 +101,54 @@
 /* ============================================================= Utilidades */
 
 /**
- * Vidro: painel translúcido que deixa o degradê do fundo aparecer por trás,
- * desfocado. É o que dá a sensação de camadas das referências.
+ * Cartão: branco sólido, canto bem arredondado e sombra suave, sem borda dura.
+ * É a peça que as referências SaaS repetem em tudo. A borda de 1px quase
+ * invisível só segura o contorno em tela de pouco contraste.
  *
- * 72% de branco é o limite: abaixo disso o texto começa a brigar com o que
- * está atrás. Onde o navegador não suporta backdrop-filter, a regra @supports
- * abaixo fecha o branco e o painel vira sólido — o texto continua legível.
+ * `glass` e `glass-strong` eram o vidro fosco da versão anterior; ficaram como
+ * nomes, agora sólidos, para as telas que ainda usam não quebrarem.
  */
-@utility glass {
-  background-color: rgb(255 255 255 / 0.72);
-  border: 1px solid rgb(255 255 255 / 0.8);
-  box-shadow: var(--shadow-card);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-}
-
-/** Vidro mais fechado, para a barra lateral e outras camadas de navegação. */
-@utility glass-strong {
-  background-color: rgb(255 255 255 / 0.82);
-  border: 1px solid rgb(255 255 255 / 0.9);
-  box-shadow: var(--shadow-panel);
-  backdrop-filter: blur(28px) saturate(180%);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
-}
-
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .glass {
-    background-color: rgb(255 255 255 / 0.95);
-  }
-
-  .glass-strong {
-    background-color: rgb(255 255 255 / 0.97);
-  }
-}
-
-/** Painel de vidro já com o raio padrão. */
 @utility surface {
-  border-radius: var(--radius);
-  background-color: rgb(255 255 255 / 0.72);
-  border: 1px solid rgb(255 255 255 / 0.8);
+  border-radius: 1.125rem;
+  background-color: #ffffff;
+  border: 1px solid rgb(230 236 244 / 0.7);
   box-shadow: var(--shadow-card);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .surface {
-    background-color: rgb(255 255 255 / 0.95);
-  }
+@utility glass {
+  background-color: #ffffff;
+  border: 1px solid rgb(230 236 244 / 0.7);
+  box-shadow: var(--shadow-card);
+}
+
+@utility glass-strong {
+  background-color: #ffffff;
+  border: 1px solid rgb(230 236 244 / 0.7);
+  box-shadow: var(--shadow-panel);
+}
+
+/** Quadradinho de ícone com fundo azul clarinho, o "chip" dos cartões de métrica. */
+@utility icon-chip {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  background-color: color-mix(in oklab, var(--color-azul) 10%, white);
+  color: var(--color-azul);
+}
+
+/** Barra de rolagem fina e clara, para o menu sobre o azul-noite. */
+@utility dark-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(255 255 255 / 0.15) transparent;
+}
+
+/** O bloco de destaque: degradê do Azul Firmus ao azul-noite. Um por tela. */
+@utility highlight {
+  background-image: linear-gradient(135deg, #1c8cff 0%, #1462d1 45%, #0b1f3a 100%);
+  color: #ffffff;
 }
 
 /** Rótulo pequeno, maiúsculo e espaçado — a assinatura tipográfica da marca. */
@@ -207,7 +208,7 @@
 
   .data-table th {
     /* Opaco de propósito: ao rolar, o cabeçalho passa por cima das linhas. */
-    background: rgb(255 255 255 / 0.96);
+    background: #ffffff;
     text-align: left;
     font-weight: 600;
     font-size: 0.6875rem;
@@ -239,7 +240,7 @@
 
     .data-table tr {
       border-radius: var(--radius-lg);
-      background: rgb(255 255 255 / 0.6);
+      background: var(--color-gelo);
       margin-block-end: 0.75rem;
       padding: 0.5rem 0;
     }

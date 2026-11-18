@@ -12,13 +12,13 @@ export function PageHeader({ title, description, badge, actions }: PageHeaderPro
     <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-[2rem] leading-none font-semibold tracking-tight text-noite">
+          <h1 className="text-[1.625rem] leading-tight font-bold tracking-tight text-noite">
             {title}
           </h1>
           {badge}
         </div>
         {description && (
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ardosia">{description}</p>
+          <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-ardosia">{description}</p>
         )}
       </div>
       {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}

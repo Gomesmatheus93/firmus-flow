@@ -1,17 +1,63 @@
 import { contentStatusLabel, type ContentStatus } from '@firmus/shared'
-import { ArrowRight, Brain, CheckCheck } from 'lucide-react'
+import {
+  ArrowRight,
+  BarChart3,
+  Brain,
+  CalendarDays,
+  CheckCheck,
+  Contact,
+  Gauge,
+  GalleryHorizontalEnd,
+  Layers,
+  MessagesSquare,
+  type LucideIcon,
+} from 'lucide-react'
 import { Link } from 'react-router'
+import { FormatBadge } from '@/components/format-badge'
 import { PageHeader, SectionHeading } from '@/components/page-header'
 import { StatStrip } from '@/components/stat-card'
 import { FeatureBlock, Panel } from '@/components/surface'
 import { Button } from '@/components/ui/button'
+import { formatDate } from '@/lib/dates'
 import { firstNameFrom } from '@/lib/names'
 import { useCompanyData } from '@/lib/queries'
 import { useAuth } from '@/providers/auth-provider'
 import type { BrandBrain } from './brand'
 import type { ContentItem, ConversationRow, LeadRow } from '@/lib/api-types'
 
-const funnelStages: ContentStatus[] = ['rascunho', 'aguardando', 'ajustar', 'aprovado']
+const funnelStages: { status: ContentStatus; color: string }[] = [
+  { status: 'rascunho', color: 'bg-slate-300' },
+  { status: 'aguardando', color: 'bg-amber-400' },
+  { status: 'ajustar', color: 'bg-rose-400' },
+  { status: 'aprovado', color: 'bg-emerald-500' },
+]
+
+/** Atalhos do Painel: navegação, não dado, então podem ser fixos. */
+const shortcuts: { label: string; hint: string; to: string; icon: LucideIcon }[] = [
+  {
+    label: 'Criar carrossel',
+    hint: 'Uma peça nova com a marca',
+    to: '/criar/carrossel',
+    icon: GalleryHorizontalEnd,
+  },
+  { label: 'Planejamento', hint: 'A pauta da semana', to: '/planejamento', icon: CalendarDays },
+  { label: 'Conversas', hint: 'O atendimento no WhatsApp', to: '/conversas', icon: MessagesSquare },
+  { label: 'Analytics', hint: 'Como o Instagram está indo', to: '/analytics', icon: BarChart3 },
+]
+
+/** "Bom dia", "Boa tarde" ou "Boa noite", pela hora de São Paulo. */
+function greeting(): string {
+  const hora = Number(
+    new Intl.DateTimeFormat('pt-BR', {
+      hour: 'numeric',
+      hourCycle: 'h23',
+      timeZone: 'America/Sao_Paulo',
+    }).format(new Date()),
+  )
+  if (hora < 12) return 'Bom dia'
+  if (hora < 18) return 'Boa tarde'
+  return 'Boa noite'
+}
 
 /** Quanto do Cérebro da Marca já foi preenchido, contando os campos que importam. */
 function brandCompletion(brain: BrandBrain | null): { percent: number; missing: string[] } {
@@ -54,17 +100,17 @@ export function DashboardPage() {
   const audit = brand.data.brain?.auditFindings ?? null
   const waiting = content.data.items.filter((item) => item.status === 'aguardando')
 
-  const funnel = funnelStages.map((status) => ({
-    status,
-    count: content.data.items.filter((item) => item.status === status).length,
+  const funnel = funnelStages.map((stage) => ({
+    ...stage,
+    count: content.data.items.filter((item) => item.status === stage.status).length,
   }))
   const funnelTotal = content.data.items.length
 
   return (
     <>
       <PageHeader
-        title={`Olá, ${firstName}`}
-        description={`O que está acontecendo na ${company?.name ?? 'sua empresa'}.`}
+        title={`${greeting()}, ${firstName} 👋`}
+        description={`Veja o que está acontecendo na ${company?.name ?? 'sua empresa'} hoje.`}
       />
 
       <StatStrip
@@ -73,119 +119,191 @@ export function DashboardPage() {
             label: 'Nota da auditoria',
             value: audit ? audit.overallScore.toLocaleString('pt-BR') : '—',
             hint: audit ? 'última análise' : 'auditoria não rodou',
+            icon: Gauge,
             accent: true,
           },
           {
             label: 'Conteúdos criados',
             value: String(funnelTotal),
             hint: waiting.length > 0 ? `${waiting.length} aguardando você` : 'nada na fila',
+            icon: Layers,
           },
           {
             label: 'Conversas',
             value: String(conversations.data.conversations.length),
             hint: 'no WhatsApp',
+            icon: MessagesSquare,
           },
-          { label: 'Leads captados', value: String(leads.data.leads.length), hint: 'no total' },
+          {
+            label: 'Leads captados',
+            value: String(leads.data.leads.length),
+            hint: 'no total',
+            icon: Contact,
+          },
         ]}
       />
 
-      <div className="grid gap-5 lg:grid-cols-[1fr_20rem]">
-        <Panel>
-          <SectionHeading
-            aside={<span className="text-xs text-ardosia">{funnelTotal} peças no total</span>}
-          >
-            Funil de conteúdo
-          </SectionHeading>
-
-          <ol className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {funnel.map((stage) => (
-              <li key={stage.status} className="rounded-xl bg-white/55 p-4">
-                <p className="text-xs text-ardosia">{contentStatusLabel[stage.status]}</p>
-                <p className="tabular mt-3 text-2xl leading-none font-semibold text-noite">
-                  {stage.count}
-                </p>
-                <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/70">
-                  <div
-                    className="h-full rounded-full bg-azul"
-                    style={{ width: `${funnelTotal ? (stage.count / funnelTotal) * 100 : 0}%` }}
-                  />
-                </div>
-              </li>
-            ))}
-          </ol>
-
-          <div className="mt-6">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_22rem]">
+        <div className="min-w-0 space-y-5">
+          <Panel>
             <SectionHeading
-              aside={
-                <Button asChild variant="link" size="sm" className="h-auto p-0 text-xs">
-                  <Link to="/aprovacoes">Ver tudo</Link>
-                </Button>
-              }
+              aside={<span className="text-xs text-ardosia">{funnelTotal} peças no total</span>}
             >
-              Aguardando sua aprovação
+              Funil de conteúdo
             </SectionHeading>
 
+            {/* Uma barra só, dividida pelas etapas, e a legenda embaixo. */}
+            <div className="mt-5 flex h-3 overflow-hidden rounded-full bg-gelo">
+              {funnelTotal > 0 &&
+                funnel.map((stage) => (
+                  <div
+                    key={stage.status}
+                    className={stage.color}
+                    style={{ width: `${(stage.count / funnelTotal) * 100}%` }}
+                  />
+                ))}
+            </div>
+
+            <ol className="mt-5 grid grid-cols-2 gap-4 lg:grid-cols-4">
+              {funnel.map((stage) => (
+                <li key={stage.status} className="min-w-0">
+                  <p className="flex items-center gap-2 text-xs text-ardosia">
+                    <span className={`size-2 shrink-0 rounded-full ${stage.color}`} />
+                    {contentStatusLabel[stage.status]}
+                  </p>
+                  <p className="tabular mt-1.5 text-2xl leading-none font-bold text-noite">
+                    {stage.count}
+                  </p>
+                </li>
+              ))}
+            </ol>
+          </Panel>
+
+          <Panel padded={false}>
+            <div className="p-5 pb-3">
+              <SectionHeading
+                aside={
+                  <Link
+                    to="/aprovacoes"
+                    className="inline-flex items-center gap-1 text-xs font-medium text-azul hover:underline"
+                  >
+                    Ver tudo
+                    <ArrowRight className="size-3.5" />
+                  </Link>
+                }
+              >
+                Aguardando sua aprovação
+              </SectionHeading>
+            </div>
+
             {waiting.length === 0 ? (
-              <p className="mt-4 flex items-center gap-2 text-sm text-ardosia">
+              <p className="flex items-center gap-2 px-5 pb-5 text-sm text-ardosia">
                 <CheckCheck className="size-4 text-emerald-600" />
                 Nada esperando aprovação.
               </p>
             ) : (
-              <ul className="mt-4 space-y-2">
-                {waiting.slice(0, 5).map((item) => (
-                  <li
-                    key={item.id}
-                    className="flex items-center gap-3 rounded-xl bg-white/55 px-3.5 py-3"
-                  >
-                    <span className="min-w-0 flex-1 truncate text-sm text-noite">{item.title}</span>
-                    <span className="shrink-0 text-xs text-ardosia">{item.type}</span>
-                  </li>
-                ))}
-              </ul>
+              <div className="data-table-wrap px-1 pb-2">
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Peça</th>
+                      <th>Formato</th>
+                      <th>Criada em</th>
+                      <th>Por</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {waiting.slice(0, 6).map((item) => (
+                      <tr key={item.id}>
+                        <td data-label="Peça" className="max-w-0 truncate font-medium text-noite">
+                          {item.title}
+                        </td>
+                        <td data-label="Formato">
+                          <FormatBadge format={item.type} />
+                        </td>
+                        <td data-label="Criada em" className="text-ardosia">
+                          {formatDate(item.createdAt)}
+                        </td>
+                        <td data-label="Por" className="text-ardosia">
+                          {item.authorName ?? '—'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
-          </div>
-        </Panel>
+          </Panel>
 
-        <FeatureBlock className="flex flex-col">
-          <p className="flex items-center gap-2 text-sm font-medium text-white/70">
-            <Brain className="size-4" />
-            Cérebro da Marca
-          </p>
+          <Panel>
+            <SectionHeading>Atalhos</SectionHeading>
+            <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+              {shortcuts.map((atalho) => (
+                <li key={atalho.to}>
+                  <Link
+                    to={atalho.to}
+                    className="group flex items-center gap-3 rounded-xl border border-regua px-3 py-2.5 transition-colors hover:border-azul/40 hover:bg-gelo"
+                  >
+                    <span className="icon-chip size-9">
+                      <atalho.icon className="size-4" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-medium text-noite">
+                        {atalho.label}
+                      </span>
+                      <span className="block truncate text-xs text-ardosia">{atalho.hint}</span>
+                    </span>
+                    <ArrowRight className="size-4 shrink-0 text-ardosia transition-transform group-hover:translate-x-0.5 group-hover:text-azul" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </Panel>
+        </div>
 
-          <p className="tabular mt-6 text-5xl leading-none font-semibold tracking-tight">
-            {completion.percent}
-            <span className="text-2xl text-white/50">%</span>
-          </p>
-          <p className="mt-2 text-sm text-white/60">preenchido</p>
+        <div className="min-w-0 space-y-5">
+          <FeatureBlock>
+            <p className="flex items-center gap-2 text-sm font-medium text-white/80">
+              <Brain className="size-4" />
+              Cérebro da Marca
+            </p>
 
-          <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-white/15">
-            <div
-              className="h-full rounded-full bg-ciano"
-              style={{ width: `${completion.percent}%` }}
-            />
-          </div>
+            <p className="tabular mt-5 text-5xl leading-none font-bold tracking-tight">
+              {completion.percent}
+              <span className="text-2xl text-white/60">%</span>
+            </p>
+            <p className="mt-1.5 text-sm text-white/70">preenchido</p>
 
-          {completion.missing.length > 0 && (
-            <>
-              <p className="mt-7 text-xs font-medium text-white/50">Ainda falta</p>
-              <ul className="mt-2.5 space-y-1.5 text-sm text-white/85">
-                {completion.missing.slice(0, 5).map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </>
-          )}
+            <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/15">
+              <div
+                className="h-full rounded-full bg-ciano"
+                style={{ width: `${completion.percent}%` }}
+              />
+            </div>
 
-          <Button
-            asChild
-            className="mt-7 w-full rounded-full bg-white text-noite hover:bg-white/90"
-          >
-            <Link to="/marca">
-              {completion.percent === 0 ? 'Começar' : 'Completar'}
-              <ArrowRight />
-            </Link>
-          </Button>
-        </FeatureBlock>
+            {completion.missing.length > 0 && (
+              <>
+                <p className="mt-6 text-xs font-medium text-white/60">Ainda falta</p>
+                <ul className="mt-2 space-y-1.5 text-sm text-white/90">
+                  {completion.missing.slice(0, 4).map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </>
+            )}
+
+            <Button
+              asChild
+              className="mt-6 w-full rounded-full bg-white text-noite hover:bg-white/90"
+            >
+              <Link to="/marca">
+                {completion.percent === 0 ? 'Começar' : 'Completar'}
+                <ArrowRight />
+              </Link>
+            </Button>
+          </FeatureBlock>
+
+        </div>
       </div>
     </>
   )
