@@ -33,7 +33,19 @@ const envSchema = z.object({
   ANTHROPIC_MODEL: optionalText,
 })
 
-const parsed = envSchema.safeParse(process.env)
+/**
+ * A URL e a chave pública do Supabase são as mesmas para a api e para a web, e
+ * as duas são públicas. A web só enxerga o nome com VITE_; aceitar os dois
+ * nomes aqui evita cadastrar o mesmo valor duas vezes no painel da Vercel —
+ * e a api parar de autenticar quando só o nome com VITE_ existe.
+ */
+const doPainel = (nome: string) => process.env[nome]?.trim() || process.env[`VITE_${nome}`]?.trim()
+
+const parsed = envSchema.safeParse({
+  ...process.env,
+  SUPABASE_URL: doPainel('SUPABASE_URL'),
+  SUPABASE_ANON_KEY: doPainel('SUPABASE_ANON_KEY'),
+})
 
 if (!parsed.success) {
   console.error('Variáveis de ambiente inválidas na api:')
