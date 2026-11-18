@@ -8,6 +8,7 @@
     "./runtime": "./src/runtime/index.ts",
     "./marca": "./src/marca/index.ts",
     "./auditoria": "./src/auditoria/index.ts",
+    "./referencia": "./src/referencia/index.ts",
     "./build": "./src/build.ts"
   },
   "scripts": {

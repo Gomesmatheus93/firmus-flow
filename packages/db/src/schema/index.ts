@@ -1,6 +1,11 @@
 export { agentRuns, type AgentRun, type NewAgentRun } from './agent-runs'
 export { brandBrains, type BrandBrain, type NewBrandBrain } from './brand-brains'
 export {
+  brandStyleReferences,
+  type BrandStyleReference,
+  type NewBrandStyleReference,
+} from './brand-style-references'
+export {
   brandOnboardings,
   type BrandOnboarding,
   type NewBrandOnboarding,

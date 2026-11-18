@@ -3,7 +3,7 @@ import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod'
 import type { Database } from '@firmus/db'
 import { agentRuns } from '@firmus/db/schema'
 import type { z } from 'zod'
-import { brainToPrompt, loadBrain } from './brain'
+import { brainToPrompt, loadBrain, loadStyleGuides, styleGuidesToPrompt } from './brain'
 import { callCostUsd } from './pricing'
 import { loadPrompt } from './prompt-file'
 
@@ -15,6 +15,12 @@ import { loadPrompt } from './prompt-file'
  * `usdBrlRate` recebe quem busca a cotação.
  */
 export type ModelClient = Pick<Anthropic, 'messages'>
+
+/** Uma imagem que o agente olha junto com o pedido. `data` em base64. */
+export type AgentImage = {
+  mediaType: 'image/png' | 'image/jpeg' | 'image/webp'
+  data: string
+}
 
 export type RunAgentOptions<T> = {
   db: Database
@@ -30,6 +36,8 @@ export type RunAgentOptions<T> = {
   input: string
   /** O formato exigido da resposta. Nada é salvo sem passar por ele. */
   schema: z.ZodType<T>
+  /** Imagens que o agente precisa ver, como a referência de design do chefe. */
+  images?: AgentImage[]
 
   model?: string
   maxTokens?: number
@@ -62,13 +70,20 @@ export async function runAgent<T>({
   companyId,
   input,
   schema,
+  images = [],
   model = process.env.ANTHROPIC_MODEL || MODELO_PADRAO,
   maxTokens = 16_000,
 }: RunAgentOptions<T>): Promise<AgentResult<T>> {
   const instrucoes = loadPrompt(agent)
 
   // O Cérebro é lido por empresa, sempre. Regra 3 do CLAUDE.md.
-  const brain = await loadBrain(db, companyId)
+  // As referências de design entram no Cérebro, então todo agente segue o
+  // estilo que o chefe escolheu sem precisar pedir.
+  const [brain, guias] = await Promise.all([
+    loadBrain(db, companyId),
+    loadStyleGuides(db, companyId),
+  ])
+  const estilo = styleGuidesToPrompt(guias)
 
   const system = [
     instrucoes,
@@ -76,6 +91,7 @@ export async function runAgent<T>({
     '# Cérebro da Marca desta empresa',
     '',
     brainToPrompt(brain),
+    ...(estilo ? ['', '## Estilo visual', '', estilo] : []),
   ].join('\n')
 
   // A cotação é buscada antes da chamada, de propósito: se o Banco Central
@@ -91,7 +107,27 @@ export async function runAgent<T>({
       // padrão mudar não mudar o custo da plataforma sem a gente saber.
       output_config: { effort: 'medium', format: zodOutputFormat(schema) },
       system,
-      messages: [{ role: 'user', content: input }],
+      // Sem imagem, o pedido vai como texto puro, como sempre foi. Com imagem,
+      // elas vêm antes do texto: a Anthropic recomenda essa ordem.
+      messages: [
+        {
+          role: 'user',
+          content:
+            images.length === 0
+              ? input
+              : [
+                  ...images.map((imagem) => ({
+                    type: 'image' as const,
+                    source: {
+                      type: 'base64' as const,
+                      media_type: imagem.mediaType,
+                      data: imagem.data,
+                    },
+                  })),
+                  { type: 'text' as const, text: input },
+                ],
+        },
+      ],
     })
 
     const durationMs = Date.now() - comecou

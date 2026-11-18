@@ -18,12 +18,14 @@ export {
   auditPrioritySchema,
   brandBrainDraftSchema,
   faqItemSchema,
+  styleGuideSchema,
   toneOfVoiceSchema,
   type AuditDraft,
   type AuditFindings,
   type AuditPriority,
   type BrandBrainDraft,
   type FaqItem,
+  type StyleGuide,
   type ToneOfVoice,
 } from './brand'
 export {

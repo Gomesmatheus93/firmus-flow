@@ -16,6 +16,7 @@ import {
 import { commentRuleRoutes } from './routes/comment-rules'
 import { adminRoutes } from './routes/admin'
 import { brandRoutes } from './routes/brand'
+import { styleReferenceRoutes } from './routes/style-references'
 import { companyRoutes } from './routes/companies'
 import { companySettingsRoutes } from './routes/company-settings'
 import { instagramRoutes } from './routes/instagram'
@@ -113,6 +114,7 @@ export function createApp({
   app.use(companySettingsRoutes(db))
   app.use(instagramRoutes(db, buscarConta))
   app.use(brandRoutes(db, aiClient))
+  app.use(styleReferenceRoutes({ db, aiClient, uploadAsset, signAssetUrls, removeAssets }))
   app.use(onboardingRoutes({ db, aiClient, signAssetUrls, uploadAsset, runInBackground }))
   app.use(contentRoutes(db, signAssetUrls, removeAssets))
   app.use(templateRoutes(db))

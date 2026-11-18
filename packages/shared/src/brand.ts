@@ -96,3 +96,39 @@ export const brandBrainDraftSchema = z.object({
 })
 
 export type BrandBrainDraft = z.infer<typeof brandBrainDraftSchema>
+
+/** Uma cor da referência e o papel dela no design. */
+export const styleColorSchema = z.object({
+  hex: z.string(),
+  /** Ex.: "fundo", "título", "destaque", "texto corrido". */
+  role: z.string(),
+})
+
+/**
+ * O guia de estilo que o agente `referencia` tira de uma imagem enviada pelo
+ * chefe (o "template" de referência).
+ *
+ * Descreve o **estilo**, nunca o conteúdo: texto, logo e marca de terceiros
+ * que estejam na imagem não entram aqui. Todos os campos são obrigatórios pelo
+ * mesmo motivo do `brandBrainDraftSchema` — a saída estruturada exige —, e
+ * ausência se diz com string vazia ou lista vazia.
+ */
+export const styleGuideSchema = z.object({
+  /** Duas ou três frases: o que define este visual. */
+  summary: z.string(),
+  palette: z.array(styleColorSchema),
+  /** Família (serifada, sem serifa, condensada…), peso, caixa alta, contraste de tamanhos. */
+  typography: z.string(),
+  /** Como os elementos se organizam: grade, hierarquia, alinhamento, respiro. */
+  composition: z.string(),
+  /** Quanto texto cabe por peça e como ele é quebrado. */
+  textDensity: z.string(),
+  /** Uso de foto, ilustração, ícone, textura. */
+  imagery: z.string(),
+  /** O clima em poucas palavras: "sóbrio e premium", "vibrante e jovem". */
+  mood: z.string(),
+  dos: z.array(z.string()),
+  donts: z.array(z.string()),
+})
+
+export type StyleGuide = z.infer<typeof styleGuideSchema>

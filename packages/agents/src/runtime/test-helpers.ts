@@ -61,15 +61,30 @@ type RespostaFalsa = {
  * receber exatamente os campos que usa — e ele usa só estes.
  */
 export function clienteFalso(resposta: RespostaFalsa = {}) {
-  const chamadas: { system: string; input: string; model: string }[] = []
+  const chamadas: { system: string; input: string; model: string; images: number }[] = []
+
+  type Bloco = { type: string; text?: string }
 
   const client = {
     messages: {
-      parse: async (params: { system: string; model: string; messages: { content: string }[] }) => {
+      parse: async (params: {
+        system: string
+        model: string
+        messages: { content: string | Bloco[] }[]
+      }) => {
+        // Com imagem, o conteúdo é uma lista de blocos; o texto do pedido é o
+        // bloco de texto, e as imagens são contadas.
+        const conteudo = params.messages[0]!.content
+        const blocos = typeof conteudo === 'string' ? [] : conteudo
+
         chamadas.push({
           system: params.system,
           model: params.model,
-          input: params.messages[0]!.content,
+          input:
+            typeof conteudo === 'string'
+              ? conteudo
+              : (blocos.find((b) => b.type === 'text')?.text ?? ''),
+          images: blocos.filter((b) => b.type === 'image').length,
         })
 
         return {

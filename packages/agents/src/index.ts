@@ -10,6 +10,7 @@ export const AGENT_NAMES = [
   'atendimento',
   'tendencias',
   'comentarios',
+  'referencia',
 ] as const
 
 export type AgentName = (typeof AGENT_NAMES)[number]
