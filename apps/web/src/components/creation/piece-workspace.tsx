@@ -1,5 +1,5 @@
 import type { ContentType } from '@firmus/shared'
-import { Check, Copy, ImageOff } from 'lucide-react'
+import { Check, Copy, Download, ImageOff } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { cn } from 'cn'
@@ -9,6 +9,7 @@ import { Panel } from '@/components/surface'
 import { Button } from '@/components/ui/button'
 import type { ContentItem, ContentSlide } from '@/lib/api-types'
 import { formatDate } from '@/lib/dates'
+import { buildSlidesZip, saveBlob, slideFileName, slugify } from '@/lib/zip'
 import { formatConfig } from './format-config'
 
 /**
@@ -65,6 +66,39 @@ function CopyCaption({ caption }: { caption: string }) {
     <Button variant="outline" size="sm" onClick={() => void copiar()}>
       {copiado ? <Check /> : <Copy />}
       {copiado ? 'Copiada' : 'Copiar legenda'}
+    </Button>
+  )
+}
+
+/**
+ * Baixa todas as artes da peça num .zip, na ordem, com a legenda num .txt.
+ * Só aparece quando a peça tem imagem.
+ */
+export function DownloadZip({ item, size = 'sm' }: { item: ContentItem; size?: 'sm' | 'default' }) {
+  const [baixando, setBaixando] = useState(false)
+
+  const slides = item.slides
+    .map((s, i) => (s.imageUrl ? { url: s.imageUrl, nome: slideFileName(i, s.label) } : null))
+    .filter((s): s is { url: string; nome: string } => s !== null)
+
+  if (slides.length === 0) return null
+
+  async function baixar() {
+    setBaixando(true)
+    try {
+      const zip = await buildSlidesZip(slides, item.caption)
+      saveBlob(zip, `${slugify(item.title)}.zip`)
+    } catch (erro) {
+      toast.error(erro instanceof Error ? erro.message : 'Não consegui montar o arquivo.')
+    } finally {
+      setBaixando(false)
+    }
+  }
+
+  return (
+    <Button size={size} onClick={() => void baixar()} disabled={baixando}>
+      <Download />
+      {baixando ? 'Preparando…' : `Baixar artes (.zip)`}
     </Button>
   )
 }
@@ -138,7 +172,10 @@ export function PieceWorkspace({ item, format }: { item: ContentItem; format: Co
               {item.authorName ? ` por ${item.authorName}` : ''}
             </p>
           </div>
-          <StatusBadge status={item.status} />
+          <div className="flex flex-wrap items-center gap-2">
+            <StatusBadge status={item.status} />
+            <DownloadZip item={item} />
+          </div>
         </div>
 
         {item.reviewNote && (
