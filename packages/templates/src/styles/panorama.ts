@@ -30,6 +30,12 @@ export type PanoramaSlide =
        * título, como o herói da capa. Sem ele, entra o símbolo da Firmus.
        */
       personagem?: string | null
+      /**
+       * Quanto mover o personagem para o lado, em px (positivo = direita).
+       * Centralizar a imagem nem sempre centraliza o corpo: um braço aberto
+       * de um lado puxa o corpo para o outro.
+       */
+      personagemAjuste?: number
     }
   | {
       kind: 'texto'
@@ -266,7 +272,7 @@ function conteudo(s: PanoramaSlide, i: number, total: number, instagram: string)
           s.personagem
             ? `${raios(x0)}
                <div style="position:absolute;left:${x0 + 140}px;top:640px;width:800px;height:800px;border-radius:50%;background:radial-gradient(circle,rgba(34,195,230,.5),rgba(28,140,255,.14) 45%,rgba(28,140,255,0) 70%)"></div>
-               <img src="${escapar(s.personagem)}" alt="" style="position:absolute;left:${x0 + WIDTH / 2}px;bottom:0;transform:translateX(-50%);height:740px;filter:contrast(1.12) saturate(1.12) brightness(1.03) drop-shadow(-3px -2px 0 rgba(120,225,255,.55)) drop-shadow(4px -3px 10px rgba(34,195,230,.55)) drop-shadow(0 30px 50px rgba(0,0,0,.6))">
+               <img src="${escapar(s.personagem)}" alt="" style="position:absolute;left:${x0 + WIDTH / 2 + (s.personagemAjuste ?? 0)}px;bottom:0;transform:translateX(-50%);height:740px;filter:contrast(1.12) saturate(1.12) brightness(1.03) drop-shadow(-3px -2px 0 rgba(120,225,255,.55)) drop-shadow(4px -3px 10px rgba(34,195,230,.55)) drop-shadow(0 30px 50px rgba(0,0,0,.6))">
                <div style="position:absolute;left:${x0}px;bottom:-60px;width:${WIDTH}px;height:340px;background:radial-gradient(ellipse at 50% 70%,rgba(34,195,230,.38),rgba(28,140,255,.1) 45%,rgba(11,31,58,0) 70%);filter:blur(10px)"></div>`
             : ''
         }
