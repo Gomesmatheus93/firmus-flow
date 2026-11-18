@@ -302,7 +302,6 @@ export function DashboardPage() {
               </Link>
             </Button>
           </FeatureBlock>
-
         </div>
       </div>
     </>

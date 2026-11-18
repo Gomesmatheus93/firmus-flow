@@ -119,7 +119,7 @@ function Tile({
         onClick={onClick}
         aria-label={label}
         className={cn(
-          'group relative block aspect-[3/4] w-full overflow-hidden bg-white/60',
+          'group relative block aspect-[3/4] w-full overflow-hidden bg-gelo',
           faded && 'opacity-60 hover:opacity-100',
         )}
       >

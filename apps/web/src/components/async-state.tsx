@@ -26,7 +26,7 @@ export function AsyncState({ isPending, error, isEmpty, empty, children }: Async
       <div className="surface space-y-3 p-5" aria-busy="true" aria-live="polite">
         <span className="sr-only">Carregando</span>
         {[0, 1, 2].map((row) => (
-          <div key={row} className="h-12 animate-pulse rounded-lg bg-white/60" />
+          <div key={row} className="h-12 animate-pulse rounded-lg bg-gelo" />
         ))}
       </div>
     )

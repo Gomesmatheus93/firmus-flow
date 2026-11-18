@@ -228,7 +228,7 @@ export function CommentAutomationPage() {
                   )}
                 </div>
 
-                <p className="mt-4 rounded-xl bg-white/55 px-3.5 py-3 text-sm leading-relaxed text-grafite">
+                <p className="mt-4 rounded-xl bg-gelo px-3.5 py-3 text-sm leading-relaxed text-grafite">
                   {rule.replyTemplate}
                 </p>
               </Panel>

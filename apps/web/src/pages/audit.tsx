@@ -151,7 +151,7 @@ export function AuditPage() {
                           {area.score.toLocaleString('pt-BR')}
                         </span>
                       </div>
-                      <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/70">
+                      <div className="mt-2 h-1 overflow-hidden rounded-full bg-gelo">
                         <div
                           className="h-full rounded-full bg-azul"
                           style={{ width: `${area.score * 10}%` }}

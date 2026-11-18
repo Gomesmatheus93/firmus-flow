@@ -17,7 +17,7 @@ function EntryCard({ entry, peca }: { entry: PlanEntry; peca: ContentItem | unde
   const capa = peca?.images[0]
 
   return (
-    <article className="overflow-hidden rounded-lg border border-border bg-white/80 shadow-card">
+    <article className="overflow-hidden rounded-lg border border-border bg-white shadow-card">
       {capa && (
         <Link
           to={`/criar/${entry.format}`}
@@ -122,7 +122,7 @@ export function PlanCalendar({
                   <li
                     key={dia.date}
                     className={cn(
-                      'min-w-0 rounded-xl border border-border/70 bg-white/40 p-2.5',
+                      'min-w-0 rounded-xl border border-border/70 bg-gelo p-2.5',
                       vazio && 'hidden lg:block',
                     )}
                   >

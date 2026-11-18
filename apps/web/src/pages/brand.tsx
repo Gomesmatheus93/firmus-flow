@@ -45,7 +45,7 @@ function Chips({ items }: { items: string[] }) {
   return (
     <ul className="flex flex-wrap gap-2">
       {items.map((item) => (
-        <li key={item} className="rounded-lg bg-white/60 px-2.5 py-1 text-sm text-grafite">
+        <li key={item} className="rounded-lg bg-gelo px-2.5 py-1 text-sm text-grafite">
           {item}
         </li>
       ))}
@@ -177,7 +177,7 @@ export function BrandPage() {
                       {brain.colorPalette.map((color) => (
                         <li key={color} className="flex-1">
                           <span
-                            className="block h-12 rounded-lg border border-white/80"
+                            className="block h-12 rounded-lg border border-regua"
                             style={{ backgroundColor: color }}
                           />
                           <span className="tabular mt-1.5 block text-center text-[0.65rem] text-ardosia">
@@ -189,7 +189,7 @@ export function BrandPage() {
                   )}
 
                   <p className="mt-6 text-xs text-ardosia">Logo</p>
-                  <div className="mt-2 grid h-24 place-items-center rounded-lg border border-dashed border-white/80 bg-white/35 text-sm text-ardosia">
+                  <div className="mt-2 grid h-24 place-items-center rounded-lg border border-dashed border-regua bg-gelo text-sm text-ardosia">
                     {brain.logoUrl ? (
                       <img src={brain.logoUrl} alt="Logo do cliente" className="max-h-20" />
                     ) : (

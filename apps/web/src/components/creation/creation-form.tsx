@@ -15,7 +15,7 @@ import { TemplatePicker } from './template-picker'
 
 /** O mesmo visual do `Input`, para o `<select>` nativo não destoar. */
 const selectClass =
-  'h-9 w-full rounded-md border border-input bg-white/70 px-3 text-sm text-noite shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50'
+  'h-9 w-full rounded-md border border-input bg-white px-3 text-sm text-noite shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50'
 
 /**
  * O pedido de uma peça nova: de qual pauta, sobre o quê, de que tamanho.
@@ -84,7 +84,7 @@ export function CreationForm({
           maxLength={1000}
           rows={2}
           placeholder={config.themePlaceholder}
-          className="bg-white/70"
+          className="bg-white"
         />
       </div>
 
@@ -126,7 +126,7 @@ export function CreationForm({
             onChange={(e) => setNotes(e.target.value)}
             maxLength={500}
             placeholder="Ex.: terminar chamando para o WhatsApp; não citar preço"
-            className="bg-white/70"
+            className="bg-white"
           />
         </div>
 

@@ -176,7 +176,7 @@ export function TeamPage() {
         <ul className="surface divide-y divide-border overflow-hidden">
           {data.members.map((member) => (
             <li key={member.membershipId} className="flex items-center gap-4 px-5 py-4">
-              <span className="grid size-9 shrink-0 place-items-center rounded-md bg-white/80 text-[0.7rem] font-semibold text-ardosia">
+              <span className="grid size-9 shrink-0 place-items-center rounded-md bg-gelo text-[0.7rem] font-semibold text-ardosia">
                 {initialsFrom(member.name)}
               </span>
 

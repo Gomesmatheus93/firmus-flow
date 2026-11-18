@@ -124,7 +124,7 @@ function TemplateCard({
   return (
     <div
       className={cn(
-        'w-40 shrink-0 overflow-hidden rounded-xl border-2 bg-white/70 transition-colors',
+        'w-40 shrink-0 overflow-hidden rounded-xl border-2 bg-white transition-colors',
         selected ? 'border-azul' : 'border-transparent hover:border-input',
       )}
     >
@@ -201,7 +201,7 @@ export function TemplatePicker({
             'grid w-28 shrink-0 place-items-center rounded-xl border-2 border-dashed px-3 text-center text-xs font-medium transition-colors',
             value === null
               ? 'border-azul bg-azul/5 text-azul'
-              : 'border-input text-ardosia hover:bg-white/70',
+              : 'border-input text-ardosia hover:bg-gelo',
           )}
         >
           O agente escolhe

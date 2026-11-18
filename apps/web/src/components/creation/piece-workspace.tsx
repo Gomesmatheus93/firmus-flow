@@ -30,7 +30,7 @@ function SlidePreview({ slide, aspect }: { slide: ContentSlide | undefined; aspe
   return (
     <div
       className={cn(
-        'flex w-full flex-col justify-between rounded-xl border border-dashed border-input bg-white/60 p-6',
+        'flex w-full flex-col justify-between rounded-xl border border-dashed border-input bg-gelo p-6',
         aspect,
       )}
     >
@@ -149,7 +149,7 @@ export function PieceWorkspace({ item, format }: { item: ContentItem; format: Co
                   ) : (
                     <span
                       className={cn(
-                        'tabular grid w-14 place-items-center bg-white/70 text-xs text-ardosia',
+                        'tabular grid w-14 place-items-center bg-gelo text-xs text-ardosia',
                         config.aspect,
                       )}
                     >
@@ -194,7 +194,7 @@ export function PieceWorkspace({ item, format }: { item: ContentItem; format: Co
                   aria-current={i === atual}
                   className={cn(
                     'w-full rounded-lg px-3 py-2.5 text-left transition-colors',
-                    i === atual ? 'bg-azul/8 ring-1 ring-azul/20' : 'hover:bg-white/70',
+                    i === atual ? 'bg-azul/8 ring-1 ring-azul/20' : 'hover:bg-gelo',
                   )}
                 >
                   <span className="flex items-baseline gap-2">

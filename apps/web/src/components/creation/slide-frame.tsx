@@ -37,7 +37,7 @@ export function SlideFrame({
   return (
     <div
       ref={caixa}
-      className={cn('relative aspect-[4/5] w-full overflow-hidden bg-white/60', className)}
+      className={cn('relative aspect-[4/5] w-full overflow-hidden bg-gelo', className)}
     >
       {escala > 0 && (
         <iframe

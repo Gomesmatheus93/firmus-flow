@@ -43,7 +43,7 @@ export function ConversationsPage() {
             <li key={conversation.id}>
               <button
                 type="button"
-                className="flex w-full items-start gap-3 px-5 py-4 text-left transition-colors hover:bg-white/60"
+                className="flex w-full items-start gap-3 px-5 py-4 text-left transition-colors hover:bg-gelo"
               >
                 <span className="min-w-0 flex-1">
                   <span className="flex items-baseline justify-between gap-2">

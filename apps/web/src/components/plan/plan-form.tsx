@@ -35,8 +35,8 @@ function Choice({
       className={cn(
         'inline-flex h-9 items-center gap-2 rounded-md border px-3 text-sm font-medium transition-colors',
         selected
-          ? 'border-noite bg-noite text-white'
-          : 'border-input bg-white/70 text-grafite hover:bg-white',
+          ? 'border-azul bg-azul text-white'
+          : 'border-input bg-white text-grafite hover:bg-gelo',
       )}
     >
       {children}
@@ -91,7 +91,7 @@ export function PlanForm() {
             type="date"
             value={start}
             onChange={(e) => setStart(e.target.value)}
-            className="w-40 bg-white/70"
+            className="w-40 bg-white"
           />
         </div>
 
@@ -104,7 +104,7 @@ export function PlanForm() {
             max={7}
             value={perWeek}
             onChange={(e) => setPerWeek(Math.min(7, Math.max(1, Number(e.target.value) || 1)))}
-            className="tabular w-24 bg-white/70"
+            className="tabular w-24 bg-white"
           />
         </div>
 
@@ -139,7 +139,7 @@ export function PlanForm() {
           maxLength={1000}
           rows={2}
           placeholder="O que o agente precisa saber: uma data importante, um serviço para destacar, um assunto para evitar."
-          className="bg-white/70"
+          className="bg-white"
         />
       </div>
 

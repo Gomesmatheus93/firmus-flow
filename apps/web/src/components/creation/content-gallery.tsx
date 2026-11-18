@@ -38,7 +38,7 @@ function PieceCard({
   const modelo = nomeDoModelo(item.template)
 
   return (
-    <li className="group relative min-w-0 overflow-hidden rounded-xl border border-border bg-white/70 shadow-card transition-colors hover:border-azul/40">
+    <li className="group relative min-w-0 overflow-hidden rounded-xl border border-border bg-white shadow-card transition-colors hover:border-azul/40">
       <button type="button" onClick={onOpen} className="block w-full text-left">
         {capa ? (
           <img
@@ -50,7 +50,7 @@ function PieceCard({
         ) : (
           <span
             className={cn(
-              'flex w-full items-end bg-white/60 p-4 text-sm font-medium text-noite',
+              'flex w-full items-end bg-gelo p-4 text-sm font-medium text-noite',
               aspect,
             )}
           >
@@ -112,7 +112,7 @@ export function ContentGallery({
   const estiloAba = (ativa: boolean) =>
     cn(
       'inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors',
-      ativa ? 'bg-noite text-white' : 'bg-white/70 text-grafite hover:bg-white',
+      ativa ? 'bg-azul text-white' : 'bg-gelo text-grafite hover:bg-regua',
     )
 
   return (
