@@ -5,10 +5,11 @@ import { renderEditorial, type EditorialSlide } from './styles/editorial'
 import { renderKit, type KitSlide } from './styles/kit'
 import { renderLave, type LaveSlide } from './styles/lave'
 import { renderPaper, type PaperSlide } from './styles/paper'
+import { renderScene, type SceneSlide } from './styles/scene'
 
 export { HEIGHT, WIDTH, type TemplateAssets } from './base'
-export { renderBrutalist, renderEditorial, renderKit, renderLave, renderPaper }
-export type { BrutalistSlide, EditorialSlide, KitSlide, LaveSlide, PaperSlide }
+export { renderBrutalist, renderEditorial, renderKit, renderLave, renderPaper, renderScene }
+export type { BrutalistSlide, EditorialSlide, KitSlide, LaveSlide, PaperSlide, SceneSlide }
 
 /**
  * Os modelos que existem. A chave é o que fica gravado no banco
@@ -20,6 +21,7 @@ export const TEMPLATE_KEYS = [
   'papel-etiqueta',
   'brutalista',
   'lave-seque',
+  'cena',
 ] as const
 
 export type TemplateKey = (typeof TEMPLATE_KEYS)[number]
@@ -365,6 +367,68 @@ export const templates: Record<TemplateKey, Template> = {
         },
       ],
       renderLave,
+    ),
+  },
+
+  cena: {
+    key: 'cena',
+    name: 'Cena',
+    description:
+      'Foto de cena ocupando o post, título enorme com palavra manuscrita e detalhes de ferramenta de design.',
+    formats: ['carrossel', 'post'],
+    preview: previa<SceneSlide>(
+      [
+        {
+          label: 'Capa',
+          slide: {
+            kind: 'capa',
+            antes: 'Seu Instagram no',
+            linha1: 'automático',
+            linha2: 'de verdade',
+            tamanho1: 188,
+            tamanho2: 180,
+            manuscrito: 'sem perder a sua cara',
+            serie: { atual: 1, total: 365 },
+          },
+        },
+        {
+          label: 'Texto',
+          slide: {
+            kind: 'texto',
+            numero: '02',
+            titulo: 'O post sai *pronto*',
+            paragrafos: [
+              'A plataforma escreve, monta as artes e deixa tudo **esperando o seu ok**.',
+              'Você só decide o que vai ao ar.',
+            ],
+          },
+        },
+        {
+          label: 'Lista',
+          slide: {
+            kind: 'lista',
+            numero: '03',
+            titulo: 'O que entra *no pacote*',
+            itens: [
+              'Planejamento do mês',
+              'Carrosséis e posts',
+              'Legendas prontas',
+              'Atendimento no WhatsApp',
+            ],
+          },
+        },
+        {
+          label: 'Chamada final',
+          slide: {
+            kind: 'chamada',
+            linha1: 'Quer ver',
+            linha2: 'funcionando?',
+            texto: 'Chama a gente no WhatsApp: **o link está na bio**.',
+            pergunta: 'Quero ver o Firmus Flow no meu Instagram',
+          },
+        },
+      ],
+      renderScene,
     ),
   },
 }
