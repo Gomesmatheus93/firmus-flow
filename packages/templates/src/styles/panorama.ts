@@ -25,6 +25,11 @@ export type PanoramaSlide =
       linha2: string
       /** A pílula de vidro embaixo. `**trecho**` fica em negrito. */
       selo?: string
+      /**
+       * Personagem recortado (PNG sem fundo), na frente da segunda linha do
+       * título, como o herói da capa. Sem ele, entra o símbolo da Firmus.
+       */
+      personagem?: string | null
     }
   | {
       kind: 'texto'
@@ -144,7 +149,7 @@ const cartoes = (x: number, y: number) =>
   )}</div>`
 
 /** A cena desenhada: o fundo de quando não há ilustração enviada. */
-function cenaFirmus(largura: number, assets: TemplateAssets) {
+function cenaFirmus(largura: number, assets: TemplateAssets, comSimbolo = true) {
   const n = Math.round(largura / WIDTH)
   // Faixa de luz atravessando a peça inteira: é o fio que costura os slides.
   const pontos = Array.from({ length: n * 2 + 1 }, (_, i) => {
@@ -162,8 +167,10 @@ function cenaFirmus(largura: number, assets: TemplateAssets) {
     .join(' ')}`
 
   const objetos = [
-    // Slide 1: o símbolo grande, embaixo do título.
-    `<div style="position:absolute;left:300px;top:690px;transform:rotate(-6deg)">${simbolo(assets, { altura: 620, estilo: 'filter:drop-shadow(0 40px 60px rgba(0,0,0,.6)) drop-shadow(0 0 90px rgba(34,195,230,.5))' })}</div>`,
+    // Slide 1: o símbolo grande, embaixo do título (some quando há personagem).
+    comSimbolo
+      ? `<div style="position:absolute;left:300px;top:690px;transform:rotate(-6deg)">${simbolo(assets, { altura: 620, estilo: 'filter:drop-shadow(0 40px 60px rgba(0,0,0,.6)) drop-shadow(0 0 90px rgba(34,195,230,.5))' })}</div>`
+      : '',
     // Atravessando o 2 e o 3: o celular.
     celular(1700, 210, 12),
     // Atravessando o 3 e o 4: o painel.
@@ -210,6 +217,12 @@ function conteudo(s: PanoramaSlide, i: number, total: number, instagram: string)
             ${tituloGrande(s.linha2, 230, 'ciano')}
           </div>
         </div>
+        ${
+          s.personagem
+            ? `<div style="position:absolute;left:${x0 + 140}px;top:640px;width:800px;height:800px;border-radius:50%;background:radial-gradient(circle,rgba(34,195,230,.42),rgba(28,140,255,.12) 45%,rgba(28,140,255,0) 70%)"></div>
+               <img src="${escapar(s.personagem)}" alt="" style="position:absolute;left:${x0 + WIDTH / 2}px;bottom:0;transform:translateX(-50%);height:740px;filter:drop-shadow(0 30px 50px rgba(0,0,0,.55)) drop-shadow(0 0 2px rgba(255,255,255,.35))">`
+            : ''
+        }
         <div style="position:absolute;left:${x0 + 860}px;top:330px">${cursorMover}</div>
         <div style="position:absolute;left:${x0}px;bottom:36px;width:${WIDTH}px;display:flex;justify-content:center;gap:12px;align-items:center;font:400 22px Mulish;letter-spacing:.08em;color:rgba(255,255,255,.62)">
           arraste para o lado
@@ -281,7 +294,7 @@ export function renderPanorama(post: PanoramaPost, assets: TemplateAssets): stri
   const fundo = post.fundo
     ? `<img src="${escapar(post.fundo)}" alt="" style="position:absolute;inset:0;width:${largura}px;height:${H}px;object-fit:cover">
        <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,11,24,.55),rgba(5,11,24,.15))"></div>`
-    : cenaFirmus(largura, assets)
+    : cenaFirmus(largura, assets, !post.slides.some((s) => s.kind === 'capa' && s.personagem))
 
   // A cena atravessa os slides, então vai inteira em cada um. O texto não
   // atravessa: cada slide leva só o dele.
