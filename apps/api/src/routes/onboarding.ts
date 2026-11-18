@@ -23,6 +23,8 @@ export type OnboardingDeps = {
   aiClient: ModelClient | null
   signAssetUrls: AssetUrlSigner | null
   uploadAsset: AssetUploader | null
+  /** Mantém vivo o trabalho que continua depois da resposta. */
+  runInBackground: (trabalho: Promise<unknown>) => void
 }
 
 /** O logo: até 5 MB, PNG ou SVG. */
@@ -132,6 +134,7 @@ export function onboardingRoutes({
   aiClient,
   signAssetUrls,
   uploadAsset,
+  runInBackground,
 }: OnboardingDeps): Router {
   const router = Router()
 
@@ -298,7 +301,7 @@ export function onboardingRoutes({
       .set({ status, currentStep: 5, draft: null, errorMessage: null, updatedAt: new Date() })
       .where(eq(brandOnboardings.companyId, companyId))
 
-    if (aiClient) void gerarCerebro(db, aiClient, companyId, linha.answers)
+    if (aiClient) runInBackground(gerarCerebro(db, aiClient, companyId, linha.answers))
 
     res.status(202).json({ status })
   })

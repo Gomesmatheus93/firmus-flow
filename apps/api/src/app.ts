@@ -64,6 +64,11 @@ export type AppDeps = {
   removeAssets?: AssetRemover | null
   /** Envia arquivos (o logo do onboarding) ao Storage. `null` sem a chave. */
   uploadAsset?: AssetUploader | null
+  /**
+   * Mantém vivo o que continua depois da resposta (a análise do onboarding).
+   * Padrão: só deixa rodar, porque o servidor de sempre não morre.
+   */
+  runInBackground?: (trabalho: Promise<unknown>) => void
 }
 
 function baseApp(webBaseUrl: string): Express {
@@ -85,6 +90,7 @@ export function createApp({
   signAssetUrls = null,
   removeAssets = null,
   uploadAsset = null,
+  runInBackground = (trabalho) => void trabalho,
   fetchInstagramAccount: buscarConta = fetchInstagramAccount,
   fetchInstagramInsights: buscarInsights = fetchInstagramInsights,
   fetchInstagramOverview: buscarRetrato = fetchInstagramOverview,
@@ -107,7 +113,7 @@ export function createApp({
   app.use(companySettingsRoutes(db))
   app.use(instagramRoutes(db, buscarConta))
   app.use(brandRoutes(db, aiClient))
-  app.use(onboardingRoutes({ db, aiClient, signAssetUrls, uploadAsset }))
+  app.use(onboardingRoutes({ db, aiClient, signAssetUrls, uploadAsset, runInBackground }))
   app.use(contentRoutes(db, signAssetUrls, removeAssets))
   app.use(templateRoutes(db))
   app.use(feedRoutes(db, signAssetUrls))

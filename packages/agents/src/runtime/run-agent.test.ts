@@ -33,6 +33,10 @@ function rodar(opcoes: { client: Parameters<typeof runAgent>[0]['client']; compa
     companyId: opcoes.companyId ?? h.auraId,
     input: 'Monte o Cérebro.',
     schema: schemaSimples,
+    // Fixo de propósito: sem isto o modelo vem do ANTHROPIC_MODEL do .env, que
+    // outros arquivos de teste carregam — e o custo esperado mudava conforme a
+    // ordem em que a suíte rodava.
+    model: 'claude-opus-5-5',
   })
 }
 

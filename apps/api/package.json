@@ -16,6 +16,7 @@
     "@firmus/shared": "workspace:*",
     "@firmus/templates": "workspace:*",
     "@supabase/supabase-js": "^2.118.0",
+    "@vercel/functions": "^3.11.3",
     "cors": "^2.8.6",
     "drizzle-orm": "^0.45.4",
     "express": "^5.3.0",
