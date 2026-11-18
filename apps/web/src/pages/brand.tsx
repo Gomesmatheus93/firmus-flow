@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { AsyncState } from '@/components/async-state'
+import { StyleReferences } from '@/components/brand/style-references'
 import { PageHeader, SectionHeading } from '@/components/page-header'
 import { Panel } from '@/components/surface'
 import { useCompanyData } from '@/lib/queries'
@@ -95,138 +96,142 @@ export function BrandPage() {
         }}
       >
         {brain && (
-          <div className="grid gap-5 lg:grid-cols-[1fr_20rem]">
-            <div className="space-y-5">
-              <Block title="Contexto da empresa">
-                <Filled value={brain.context} />
-              </Block>
+          <div className="space-y-5">
+            <div className="grid gap-5 lg:grid-cols-[1fr_20rem]">
+              <div className="space-y-5">
+                <Block title="Contexto da empresa">
+                  <Filled value={brain.context} />
+                </Block>
 
-              <Block title="Serviços">
-                <Chips items={brain.services} />
-              </Block>
+                <Block title="Serviços">
+                  <Chips items={brain.services} />
+                </Block>
 
-              <Block title="Público">
-                <Filled value={brain.audience} />
-              </Block>
+                <Block title="Público">
+                  <Filled value={brain.audience} />
+                </Block>
 
-              <Block title="Diferenciais">
-                {brain.differentiators.length === 0 ? (
-                  <p className="text-sm text-ardosia italic">ainda não preenchido</p>
-                ) : (
-                  <ul className="space-y-2.5">
-                    {brain.differentiators.map((item) => (
-                      <li key={item} className="flex gap-2.5 text-sm text-grafite">
-                        <Check className="mt-0.5 size-4 shrink-0 text-azul" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </Block>
-
-              <Block title="Tom de voz">
-                {!brain.toneOfVoice ? (
-                  <p className="text-sm text-ardosia italic">ainda não preenchido</p>
-                ) : (
-                  <>
-                    <p className="text-sm leading-relaxed text-grafite">
-                      {brain.toneOfVoice.summary}
-                    </p>
-
-                    <div className="mt-6 grid gap-6 sm:grid-cols-2">
-                      <div>
-                        <p className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700">
-                          <Check className="size-3.5" />O que fazer
-                        </p>
-                        <ul className="mt-3 space-y-2 border-l-2 border-emerald-500/40 pl-3.5">
-                          {brain.toneOfVoice.dos.map((item) => (
-                            <li key={item} className="text-sm text-grafite">
-                              {item}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <div>
-                        <p className="flex items-center gap-1.5 text-xs font-semibold text-destructive">
-                          <X className="size-3.5" />O que evitar
-                        </p>
-                        <ul className="mt-3 space-y-2 border-l-2 border-destructive/40 pl-3.5">
-                          {brain.toneOfVoice.donts.map((item) => (
-                            <li key={item} className="text-sm text-grafite">
-                              {item}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </Block>
-            </div>
-
-            <div className="space-y-5">
-              <Block title="Identidade visual">
-                <p className="text-xs text-ardosia">Paleta do cliente</p>
-                {brain.colorPalette.length === 0 ? (
-                  <p className="mt-2 text-sm text-ardosia italic">nenhuma cor cadastrada</p>
-                ) : (
-                  <ul className="mt-2.5 flex gap-1.5">
-                    {brain.colorPalette.map((color) => (
-                      <li key={color} className="flex-1">
-                        <span
-                          className="block h-12 rounded-lg border border-white/80"
-                          style={{ backgroundColor: color }}
-                        />
-                        <span className="tabular mt-1.5 block text-center text-[0.65rem] text-ardosia">
-                          {color}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-
-                <p className="mt-6 text-xs text-ardosia">Logo</p>
-                <div className="mt-2 grid h-24 place-items-center rounded-lg border border-dashed border-white/80 bg-white/35 text-sm text-ardosia">
-                  {brain.logoUrl ? (
-                    <img src={brain.logoUrl} alt="Logo do cliente" className="max-h-20" />
+                <Block title="Diferenciais">
+                  {brain.differentiators.length === 0 ? (
+                    <p className="text-sm text-ardosia italic">ainda não preenchido</p>
                   ) : (
-                    'nenhum logo enviado'
+                    <ul className="space-y-2.5">
+                      {brain.differentiators.map((item) => (
+                        <li key={item} className="flex gap-2.5 text-sm text-grafite">
+                          <Check className="mt-0.5 size-4 shrink-0 text-azul" />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
                   )}
-                </div>
-              </Block>
+                </Block>
 
-              <Block title="Instagram">
-                {brain.instagramHandle ? (
-                  <a
-                    href={`https://instagram.com/${brain.instagramHandle.replace('@', '')}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-2 text-sm text-azul hover:underline"
-                  >
-                    <AtSign className="size-4" />
-                    {brain.instagramHandle}
-                  </a>
-                ) : (
-                  <p className="text-sm text-ardosia italic">ainda não preenchido</p>
-                )}
-              </Block>
+                <Block title="Tom de voz">
+                  {!brain.toneOfVoice ? (
+                    <p className="text-sm text-ardosia italic">ainda não preenchido</p>
+                  ) : (
+                    <>
+                      <p className="text-sm leading-relaxed text-grafite">
+                        {brain.toneOfVoice.summary}
+                      </p>
 
-              <Block title="Perguntas frequentes">
-                {brain.faq.length === 0 ? (
-                  <p className="text-sm text-ardosia italic">nenhuma pergunta cadastrada</p>
-                ) : (
-                  <ul className="divide-y divide-border">
-                    {brain.faq.map((item, index) => (
-                      <li key={item.question} className={index === 0 ? 'pb-3' : 'py-3 last:pb-0'}>
-                        <p className="text-sm font-medium text-noite">{item.question}</p>
-                        <p className="mt-1 text-sm text-ardosia">{item.answer}</p>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </Block>
+                      <div className="mt-6 grid gap-6 sm:grid-cols-2">
+                        <div>
+                          <p className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700">
+                            <Check className="size-3.5" />O que fazer
+                          </p>
+                          <ul className="mt-3 space-y-2 border-l-2 border-emerald-500/40 pl-3.5">
+                            {brain.toneOfVoice.dos.map((item) => (
+                              <li key={item} className="text-sm text-grafite">
+                                {item}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        <div>
+                          <p className="flex items-center gap-1.5 text-xs font-semibold text-destructive">
+                            <X className="size-3.5" />O que evitar
+                          </p>
+                          <ul className="mt-3 space-y-2 border-l-2 border-destructive/40 pl-3.5">
+                            {brain.toneOfVoice.donts.map((item) => (
+                              <li key={item} className="text-sm text-grafite">
+                                {item}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </Block>
+              </div>
+
+              <div className="space-y-5">
+                <Block title="Identidade visual">
+                  <p className="text-xs text-ardosia">Paleta do cliente</p>
+                  {brain.colorPalette.length === 0 ? (
+                    <p className="mt-2 text-sm text-ardosia italic">nenhuma cor cadastrada</p>
+                  ) : (
+                    <ul className="mt-2.5 flex gap-1.5">
+                      {brain.colorPalette.map((color) => (
+                        <li key={color} className="flex-1">
+                          <span
+                            className="block h-12 rounded-lg border border-white/80"
+                            style={{ backgroundColor: color }}
+                          />
+                          <span className="tabular mt-1.5 block text-center text-[0.65rem] text-ardosia">
+                            {color}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  <p className="mt-6 text-xs text-ardosia">Logo</p>
+                  <div className="mt-2 grid h-24 place-items-center rounded-lg border border-dashed border-white/80 bg-white/35 text-sm text-ardosia">
+                    {brain.logoUrl ? (
+                      <img src={brain.logoUrl} alt="Logo do cliente" className="max-h-20" />
+                    ) : (
+                      'nenhum logo enviado'
+                    )}
+                  </div>
+                </Block>
+
+                <Block title="Instagram">
+                  {brain.instagramHandle ? (
+                    <a
+                      href={`https://instagram.com/${brain.instagramHandle.replace('@', '')}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 text-sm text-azul hover:underline"
+                    >
+                      <AtSign className="size-4" />
+                      {brain.instagramHandle}
+                    </a>
+                  ) : (
+                    <p className="text-sm text-ardosia italic">ainda não preenchido</p>
+                  )}
+                </Block>
+
+                <Block title="Perguntas frequentes">
+                  {brain.faq.length === 0 ? (
+                    <p className="text-sm text-ardosia italic">nenhuma pergunta cadastrada</p>
+                  ) : (
+                    <ul className="divide-y divide-border">
+                      {brain.faq.map((item, index) => (
+                        <li key={item.question} className={index === 0 ? 'pb-3' : 'py-3 last:pb-0'}>
+                          <p className="text-sm font-medium text-noite">{item.question}</p>
+                          <p className="mt-1 text-sm text-ardosia">{item.answer}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </Block>
+              </div>
             </div>
+
+            <StyleReferences />
           </div>
         )}
       </AsyncState>

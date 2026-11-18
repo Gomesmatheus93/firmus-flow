@@ -84,6 +84,11 @@ Agentes do MVP: `marca` (monta o Cérebro da Marca), `auditoria`, `estrategista`
 (planejamento), `conteudo` (legendas, roteiros e textos de carrossel), `design` (aplica a
 marca nos templates), `atendimento` (WhatsApp) e `tendencias` (o ig-viral).
 
+O agente `referencia` lê a imagem que o chefe envia em "Enviar template" (Cérebro da
+Marca) e tira dela um guia de estilo, guardado em `brand_style_references`. O runtime
+junta esses guias ao Cérebro, então **todo agente** segue o estilo sem pedir. O guia
+descreve o estilo, nunca o conteúdo de quem fez a referência.
+
 O agente `tendencias` **pesquisa na web**: a API do Instagram não entrega dado sobre
 perfis de terceiros. Ele sempre guarda a fonte de cada achado, e a tela só mostra o que
 tem fonte. É leitura de tendência, nunca número oficial do Instagram.
