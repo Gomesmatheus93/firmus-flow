@@ -196,6 +196,51 @@ function cenaFirmus(largura: number, assets: TemplateAssets, comSimbolo = true) 
     ${objetos.join('')}`
 }
 
+/* ------------------------------------------------------------- a luz */
+
+/** Feixes de luz descendo do alto, atrás do título e do personagem. */
+const raios = (x0: number) => `
+  <div style="position:absolute;left:${x0}px;top:-120px;width:${WIDTH}px;height:1100px;overflow:hidden;mix-blend-mode:screen;filter:blur(18px)">
+    ${[
+      [-28, 120, 0.22],
+      [-14, 260, 0.3],
+      [-4, 120, 0.2],
+      [8, 300, 0.32],
+      [20, 140, 0.2],
+      [32, 200, 0.16],
+    ]
+      .map(
+        ([giro, largura, alfa]) =>
+          `<div style="position:absolute;left:50%;top:0;width:${largura}px;height:1300px;margin-left:-${largura! / 2}px;transform-origin:50% 0;transform:rotate(${giro}deg);background:linear-gradient(180deg,rgba(150,230,255,${alfa}),rgba(34,195,230,${alfa! * 0.5}) 45%,rgba(34,195,230,0) 85%)"></div>`,
+      )
+      .join('')}
+  </div>`
+
+/**
+ * O acabamento de cinema de cada slide, por cima de tudo: cantos escuros
+ * (vinheta), partículas de luz fora de foco na frente da cena e grão de
+ * filme. Fica preso ao slide, não à tira, para todos terem o mesmo tom.
+ */
+function acabamento(i: number) {
+  const particulas = Array.from({ length: 7 }, (_, k) => {
+    const n = i * 7 + k
+    // Só nas laterais: partícula em cima do texto atrapalha a leitura.
+    const x = k % 2 ? 6 + ((n * 53) % 70) : WIDTH - 80 + ((n * 41) % 70)
+    const y = 160 + ((n * 389) % 1080)
+    const r = 10 + ((n * 37) % 34)
+    const desfoque = r > 30 ? 10 : 4
+    return `<div style="position:absolute;left:${x}px;top:${y}px;width:${r}px;height:${r}px;border-radius:50%;background:${k % 3 ? 'rgba(170,235,255,.55)' : 'rgba(34,195,230,.7)'};filter:blur(${desfoque}px)"></div>`
+  }).join('')
+
+  const ruido =
+    "url(&quot;data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .5 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>&quot;)"
+
+  return `
+    <div style="position:absolute;inset:0;pointer-events:none">${particulas}</div>
+    <div style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,rgba(0,0,0,0) 52%,rgba(2,6,16,.42) 82%,rgba(2,6,16,.7) 100%)"></div>
+    <div style="position:absolute;inset:0;pointer-events:none;opacity:.07;mix-blend-mode:overlay;background-image:${ruido}"></div>`
+}
+
 /* ------------------------------------------------------------- os slides */
 
 /** A coluna de texto de um slide, na posição dele dentro da tira. */
@@ -219,8 +264,10 @@ function conteudo(s: PanoramaSlide, i: number, total: number, instagram: string)
         </div>
         ${
           s.personagem
-            ? `<div style="position:absolute;left:${x0 + 140}px;top:640px;width:800px;height:800px;border-radius:50%;background:radial-gradient(circle,rgba(34,195,230,.42),rgba(28,140,255,.12) 45%,rgba(28,140,255,0) 70%)"></div>
-               <img src="${escapar(s.personagem)}" alt="" style="position:absolute;left:${x0 + WIDTH / 2}px;bottom:0;transform:translateX(-50%);height:740px;filter:drop-shadow(0 30px 50px rgba(0,0,0,.55)) drop-shadow(0 0 2px rgba(255,255,255,.35))">`
+            ? `${raios(x0)}
+               <div style="position:absolute;left:${x0 + 140}px;top:640px;width:800px;height:800px;border-radius:50%;background:radial-gradient(circle,rgba(34,195,230,.5),rgba(28,140,255,.14) 45%,rgba(28,140,255,0) 70%)"></div>
+               <img src="${escapar(s.personagem)}" alt="" style="position:absolute;left:${x0 + WIDTH / 2}px;bottom:0;transform:translateX(-50%);height:740px;filter:contrast(1.12) saturate(1.12) brightness(1.03) drop-shadow(-3px -2px 0 rgba(120,225,255,.55)) drop-shadow(4px -3px 10px rgba(34,195,230,.55)) drop-shadow(0 30px 50px rgba(0,0,0,.6))">
+               <div style="position:absolute;left:${x0}px;bottom:-60px;width:${WIDTH}px;height:340px;background:radial-gradient(ellipse at 50% 70%,rgba(34,195,230,.38),rgba(28,140,255,.1) 45%,rgba(11,31,58,0) 70%);filter:blur(10px)"></div>`
             : ''
         }
         <div style="position:absolute;left:${x0 + 860}px;top:330px">${cursorMover}</div>
@@ -300,7 +347,7 @@ export function renderPanorama(post: PanoramaPost, assets: TemplateAssets): stri
   // atravessa: cada slide leva só o dele.
   return post.slides.map((s, i) =>
     pagina(
-      `<div style="position:absolute;top:0;left:${-i * WIDTH}px;width:${largura}px;height:${H}px">${fundo}${conteudo(s, i, total, instagram)}</div>`,
+      `<div style="position:absolute;top:0;left:${-i * WIDTH}px;width:${largura}px;height:${H}px">${fundo}${conteudo(s, i, total, instagram)}</div>${acabamento(i)}`,
       cor.noite,
       FONTES,
     ),
