@@ -1,0 +1,3 @@
+# A api do Firmus Flow nao e pagina para buscador.
+User-agent: *
+Disallow: /
