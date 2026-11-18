@@ -5,11 +5,19 @@ import { renderEditorial, type EditorialSlide } from './styles/editorial'
 import { renderKit, type KitSlide } from './styles/kit'
 import { renderLave, type LaveSlide } from './styles/lave'
 import { renderPaper, type PaperSlide } from './styles/paper'
-import { renderScene, type SceneSlide } from './styles/scene'
+import { renderPanorama, type PanoramaPost, type PanoramaSlide } from './styles/panorama'
 
 export { HEIGHT, WIDTH, type TemplateAssets } from './base'
-export { renderBrutalist, renderEditorial, renderKit, renderLave, renderPaper, renderScene }
-export type { BrutalistSlide, EditorialSlide, KitSlide, LaveSlide, PaperSlide, SceneSlide }
+export { renderBrutalist, renderEditorial, renderKit, renderLave, renderPanorama, renderPaper }
+export type {
+  BrutalistSlide,
+  EditorialSlide,
+  KitSlide,
+  LaveSlide,
+  PanoramaPost,
+  PanoramaSlide,
+  PaperSlide,
+}
 
 /**
  * Os modelos que existem. A chave é o que fica gravado no banco
@@ -21,7 +29,7 @@ export const TEMPLATE_KEYS = [
   'papel-etiqueta',
   'brutalista',
   'lave-seque',
-  'cena',
+  'panorama',
 ] as const
 
 export type TemplateKey = (typeof TEMPLATE_KEYS)[number]
@@ -370,65 +378,53 @@ export const templates: Record<TemplateKey, Template> = {
     ),
   },
 
-  cena: {
-    key: 'cena',
-    name: 'Cena',
+  panorama: {
+    key: 'panorama',
+    name: 'Panorama',
     description:
-      'Foto de cena ocupando o post, título enorme com palavra manuscrita e detalhes de ferramenta de design.',
-    formats: ['carrossel', 'post'],
-    preview: previa<SceneSlide>(
-      [
+      'O carrossel como uma tira contínua: os objetos atravessam de um slide para o outro.',
+    formats: ['carrossel'],
+    preview: (assets) => {
+      const rotulos = ['Capa', 'Texto', 'Texto', 'Texto', 'Chamada final']
+      return renderPanorama(
         {
-          label: 'Capa',
-          slide: {
-            kind: 'capa',
-            antes: 'Seu Instagram no',
-            linha1: 'automático',
-            linha2: 'de verdade',
-            tamanho1: 188,
-            tamanho2: 180,
-            manuscrito: 'sem perder a sua cara',
-            serie: { atual: 1, total: 365 },
-          },
+          slides: [
+            {
+              kind: 'capa',
+              antes: 'Como ter',
+              linha1: 'Instagram',
+              linha2: 'no automático',
+              selo: 'em menos de **10 minutos por semana**',
+            },
+            {
+              kind: 'texto',
+              paragrafos: ['Essa semana um cliente abriu a plataforma e pediu **o plano do mês**.'],
+              destaque: 'Em segundos: **12 posts** com a cara da marca dele.',
+              manuscrito: 'e ele só aprovou.',
+            },
+            {
+              kind: 'texto',
+              paragrafos: [
+                'Cada post já veio com **legenda pronta** e a *arte no modelo dele*.',
+                'Nada sai **sem o ok** de quem manda.',
+              ],
+            },
+            {
+              kind: 'texto',
+              paragrafos: ['E quando o cliente chamou no WhatsApp, **a resposta já estava lá**.'],
+              terminal: 'Com o Firmus Flow, você para de perder contato!',
+            },
+            {
+              kind: 'chamada',
+              antes: 'Quer ver isso funcionando **no seu Instagram**?',
+              linha1: 'Chama',
+              linha2: 'no Whats',
+              manuscrito: 'O link está na bio!',
+            },
+          ],
         },
-        {
-          label: 'Texto',
-          slide: {
-            kind: 'texto',
-            numero: '02',
-            titulo: 'O post sai *pronto*',
-            paragrafos: [
-              'A plataforma escreve, monta as artes e deixa tudo **esperando o seu ok**.',
-              'Você só decide o que vai ao ar.',
-            ],
-          },
-        },
-        {
-          label: 'Lista',
-          slide: {
-            kind: 'lista',
-            numero: '03',
-            titulo: 'O que entra *no pacote*',
-            itens: [
-              'Planejamento do mês',
-              'Carrosséis e posts',
-              'Legendas prontas',
-              'Atendimento no WhatsApp',
-            ],
-          },
-        },
-        {
-          label: 'Chamada final',
-          slide: {
-            kind: 'chamada',
-            linha1: 'Quer ver',
-            linha2: 'funcionando?',
-            texto: 'Chama a gente no WhatsApp: **o link está na bio**.',
-            pergunta: 'Quero ver o Firmus Flow no meu Instagram',
-          },
-        },
-      ],
-      renderScene,
-    ),
+        assets,
+      ).map((html, i) => ({ label: rotulos[i]!, html }))
+    },
   },
 }
