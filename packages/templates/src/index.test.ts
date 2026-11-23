@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isTemplateKey, renderKit, TEMPLATE_KEYS, templates } from '.'
+import { isTemplateKey, renderKit, renderLaveFoto, TEMPLATE_KEYS, templates } from '.'
 
 const assets = { symbolUrl: '/firmus-symbol.png' }
 
@@ -29,7 +29,7 @@ describe('catálogo de modelos', () => {
   it('todo modelo é um carrossel completo: abre na capa e fecha na chamada', () => {
     for (const key of TEMPLATE_KEYS) {
       const tipos = templates[key].preview(assets).map((s) => s.label)
-      expect(tipos.length).toBeGreaterThanOrEqual(4)
+      expect(tipos.length).toBeGreaterThanOrEqual(3)
       expect(tipos[0]).toBe('Capa')
       expect(tipos.at(-1)).toBe('Chamada final')
     }
@@ -43,7 +43,7 @@ describe('catálogo de modelos', () => {
 
 describe('arraste para o lado', () => {
   it('aparece em todo slide de carrossel, menos no último', () => {
-    for (const key of TEMPLATE_KEYS) {
+    for (const key of TEMPLATE_KEYS.filter((k) => templates[k].formats.includes('carrossel'))) {
       const slides = templates[key].preview(assets)
       for (const slide of slides.slice(0, -1)) {
         expect(slide.html.toLowerCase(), `${key}: ${slide.label}`).toContain('arraste para o lado')
@@ -90,5 +90,28 @@ describe('desenho dos slides', () => {
     )
     expect(semFoto).not.toContain('foto.jpg')
     expect(comFoto).toContain('https://x.test/foto.jpg')
+  })
+
+  it('no Lave Seque Foto, a foto entra no lugar da máquina desenhada', () => {
+    const semFoto = renderLaveFoto({ kind: 'faixas', faixas: ['a', 'b'] }, assets)
+    const comFoto = renderLaveFoto(
+      { kind: 'faixas', faixas: ['a', 'b'], foto: 'https://x.test/loja.jpg' },
+      assets,
+    )
+    expect(semFoto).toContain('sua foto aqui')
+    expect(comFoto).not.toContain('sua foto aqui')
+    expect(comFoto).toContain('https://x.test/loja.jpg')
+  })
+
+  it('cada arte da Lave Seque é um modelo próprio, em carrossel, post e story', () => {
+    const lave = TEMPLATE_KEYS.filter((k) => k.startsWith('lave-') && k !== 'lave-seque')
+    expect(lave).toHaveLength(12)
+    for (const key of lave) {
+      expect(templates[key].formats).toEqual(['carrossel', 'post', 'story'])
+      for (const slide of templates[key].preview(assets, 'story')) {
+        expect(slide.html, key).toContain('height:1920px')
+        expect(slide.html.toLowerCase(), key).not.toContain('arraste para o lado')
+      }
+    }
   })
 })

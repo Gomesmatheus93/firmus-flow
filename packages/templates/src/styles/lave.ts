@@ -40,10 +40,11 @@ export type LaveSlide =
 const MARINHO = '#0D1257'
 const VERDE = '#6CAD34'
 const ESTAMPA = '#DCE0EA'
-const FONTE = 'https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap'
+export const FONTE =
+  'https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap'
 
 /** Título e textos em Baloo 2: grosso e arredondado, como o da marca. */
-const baloo = "font-family:'Baloo 2',sans-serif"
+export const baloo = "font-family:'Baloo 2',sans-serif"
 
 /** `*palavra*` vira verde; o resto continua marinho. */
 const verde = (texto: string) =>
@@ -84,16 +85,22 @@ function manchas(lado: 'normal' | 'invertido' = 'normal') {
 }
 
 /**
- * O logo da empresa no alto. Sem logo: num post de verdade, o nome da empresa
- * em texto; na prévia do modelo, um espaço reservado.
+ * O logo da empresa, sem posição. Sem logo: num post de verdade, o nome da
+ * empresa em texto; na prévia do modelo, um espaço reservado.
+ * `altura` é a altura máxima do logo; o resto escala junto.
  */
-function logo(assets: TemplateAssets, top = 70) {
-  const conteudo = assets.logoUrl
-    ? `<img src="${escapar(assets.logoUrl)}" alt="" style="max-height:170px;max-width:340px;object-fit:contain">`
+export function logoMarca(assets: TemplateAssets, altura = 170) {
+  const k = altura / 170
+  return assets.logoUrl
+    ? `<img src="${escapar(assets.logoUrl)}" alt="" style="max-height:${altura}px;max-width:${Math.round(340 * k)}px;object-fit:contain">`
     : assets.marca
-      ? `<span style="${baloo};font-size:54px;font-weight:800;letter-spacing:-.01em;color:${VERDE}">${escapar(assets.marca)}</span>`
-      : `<div style="display:grid;place-items:center;width:200px;height:150px;border:3px dashed ${VERDE};border-radius:28px;${baloo};font-size:26px;font-weight:700;color:${VERDE}">seu logo</div>`
-  return `<div style="position:absolute;top:${top}px;left:0;right:0;display:flex;justify-content:center">${conteudo}</div>`
+      ? `<span style="${baloo};font-size:${Math.round(54 * k)}px;font-weight:800;letter-spacing:-.01em;color:${VERDE}">${escapar(assets.marca)}</span>`
+      : `<div style="display:grid;place-items:center;width:${Math.round(200 * k)}px;height:${Math.round(150 * k)}px;border:3px dashed ${VERDE};border-radius:28px;${baloo};font-size:${Math.round(26 * k)}px;font-weight:700;color:${VERDE}">seu logo</div>`
+}
+
+/** O logo centralizado no alto. */
+export function logo(assets: TemplateAssets, top = 70, altura = 170) {
+  return `<div style="position:absolute;top:${top}px;left:0;right:0;display:flex;justify-content:center">${logoMarca(assets, altura)}</div>`
 }
 
 const etiqueta = (texto: string) =>

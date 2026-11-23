@@ -8,6 +8,8 @@
 
 export const WIDTH = 1080
 export const HEIGHT = 1350
+/** Altura do story e do reel (9:16). */
+export const STORY_HEIGHT = 1920
 
 export const cor = {
   azul: '#1C8CFF',
@@ -119,14 +121,22 @@ export function espacoFoto({
   return `<div style="${estilo};display:flex;align-items:center;justify-content:center">${semFoto}</div>`
 }
 
-/** O documento de um slide, com as fontes e o tamanho do feed (1080x1350). */
-/** `fontes`: endereço do Google Fonts de um modelo que usa outra família. */
-export function pagina(corpo: string, fundo: string = cor.gelo, fontes?: string) {
+/**
+ * O documento de um slide, com as fontes e o tamanho: feed (1080x1350) por
+ * padrão, ou story (1080x1920) com `altura`.
+ * `fontes`: endereço do Google Fonts de um modelo que usa outra família.
+ */
+export function pagina(
+  corpo: string,
+  fundo: string = cor.gelo,
+  fontes?: string,
+  altura: number = HEIGHT,
+) {
   return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <link href="${FONTES}" rel="stylesheet">${fontes ? `\n<link href="${fontes}" rel="stylesheet">` : ''}
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
-  html, body { width:${WIDTH}px; height:${HEIGHT}px; }
+  html, body { width:${WIDTH}px; height:${altura}px; }
   body { position:relative; overflow:hidden; background:${fundo}; font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased; }
   .anton { font-family:'Anton',sans-serif; font-weight:400; text-transform:uppercase; line-height:.86; letter-spacing:-.005em; }
   .mono { font-family:ui-monospace,'JetBrains Mono',monospace; letter-spacing:.08em; text-transform:uppercase; }

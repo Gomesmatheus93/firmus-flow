@@ -1,18 +1,29 @@
 import type { ContentType } from '@firmus/shared'
 import type { TemplateAssets } from './base'
+import { LAVE_KEYS, laveModelos, previaLave, type LaveKey } from './lave-modelos'
 import { renderBrutalist, type BrutalistSlide } from './styles/brutalist'
 import { renderEditorial, type EditorialSlide } from './styles/editorial'
 import { renderKit, type KitSlide } from './styles/kit'
 import { renderLave, type LaveSlide } from './styles/lave'
+import { renderLaveFoto, type LaveFotoSlide } from './styles/lave-foto'
 import { renderPaper, type PaperSlide } from './styles/paper'
 import { renderPanorama, type PanoramaPost, type PanoramaSlide } from './styles/panorama'
 
-export { HEIGHT, WIDTH, type TemplateAssets } from './base'
-export { renderBrutalist, renderEditorial, renderKit, renderLave, renderPanorama, renderPaper }
+export { HEIGHT, STORY_HEIGHT, WIDTH, type TemplateAssets } from './base'
+export {
+  renderBrutalist,
+  renderEditorial,
+  renderKit,
+  renderLave,
+  renderLaveFoto,
+  renderPanorama,
+  renderPaper,
+}
 export type {
   BrutalistSlide,
   EditorialSlide,
   KitSlide,
+  LaveFotoSlide,
   LaveSlide,
   PanoramaPost,
   PanoramaSlide,
@@ -30,6 +41,7 @@ export const TEMPLATE_KEYS = [
   'brutalista',
   'lave-seque',
   'panorama',
+  ...LAVE_KEYS,
 ] as const
 
 export type TemplateKey = (typeof TEMPLATE_KEYS)[number]
@@ -47,7 +59,11 @@ export type Template = {
   /** Em que formatos o modelo se encaixa. */
   formats: ContentType[]
   /** A prévia com texto de exemplo, um item por tipo de slide do modelo. */
-  preview: (assets: TemplateAssets) => TemplatePreviewSlide[]
+  /**
+   * A prévia com texto de exemplo. `format` diz o tamanho: no story, os
+   * modelos que o aceitam desenham em 1080x1920.
+   */
+  preview: (assets: TemplateAssets, format?: ContentType) => TemplatePreviewSlide[]
 }
 
 /**
@@ -63,6 +79,20 @@ function previa<S extends { kind: string }>(
   return (assets: TemplateAssets) =>
     exemplo.map(({ label, slide }) => ({ label, html: render(slide, assets) }))
 }
+
+/** Os 12 modelos da Lave Seque, um por arte, cada um em carrossel, post e story. */
+const modelosLave = Object.fromEntries(
+  LAVE_KEYS.map((key): [LaveKey, Template] => [
+    key,
+    {
+      key,
+      name: laveModelos[key].name,
+      description: laveModelos[key].description,
+      formats: ['carrossel', 'post', 'story'],
+      preview: (assets, format) => previaLave(key, assets, format),
+    },
+  ]),
+) as Record<LaveKey, Template>
 
 export const templates: Record<TemplateKey, Template> = {
   'kit-carrossel': {
@@ -427,4 +457,5 @@ export const templates: Record<TemplateKey, Template> = {
       ).map((html, i) => ({ label: rotulos[i]!, html }))
     },
   },
+  ...modelosLave,
 }

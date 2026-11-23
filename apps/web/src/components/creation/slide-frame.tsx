@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from 'react'
 import { cn } from 'cn'
 
 /**
- * Um slide do modelo desenhado de verdade, em tamanho de feed (1080x1350), e
- * reduzido para caber onde estiver.
+ * Um slide do modelo desenhado de verdade, em tamanho de feed (1080x1350) ou
+ * de story (`height` 1920), e reduzido para caber onde estiver.
  *
  * O HTML entra num `iframe` com `sandbox` vazio: nada de script roda lá
  * dentro, e o estilo do slide não vaza para a página nem o da página para o
@@ -15,10 +15,13 @@ export function SlideFrame({
   html,
   title,
   className,
+  height = HEIGHT,
 }: {
   html: string
   title: string
   className?: string
+  /** Altura do slide em pixels: 1350 no feed, 1920 no story. */
+  height?: number
 }) {
   const caixa = useRef<HTMLDivElement>(null)
   const [escala, setEscala] = useState(0)
@@ -37,7 +40,8 @@ export function SlideFrame({
   return (
     <div
       ref={caixa}
-      className={cn('relative aspect-[4/5] w-full overflow-hidden bg-gelo', className)}
+      className={cn('relative w-full overflow-hidden bg-gelo', className)}
+      style={{ aspectRatio: `${WIDTH} / ${height}` }}
     >
       {escala > 0 && (
         <iframe
@@ -47,7 +51,7 @@ export function SlideFrame({
           loading="lazy"
           tabIndex={-1}
           width={WIDTH}
-          height={HEIGHT}
+          height={height}
           className="pointer-events-none absolute top-0 left-0 origin-top-left border-0"
           style={{ transform: `scale(${escala})` }}
         />

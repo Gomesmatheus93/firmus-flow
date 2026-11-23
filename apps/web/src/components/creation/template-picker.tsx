@@ -1,5 +1,5 @@
 import type { ContentType } from '@firmus/shared'
-import { templates, type Template, type TemplateKey } from '@firmus/templates'
+import { HEIGHT, STORY_HEIGHT, templates, type Template, type TemplateKey } from '@firmus/templates'
 import { Check, ChevronLeft, ChevronRight, Eye } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { cn } from 'cn'
@@ -22,19 +22,26 @@ import { SlideFrame } from './slide-frame'
  */
 const assets = { symbolUrl: new URL(symbolUrl, window.location.href).href }
 
+/** Story e reel são 9:16 (1080x1920); o resto é o retrato do feed. */
+const alturaDo = (format: ContentType) =>
+  format === 'story' || format === 'reel' ? STORY_HEIGHT : HEIGHT
+
 /** A prévia de um modelo, com setas para passar pelos tipos de slide. */
 function PreviewDialog({
   template,
+  format,
   open,
   onOpenChange,
   onChoose,
 }: {
   template: Template
+  format: ContentType
   open: boolean
   onOpenChange: (open: boolean) => void
   onChoose: () => void
 }) {
-  const slides = useMemo(() => template.preview(assets), [template])
+  const slides = useMemo(() => template.preview(assets, format), [template, format])
+  const altura = alturaDo(format)
   const [atual, setAtual] = useState(0)
   const slide = slides[atual]
 
@@ -49,10 +56,11 @@ function PreviewDialog({
         </div>
 
         {slide && (
-          <div className="relative">
+          <div className={cn('relative', altura > HEIGHT && 'mx-auto w-full max-w-[18rem]')}>
             <SlideFrame
               html={slide.html}
               title={`${template.name}: ${slide.label}`}
+              height={altura}
               className="rounded-lg border border-border"
             />
             <span className="absolute top-3 left-3 rounded-full bg-noite/80 px-2.5 py-1 text-xs font-medium text-white">
@@ -110,16 +118,18 @@ function PreviewDialog({
 /** Um cartão de modelo: a capa em miniatura, o nome e o botão de prévia. */
 function TemplateCard({
   template,
+  format,
   selected,
   onSelect,
   onPreview,
 }: {
   template: Template
+  format: ContentType
   selected: boolean
   onSelect: () => void
   onPreview: () => void
 }) {
-  const capa = useMemo(() => template.preview(assets)[0], [template])
+  const capa = useMemo(() => template.preview(assets, format)[0], [template, format])
 
   return (
     <div
@@ -135,7 +145,13 @@ function TemplateCard({
         aria-label={`Usar o modelo ${template.name}`}
         className="relative block w-full text-left"
       >
-        {capa && <SlideFrame html={capa.html} title={`Capa do modelo ${template.name}`} />}
+        {capa && (
+          <SlideFrame
+            html={capa.html}
+            title={`Capa do modelo ${template.name}`}
+            height={alturaDo(format)}
+          />
+        )}
         {selected && (
           <span className="absolute top-2 right-2 grid size-6 place-items-center rounded-full bg-azul text-white">
             <Check className="size-3.5" />
@@ -211,6 +227,7 @@ export function TemplatePicker({
           <TemplateCard
             key={template.key}
             template={template}
+            format={format}
             selected={value === template.key}
             onSelect={() => onChange(template.key)}
             onPreview={() => setEmPrevia(template.key)}
@@ -223,6 +240,7 @@ export function TemplatePicker({
         <PreviewDialog
           key={previa.key}
           template={previa}
+          format={format}
           open={emPrevia !== null}
           onOpenChange={(open) => !open && setEmPrevia(null)}
           onChoose={() => onChange(previa.key)}
