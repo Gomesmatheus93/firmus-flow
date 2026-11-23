@@ -1,13 +1,19 @@
 import { scheduledPostStatusLabel, type ScheduledPostStatus } from '@firmus/shared'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { CalendarClock, MessageSquareReply, Trash2, Users } from 'lucide-react'
-import { useState } from 'react'
+import {
+  CalendarClock,
+  ExternalLink,
+  Loader2,
+  MessageSquareReply,
+  Trash2,
+  Users,
+} from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
 import { cn } from 'cn'
 import { AsyncState } from '@/components/async-state'
 import { FormatBadge } from '@/components/format-badge'
-import { MetaPending } from '@/components/meta-pending'
 import { PageHeader } from '@/components/page-header'
 import { Panel } from '@/components/surface'
 import { Button } from '@/components/ui/button'
@@ -21,6 +27,7 @@ import { useAuth } from '@/providers/auth-provider'
 const statusTone: Record<ScheduledPostStatus, string> = {
   rascunho: 'bg-amber-500',
   agendado: 'bg-azul',
+  publicando: 'bg-azul animate-pulse',
   publicado: 'bg-emerald-500',
   falhou: 'bg-destructive',
   cancelado: 'bg-ardosia',
@@ -97,8 +104,8 @@ function PublishBox({ post }: { post: ScheduledPost }) {
       await queryClient.invalidateQueries({ queryKey: ['scheduled-posts'] })
       toast.success(
         acao === 'agora'
-          ? 'Na fila para agora. A publicação automática começa quando a Meta liberar o app; até lá, baixe as artes e publique pelo Meta Business Suite.'
-          : 'Agendada. Ela entra no ar na hora marcada quando a Meta liberar o app.',
+          ? 'Publicando no Instagram. Leva alguns segundos; esta tela atualiza sozinha.'
+          : `Agendada para ${formatDateTime(new Date(quando).toISOString())}.`,
       )
     },
     onError: (erro: Error) => toast.error(erro.message),
@@ -118,7 +125,7 @@ function PublishBox({ post }: { post: ScheduledPost }) {
             <Input
               value={colabs}
               onChange={(e) => setColabs(e.target.value)}
-              placeholder="@conta, @outraconta"
+              placeholder="@conta, @outraconta (até 3)"
               className="mt-1.5 bg-white"
             />
           </label>
@@ -164,7 +171,7 @@ function PublishBox({ post }: { post: ScheduledPost }) {
           disabled={publicar.isPending}
           onClick={() => publicar.mutate('agora')}
         >
-          Postar agora
+          {post.status === 'falhou' ? 'Tentar de novo' : 'Postar agora'}
         </Button>
       </div>
     </div>
@@ -174,7 +181,8 @@ function PublishBox({ post }: { post: ScheduledPost }) {
 /** Uma peça da fila: a capa, o que ela é e em que pé está. */
 function QueueItem({ post, isBoss }: { post: ScheduledPost; isBoss: boolean }) {
   const queryClient = useQueryClient()
-  const naFila = post.status === 'rascunho' || post.status === 'agendado'
+  // Na fila ou com falha: dá para mexer, tirar e tentar de novo.
+  const editavel = ['rascunho', 'agendado', 'falhou'].includes(post.status)
 
   const tirar = useMutation({
     mutationFn: () => api.delete(`/scheduled-posts/${post.id}`),
@@ -215,11 +223,30 @@ function QueueItem({ post, isBoss }: { post: ScheduledPost; isBoss: boolean }) {
           </div>
           <h3 className="text-base leading-snug font-semibold text-noite">{post.contentTitle}</h3>
           <p className="flex items-center gap-1.5 text-sm text-grafite">
-            <span className={cn('size-2 shrink-0 rounded-full', statusTone[post.status])} />
+            {post.status === 'publicando' ? (
+              <Loader2 className="size-3.5 shrink-0 animate-spin text-azul" />
+            ) : (
+              <span className={cn('size-2 shrink-0 rounded-full', statusTone[post.status])} />
+            )}
             {post.status === 'rascunho'
               ? 'Na fila, sem data'
-              : `${scheduledPostStatusLabel[post.status]}${post.scheduledFor ? ` · ${formatDateTime(post.scheduledFor)}` : ''}`}
+              : post.status === 'publicando'
+                ? 'Publicando no Instagram…'
+                : post.status === 'publicado' && post.publishedAt
+                  ? `Publicado · ${formatDateTime(post.publishedAt)}`
+                  : `${scheduledPostStatusLabel[post.status]}${post.scheduledFor ? ` · ${formatDateTime(post.scheduledFor)}` : ''}`}
           </p>
+          {post.permalink && (
+            <a
+              href={post.permalink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-sm font-medium text-azul hover:underline"
+            >
+              Ver no Instagram
+              <ExternalLink className="size-3.5" />
+            </a>
+          )}
           {post.collaborators.length > 0 && (
             <p className="text-xs text-ardosia">
               Com {post.collaborators.map((c) => `@${c}`).join(', ')}
@@ -230,7 +257,7 @@ function QueueItem({ post, isBoss }: { post: ScheduledPost; isBoss: boolean }) {
           )}
           {post.errorMessage && <p className="text-xs text-destructive">{post.errorMessage}</p>}
 
-          {isBoss && naFila && (
+          {isBoss && editavel && (
             <Button
               variant="ghost"
               size="sm"
@@ -245,7 +272,7 @@ function QueueItem({ post, isBoss }: { post: ScheduledPost; isBoss: boolean }) {
         </div>
       </div>
 
-      {isBoss && naFila && <PublishBox post={post} />}
+      {isBoss && editavel && <PublishBox post={post} />}
     </Panel>
   )
 }
@@ -254,11 +281,28 @@ export function SchedulerPage() {
   const { company } = useAuth()
   const isBoss = company?.role === 'chefe'
 
+  const queryClient = useQueryClient()
   const { data, isPending, error } = useCompanyData<{ posts: ScheduledPost[] }>(
     ['scheduled-posts'],
     '/scheduled-posts',
     { posts: [] },
   )
+
+  // Enquanto algo está publicando (ou venceu e vai sair), a tela se atualiza
+  // a cada poucos segundos, para mostrar "Publicado" sem precisar recarregar.
+  const esperando = data.posts.some(
+    (p) =>
+      p.status === 'publicando' ||
+      (p.status === 'agendado' && p.scheduledFor && new Date(p.scheduledFor) <= new Date()),
+  )
+  useEffect(() => {
+    if (!esperando) return
+    const timer = setInterval(
+      () => void queryClient.invalidateQueries({ queryKey: ['scheduled-posts'] }),
+      4_000,
+    )
+    return () => clearInterval(timer)
+  }, [esperando, queryClient])
 
   return (
     <>
@@ -267,10 +311,14 @@ export function SchedulerPage() {
         description="A fila do que vai ao Instagram. Envie a peça aprovada pela Criação ('Enviar para postar') e escolha aqui se posta agora ou agenda."
       />
 
-      <MetaPending
-        permission="instagram_content_publish"
-        what="Publicar no Instagram na hora marcada"
-      />
+      <Panel className="text-sm leading-relaxed text-ardosia">
+        <p className="font-semibold text-noite">Como a publicação funciona</p>
+        <p className="mt-1.5">
+          A peça é publicada na conta do Instagram conectada em Configurações. <b>Postar agora</b>{' '}
+          publica em seguida; os <b>agendados</b> saem sozinhos na hora marcada, conferidos a cada
+          minuto. Se a Meta recusar, a mensagem dela aparece aqui e dá para tentar de novo.
+        </p>
+      </Panel>
 
       <AsyncState
         isPending={isPending}

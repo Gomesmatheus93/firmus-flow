@@ -4,6 +4,8 @@ import { z } from 'zod'
 export const scheduledPostStatusSchema = z.enum([
   'rascunho',
   'agendado',
+  /** Enviando para a Meta agora. Trava contra publicar duas vezes. */
+  'publicando',
   'publicado',
   'falhou',
   'cancelado',
@@ -14,6 +16,7 @@ export type ScheduledPostStatus = z.infer<typeof scheduledPostStatusSchema>
 export const scheduledPostStatusLabel: Record<ScheduledPostStatus, string> = {
   rascunho: 'Rascunho',
   agendado: 'Agendado',
+  publicando: 'Publicando',
   publicado: 'Publicado',
   falhou: 'Falhou',
   cancelado: 'Cancelado',

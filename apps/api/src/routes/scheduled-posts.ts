@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { slidesOf } from '../content/body'
 import { badRequest, conflict, notFound } from '../http/errors'
 import { requireRole } from '../middleware/role'
+import { publishPost, type PublishingDeps } from '../publishing/run'
 import type { AssetUrlSigner } from '../storage/supabase'
 
 /** Formatos que têm arte para publicar. Reel aqui é roteiro, sem arte. */
@@ -13,6 +14,9 @@ const PUBLICAVEIS = ['carrossel', 'post', 'story'] as const
 
 /** Situações em que a postagem ainda está na fila e pode ser mexida. */
 const NA_FILA = ['rascunho', 'agendado'] as const
+
+/** O que o chefe ainda pode mexer: o que está na fila e o que falhou (tentar de novo). */
+const EDITAVEIS = [...NA_FILA, 'falhou'] as const
 
 /**
  * Um @ do Instagram: sem o @, minúsculo, só letras, números, ponto e
@@ -29,7 +33,7 @@ const arroba = z
 const configSchema = z.object({
   collaborators: z
     .array(arroba)
-    .max(5, 'No máximo 5 colaboradores.')
+    .max(3, 'O Instagram aceita no máximo 3 colaboradores.')
     .transform((lista) => [...new Set(lista)]),
   commentAutomation: z.boolean(),
 })
@@ -50,7 +54,12 @@ const publicarSchema = z.discriminatedUnion('acao', [
  * CLAUDE.md). Até lá, "postar agora" e "agendar" guardam a postagem na fila
  * com a hora; nada é enviado ao Instagram, e a tela avisa.
  */
-export function scheduledPostRoutes(db: Database, signAssetUrls: AssetUrlSigner | null): Router {
+export function scheduledPostRoutes(
+  db: Database,
+  signAssetUrls: AssetUrlSigner | null,
+  publishing: PublishingDeps | null = null,
+  runInBackground: (trabalho: Promise<unknown>) => void = (t) => void t,
+): Router {
   const router = Router()
 
   /** Acha a postagem desta empresa ainda na fila, ou 404/409. */
@@ -70,8 +79,13 @@ export function scheduledPostRoutes(db: Database, signAssetUrls: AssetUrlSigner 
       .limit(1)
 
     if (!post) throw notFound('Essa postagem não existe.', 'postagem_nao_encontrada')
-    if (!(NA_FILA as readonly string[]).includes(post.status)) {
-      throw conflict('Essa postagem já saiu da fila.', 'postagem_fora_da_fila')
+    if (!(EDITAVEIS as readonly string[]).includes(post.status)) {
+      throw conflict(
+        post.status === 'publicando'
+          ? 'Essa postagem está sendo publicada agora.'
+          : 'Essa postagem já saiu da fila.',
+        'postagem_fora_da_fila',
+      )
     }
     return post
   }
@@ -87,6 +101,7 @@ export function scheduledPostRoutes(db: Database, signAssetUrls: AssetUrlSigner 
         status: scheduledPosts.status,
         publishedAt: scheduledPosts.publishedAt,
         errorMessage: scheduledPosts.errorMessage,
+        permalink: scheduledPosts.permalink,
         collaborators: scheduledPosts.collaborators,
         commentAutomation: scheduledPosts.commentAutomation,
         contentTitle: contentItems.title,
@@ -197,6 +212,7 @@ export function scheduledPostRoutes(db: Database, signAssetUrls: AssetUrlSigner 
         status: 'agendado',
         collaborators: story ? [] : corpo.data.collaborators,
         commentAutomation: story ? false : corpo.data.commentAutomation,
+        errorMessage: null,
         updatedAt: agora,
       })
       .where(and(eq(scheduledPosts.id, post.id), eq(scheduledPosts.companyId, companyId)))
@@ -206,7 +222,13 @@ export function scheduledPostRoutes(db: Database, signAssetUrls: AssetUrlSigner 
         status: scheduledPosts.status,
       })
 
-    res.json({ post: salvo })
+    // "Postar agora" publica em seguida, depois da resposta: a tela mostra
+    // "publicando" e atualiza sozinha. O agendado espera a checagem do minuto.
+    if (corpo.data.acao === 'agora' && publishing) {
+      runInBackground(publishPost(publishing, post.id))
+    }
+
+    res.json({ post: salvo, publishing: corpo.data.acao === 'agora' && publishing !== null })
   })
 
   /** Tira a peça da fila. A peça continua na Criação. */

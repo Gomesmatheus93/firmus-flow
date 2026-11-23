@@ -29,6 +29,8 @@ export const scheduledPosts = pgTable(
     status: scheduledPostStatusEnum().notNull().default('rascunho'),
     publishedAt: timestamp({ withTimezone: true }),
     externalId: text(),
+    /** O link do post no Instagram, quando ele saiu. */
+    permalink: text(),
     /** Contas convidadas para o post em colaboração (collab), sem o @. */
     collaborators: jsonb().$type<string[]>().notNull().default([]),
     /** Se as regras da Automação de comentários valem para este post. */

@@ -64,6 +64,8 @@ export type ScheduledPost = {
   status: ScheduledPostStatus
   publishedAt: string | null
   errorMessage: string | null
+  /** O link do post no Instagram, depois de publicado. */
+  permalink: string | null
   /** Contas do post em colaboração, sem o @. */
   collaborators: string[]
   commentAutomation: boolean

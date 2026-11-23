@@ -3,6 +3,9 @@ import { createDb } from '@firmus/db'
 import { createApp, createUnconfiguredApp } from './app'
 import { createSupabaseVerifier } from './auth/supabase'
 import { env, missingBackendConfig } from './env'
+import { publishToInstagram } from './meta/publish'
+import { createImagePreparer } from './publishing/images'
+import type { PublishingDeps } from './publishing/run'
 import {
   createSupabaseRemover,
   createSupabaseSigner,
@@ -51,19 +54,33 @@ export function buildServer(opcoes: ServerOptions = {}) {
       ? ([env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, env.SUPABASE_STORAGE_BUCKET] as const)
       : null
 
-  const app =
-    missing.length > 0
-      ? createUnconfiguredApp(env.WEB_BASE_URL, missing)
-      : createApp({
-          db: createDb(env.DATABASE_URL!, opcoes.maxConnections),
-          verifyToken: createSupabaseVerifier(env.SUPABASE_URL!, env.SUPABASE_ANON_KEY!),
-          webBaseUrl: env.WEB_BASE_URL,
-          aiClient,
-          signAssetUrls: storage ? createSupabaseSigner(...storage) : null,
-          removeAssets: storage ? createSupabaseRemover(...storage) : null,
-          uploadAsset: storage ? createSupabaseUploader(...storage) : null,
-          ...(opcoes.runInBackground ? { runInBackground: opcoes.runInBackground } : {}),
-        })
+  const db = missing.length > 0 ? null : createDb(env.DATABASE_URL!, opcoes.maxConnections)
+  const signAssetUrls = storage ? createSupabaseSigner(...storage) : null
+  const uploadAsset = storage ? createSupabaseUploader(...storage) : null
 
-  return { app, missing, aiClient }
+  // Publicar precisa do banco e do Storage (é de lá que saem as artes).
+  const publishing: PublishingDeps | null =
+    db && signAssetUrls && uploadAsset
+      ? {
+          db,
+          publish: publishToInstagram,
+          prepareImages: createImagePreparer(signAssetUrls, uploadAsset),
+        }
+      : null
+
+  const app = !db
+    ? createUnconfiguredApp(env.WEB_BASE_URL, missing)
+    : createApp({
+        db,
+        verifyToken: createSupabaseVerifier(env.SUPABASE_URL!, env.SUPABASE_ANON_KEY!),
+        webBaseUrl: env.WEB_BASE_URL,
+        aiClient,
+        signAssetUrls,
+        removeAssets: storage ? createSupabaseRemover(...storage) : null,
+        uploadAsset,
+        publishing,
+        ...(opcoes.runInBackground ? { runInBackground: opcoes.runInBackground } : {}),
+      })
+
+  return { app, missing, aiClient, publishing }
 }

@@ -13,7 +13,9 @@ import {
   type InstagramAccountFetcher,
   type InstagramInsightsFetcher,
 } from './meta/instagram'
+import type { PublishingDeps } from './publishing/run'
 import { commentRuleRoutes } from './routes/comment-rules'
+import { cronRoutes } from './routes/cron'
 import { adminRoutes } from './routes/admin'
 import { brandRoutes } from './routes/brand'
 import { styleReferenceRoutes } from './routes/style-references'
@@ -70,6 +72,11 @@ export type AppDeps = {
    * Padrão: só deixa rodar, porque o servidor de sempre não morre.
    */
   runInBackground?: (trabalho: Promise<unknown>) => void
+  /**
+   * O que publica no Instagram: o publicador da Meta e quem prepara as artes.
+   * `null` sem Storage, porque aí não há arte para mandar.
+   */
+  publishing?: PublishingDeps | null
 }
 
 function baseApp(webBaseUrl: string): Express {
@@ -92,6 +99,7 @@ export function createApp({
   removeAssets = null,
   uploadAsset = null,
   runInBackground = (trabalho) => void trabalho,
+  publishing = null,
   fetchInstagramAccount: buscarConta = fetchInstagramAccount,
   fetchInstagramInsights: buscarInsights = fetchInstagramInsights,
   fetchInstagramOverview: buscarRetrato = fetchInstagramOverview,
@@ -100,6 +108,8 @@ export function createApp({
 
   // Público: quem abre um link de convite ainda não tem conta.
   app.use(invitationRoutes(db, verifyToken))
+  // O agendador de fora: protegido pela senha CRON_SECRET, não por login.
+  app.use(cronRoutes(publishing))
 
   // Daqui para baixo, tudo exige login.
   app.use(requireAuth(db, verifyToken))
@@ -121,7 +131,7 @@ export function createApp({
   app.use(feedRoutes(db, signAssetUrls))
   app.use(planRoutes(db))
   app.use(trendRoutes(db))
-  app.use(scheduledPostRoutes(db, signAssetUrls))
+  app.use(scheduledPostRoutes(db, signAssetUrls, publishing, runInBackground))
   app.use(commentRuleRoutes(db))
   app.use(metricRoutes(db, buscarInsights, buscarRetrato))
   app.use(supportRoutes(db))

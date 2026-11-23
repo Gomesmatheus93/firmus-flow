@@ -32,6 +32,7 @@ export const contentStatusEnum = pgEnum('content_status', [
 export const scheduledPostStatusEnum = pgEnum('scheduled_post_status', [
   'rascunho',
   'agendado',
+  'publicando',
   'publicado',
   'falhou',
   'cancelado',

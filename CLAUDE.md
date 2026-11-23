@@ -110,11 +110,15 @@ Toda saída de agente é JSON validado por um schema Zod antes de ser salva.
 3. **Isolamento entre empresas** em toda rota, job e consulta (ver Papéis).
 4. **Webhooks validados**: verificar a assinatura `X-Hub-Signature-256` da Meta.
 5. **LGPD**: guardar só o necessário das conversas; nunca registrar mensagens completas em logs.
-6. **Publicar automaticamente depende da Meta.** O programador de postagem e a automação
-   de comentários existem na plataforma, mas só agem de verdade com o app aprovado na
-   revisão da Meta (`instagram_content_publish` e `instagram_manage_comments`;
-   `instagram_manage_insights` para o Analytics). Enquanto não houver aprovação, a
-   plataforma guarda a configuração, avisa na tela o que falta e **não publica nada**.
+6. **Publicar depende da permissão da Meta.** O Programador publica de verdade (decisão do
+   Matheus, 23/11/2026): "Postar agora" publica em seguida e os agendados saem na hora
+   marcada (checagem a cada minuto no servidor; na Vercel, por `GET /cron/publicar` com a
+   senha `CRON_SECRET`). Só funciona na conta cujo token tem `instagram_content_publish`
+   (o app em modo de desenvolvimento libera para quem administra o app; para clientes,
+   só depois da revisão do app). Se a Meta recusar, a postagem vira `falhou` com a
+   mensagem dela e o chefe tenta de novo; nunca se republica sozinho. A automação de
+   comentários e o Analytics continuam dependendo de `instagram_manage_comments` e
+   `instagram_manage_insights`: sem elas, a plataforma guarda a configuração e avisa.
 
 ## Como trabalhar neste projeto
 

@@ -1,4 +1,7 @@
 import { createHash } from 'node:crypto'
+import type { InstagramPublisher } from '../meta/publish'
+import type { ImagePreparer } from '../publishing/images'
+import type { PublishingDeps } from '../publishing/run'
 import { companies, exchangeRates, memberships, users } from '@firmus/db/schema'
 import { eq } from 'drizzle-orm'
 import { createTestDb } from '@firmus/db/testing'
@@ -45,6 +48,10 @@ export async function createHarness(
     fetchInstagramAccount?: InstagramAccountFetcher
     fetchInstagramInsights?: InstagramInsightsFetcher
     fetchInstagramOverview?: InstagramOverviewFetcher
+    /** Publicador falso da Meta. Com ele, a api passa a publicar de verdade (no falso). */
+    publish?: InstagramPublisher
+    prepareImages?: ImagePreparer
+    runInBackground?: (trabalho: Promise<unknown>) => void
   } = {},
 ) {
   const { db, close } = await createTestDb()
@@ -54,9 +61,22 @@ export async function createHarness(
 
   const verifyToken: TokenVerifier = async (token) => knownUsers.get(token) ?? null
 
+  // Sem preparador informado, cada caminho vira um link falso de JPEG.
+  const publishing: PublishingDeps | null = options.publish
+    ? {
+        db,
+        publish: options.publish,
+        prepareImages:
+          options.prepareImages ??
+          (async ({ paths }) => paths.map((p) => `https://storage.test/${p}.jpg`)),
+      }
+    : null
+
   const app = createApp({
     db,
     verifyToken,
+    publishing,
+    ...(options.runInBackground ? { runInBackground: options.runInBackground } : {}),
     webBaseUrl: 'http://localhost:5173',
     aiClient: options.aiClient ?? null,
     signAssetUrls: options.signAssetUrls ?? null,
@@ -142,7 +162,7 @@ export async function createHarness(
     return { userId: id }
   }
 
-  return { app, db, close, addUser, createCompanyWithBoss, addMember, addOperator }
+  return { app, db, close, addUser, createCompanyWithBoss, addMember, addOperator, publishing }
 }
 
 export type Harness = Awaited<ReturnType<typeof createHarness>>
