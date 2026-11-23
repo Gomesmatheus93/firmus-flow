@@ -109,7 +109,7 @@ export function DashboardPage() {
   return (
     <>
       <PageHeader
-        title={`${greeting()}, ${firstName} 👋`}
+        title={`${greeting()}, ${firstName}`}
         description={`Veja o que está acontecendo na ${company?.name ?? 'sua empresa'} hoje.`}
       />
 
