@@ -1,5 +1,5 @@
-import { ChevronDown, LifeBuoy, LogOut, Menu, Sparkles, UserRound } from 'lucide-react'
-import { Link } from 'react-router'
+import { ChevronDown, LifeBuoy, LogOut, Menu, UserRound } from 'lucide-react'
+import { Link, useLocation } from 'react-router'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -12,6 +12,18 @@ import {
 import { roleLabel } from '@/lib/demo-session'
 import { initialsFrom } from '@/lib/names'
 import { useAuth } from '@/providers/auth-provider'
+import { pageTitleFor } from './nav-items'
+
+/** "Segunda-feira, 23 de novembro", no fuso de São Paulo. */
+function hojePorExtenso(): string {
+  const texto = new Intl.DateTimeFormat('pt-BR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    timeZone: 'America/Sao_Paulo',
+  }).format(new Date())
+  return texto.charAt(0).toUpperCase() + texto.slice(1)
+}
 
 /** Quem está logado, com o menu de perfil e sair. */
 function UserMenu() {
@@ -70,13 +82,17 @@ function UserMenu() {
 }
 
 /**
- * A barra do topo: o botão principal e quem está logado, à direita.
+ * A barra do topo: o nome da tela e a data de hoje à esquerda, quem está
+ * logado à direita.
  *
- * As referências têm busca e sino de notificações aqui. Ficam de fora até
- * existirem de verdade: controle que aceita clique sem responder faz quem usa
- * achar que a plataforma quebrou.
+ * Busca e sino de notificações ficam de fora até existirem de verdade:
+ * controle que aceita clique sem responder faz quem usa achar que a
+ * plataforma quebrou.
  */
 export function Topbar({ onMenu }: { onMenu: () => void }) {
+  const { pathname } = useLocation()
+  const titulo = pageTitleFor(pathname)
+
   return (
     <div className="flex items-center gap-3">
       <Button
@@ -89,13 +105,12 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
         <Menu />
       </Button>
 
-      <div className="ml-auto flex items-center gap-2 sm:gap-4">
-        <Button asChild className="rounded-full px-5 shadow-card">
-          <Link to="/criar/carrossel">
-            <Sparkles />
-            <span className="hidden sm:inline">Gerar conteúdo</span>
-          </Link>
-        </Button>
+      <div className="min-w-0">
+        {titulo && <p className="truncate text-base font-semibold text-noite">{titulo}</p>}
+        <p className="truncate text-xs text-ardosia">{hojePorExtenso()}</p>
+      </div>
+
+      <div className="ml-auto flex items-center">
         <UserMenu />
       </div>
     </div>

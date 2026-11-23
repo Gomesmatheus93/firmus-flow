@@ -161,13 +161,17 @@ Paleta oficial, extraída dos arquivos do logo em `Documents/firmus tech/logo`:
 | Gelo        | `#F4F7FB` | fundo de bloco interno, campo, linha      |
 | Fundo       | `#F3F6FB` | fundo da página                           |
 | Régua       | `#E6ECF4` | bordas e divisórias                       |
-| Lateral     | `#0A1A33` | só a barra lateral                        |
+| Lateral     | `#0A1A33` | reserva (a barra lateral agora é branca)  |
 
 **Estilo SaaS moderno** (aprovado pelo Matheus em 18/11/2026, a partir de quatro
 referências de dashboards SaaS). A plataforma é clara, com a cor da Firmus:
 
-1. **Barra lateral azul-noite** de cima a baixo, ícone + nome, item ativo numa pílula
-   Azul Firmus. Quem está logado fica no topo, à direita, com o menu de perfil.
+1. **Barra lateral branca** (mudou em 23/11/2026, a partir de uma referência de dashboard
+   do Matheus): linha fina à direita, menu em seções pelo que a pessoa faz (Módulos,
+   Planejar, Criar, Publicar, Atender, Medir, Marca, Empresa), só ícone + nome, item
+   ativo numa pílula Azul Firmus. Quem está logado aparece no pé dela, com o e-mail.
+   O topo de cada tela mostra o nome da tela e a data de hoje à esquerda e o menu de
+   perfil à direita.
 2. **Fundo chapado** (`fundo`) e **cartões brancos sólidos** (utilidade `surface`, ou o
    componente `Panel`): canto de 18px, sombra suave, sem borda dura. Nada de vidro fosco
    nem desfoque.

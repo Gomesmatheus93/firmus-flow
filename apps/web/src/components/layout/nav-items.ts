@@ -39,91 +39,57 @@ export type NavGroup = {
   items: NavItem[]
 }
 
+/**
+ * O menu, em seções pelo que a pessoa vai fazer: planejar, criar, publicar,
+ * atender e medir. Só o nome em cada item: a barra lateral é clara e enxuta.
+ */
 export const navGroups: NavGroup[] = [
   {
-    label: 'Principal',
+    label: 'Módulos',
     items: [{ label: 'Painel', to: '/painel', icon: LayoutDashboard }],
   },
   {
-    label: 'Marca',
+    label: 'Planejar',
     items: [
-      { label: 'Cérebro da Marca', to: '/marca', icon: Brain },
-      { label: 'Auditoria', to: '/auditoria', icon: Gauge },
-    ],
-  },
-
-  {
-    label: 'Conteúdo',
-    items: [
-      {
-        label: 'Planejamento',
-        to: '/planejamento',
-        icon: CalendarDays,
-        description: 'O calendário de postagens',
-      },
-      {
-        label: 'Aprovações',
-        to: '/aprovacoes',
-        icon: CheckCheck,
-        description: 'O que espera sua decisão',
-      },
+      { label: 'Planejamento', to: '/planejamento', icon: CalendarDays },
+      { label: 'Aprovações', to: '/aprovacoes', icon: CheckCheck },
     ],
   },
   {
     label: 'Criar',
     items: [
-      {
-        label: 'Carrossel',
-        to: '/criar/carrossel',
-        icon: GalleryHorizontalEnd,
-        description: 'Slides para o feed',
-      },
-      {
-        label: 'Post',
-        to: '/criar/post',
-        icon: FileImage,
-        description: 'Arte e legenda para o feed',
-      },
-      {
-        label: 'Post Story',
-        to: '/criar/story',
-        icon: BookOpen,
-        description: 'Sequência do dia em 9:16',
-      },
-      {
-        label: 'Roteiro de reels',
-        to: '/criar/reel',
-        icon: FileVideoCamera,
-        description: 'Gancho e roteiro falado',
-      },
+      { label: 'Carrossel', to: '/criar/carrossel', icon: GalleryHorizontalEnd },
+      { label: 'Post', to: '/criar/post', icon: FileImage },
+      { label: 'Stories', to: '/criar/story', icon: BookOpen },
+      { label: 'Roteiro de reels', to: '/criar/reel', icon: FileVideoCamera },
     ],
   },
   {
-    label: 'Crescimento',
-    items: [
-      { label: 'Tendências', to: '/tendencias', icon: Flame },
-      { label: 'Analytics', to: '/analytics', icon: BarChart3 },
-    ],
-  },
-  {
-    label: 'Publicação',
+    label: 'Publicar',
     items: [
       { label: 'Programador', to: '/programador', icon: CalendarClock },
-      {
-        label: 'Prévia do feed',
-        to: '/feed',
-        icon: Grid3x3,
-        description: 'Como o perfil vai ficar',
-      },
-      { label: 'Comentários', to: '/comentarios', icon: MessageSquareReply },
+      { label: 'Prévia do feed', to: '/feed', icon: Grid3x3 },
+      { label: 'Automação de comentários', to: '/comentarios', icon: MessageSquareReply },
     ],
   },
   {
-    label: 'Atendimento',
+    label: 'Atender',
     items: [
       { label: 'Conversas', to: '/conversas', icon: MessagesSquare },
       { label: 'Leads', to: '/leads', icon: Contact },
     ],
+  },
+  {
+    label: 'Medir',
+    items: [
+      { label: 'Analytics', to: '/analytics', icon: BarChart3 },
+      { label: 'Tendências', to: '/tendencias', icon: Flame },
+      { label: 'Auditoria', to: '/auditoria', icon: Gauge },
+    ],
+  },
+  {
+    label: 'Marca',
+    items: [{ label: 'Cérebro da Marca', to: '/marca', icon: Brain }],
   },
   {
     label: 'Empresa',
@@ -153,4 +119,16 @@ export function visibleGroups(role: Role, platformRole?: PlatformRole | null): N
       items: group.items.filter((item) => !item.roles || item.roles.includes(role)),
     }))
     .filter((group) => group.items.length > 0)
+}
+
+/**
+ * O nome da tela aberta, para o topo da página: o item do menu cujo endereço
+ * mais combina com o atual. Fora do menu, `null`.
+ */
+export function pageTitleFor(pathname: string): string | null {
+  const itens = [firmusGroup, ...navGroups].flatMap((g) => g.items)
+  const achado = itens
+    .filter((item) => pathname === item.to || pathname.startsWith(`${item.to}/`))
+    .sort((a, b) => b.to.length - a.to.length)[0]
+  return achado?.label ?? null
 }

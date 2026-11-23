@@ -1,49 +1,53 @@
-import { contentStatusLabel, type ContentStatus } from '@firmus/shared'
-import {
-  ArrowRight,
-  BarChart3,
-  Brain,
-  CalendarDays,
-  CheckCheck,
-  Contact,
-  Gauge,
-  GalleryHorizontalEnd,
-  Layers,
-  MessagesSquare,
-  type LucideIcon,
-} from 'lucide-react'
+import { ArrowRight, Brain, CalendarDays, CheckCheck } from 'lucide-react'
+import { useState } from 'react'
 import { Link } from 'react-router'
+import { cn } from 'cn'
+import { PeriodAnalytics } from '@/components/dashboard/period-analytics'
+import { PlanStrip, type PlanDay } from '@/components/dashboard/plan-strip'
 import { FormatBadge } from '@/components/format-badge'
-import { PageHeader, SectionHeading } from '@/components/page-header'
-import { StatStrip } from '@/components/stat-card'
 import { FeatureBlock, Panel } from '@/components/surface'
 import { Button } from '@/components/ui/button'
+import type { ContentItem, ConversationRow, MetricsResponse, PlanEntry } from '@/lib/api-types'
+import { addDays, dayMonth, startOfWeek, todayInSaoPaulo } from '@/lib/calendar'
 import { formatDate } from '@/lib/dates'
-import { firstNameFrom } from '@/lib/names'
+import { firstNameFrom, initialsFrom } from '@/lib/names'
 import { useCompanyData } from '@/lib/queries'
 import { useAuth } from '@/providers/auth-provider'
 import type { BrandBrain } from './brand'
-import type { ContentItem, ConversationRow, LeadRow } from '@/lib/api-types'
 
-const funnelStages: { status: ContentStatus; color: string }[] = [
-  { status: 'rascunho', color: 'bg-slate-300' },
-  { status: 'aguardando', color: 'bg-amber-400' },
-  { status: 'ajustar', color: 'bg-rose-400' },
-  { status: 'aprovado', color: 'bg-emerald-500' },
-]
+type Visao = 'semana' | 'mes'
 
-/** Atalhos do Painel: navegação, não dado, então podem ser fixos. */
-const shortcuts: { label: string; hint: string; to: string; icon: LucideIcon }[] = [
-  {
-    label: 'Criar carrossel',
-    hint: 'Uma peça nova com a marca',
-    to: '/criar/carrossel',
-    icon: GalleryHorizontalEnd,
-  },
-  { label: 'Planejamento', hint: 'A pauta da semana', to: '/planejamento', icon: CalendarDays },
-  { label: 'Conversas', hint: 'O atendimento no WhatsApp', to: '/conversas', icon: MessagesSquare },
-  { label: 'Analytics', hint: 'Como o Instagram está indo', to: '/analytics', icon: BarChart3 },
-]
+/** Primeiro e último dia do período que contém `hoje`, como "AAAA-MM-DD". */
+function periodo(visao: Visao, hoje: string): { start: string; end: string } {
+  if (visao === 'semana') {
+    const start = startOfWeek(hoje)
+    return { start, end: addDays(start, 6) }
+  }
+  const [ano, mes] = hoje.split('-').map(Number) as [number, number]
+  const start = `${hoje.slice(0, 8)}01`
+  // Dia 0 do mês seguinte é o último dia deste.
+  const ultimo = new Date(Date.UTC(ano, mes, 0)).getUTCDate()
+  return { start, end: `${hoje.slice(0, 8)}${String(ultimo).padStart(2, '0')}` }
+}
+
+/** Os dias do período, cada um com as pautas dele. */
+function diasDoPeriodo(start: string, end: string, entries: PlanEntry[]): PlanDay[] {
+  const dias: PlanDay[] = []
+  for (let d = start; d <= end; d = addDays(d, 1)) {
+    dias.push({ date: d, entries: entries.filter((e) => e.scheduledDate === d) })
+  }
+  return dias
+}
+
+/** Título de seção em caixa alta, com um complemento à direita. */
+function Secao({ titulo, aside }: { titulo: string; aside?: React.ReactNode }) {
+  return (
+    <div className="flex items-end justify-between gap-3">
+      <h2 className="label text-ardosia">{titulo}</h2>
+      {aside}
+    </div>
+  )
+}
 
 /** "Bom dia", "Boa tarde" ou "Boa noite", pela hora de São Paulo. */
 function greeting(): string {
@@ -86,10 +90,22 @@ function brandCompletion(brain: BrandBrain | null): { percent: number; missing: 
 export function DashboardPage() {
   const { user, company } = useAuth()
   const firstName = firstNameFrom(user?.fullName ?? '')
+  const [visao, setVisao] = useState<Visao>('semana')
+
+  const hoje = todayInSaoPaulo()
+  const { start, end } = periodo(visao, hoje)
+  const naSemana = visao === 'semana'
+  const rotuloPeriodo = naSemana ? 'nesta semana' : 'neste mês'
 
   const brand = useCompanyData<{ brain: BrandBrain | null }>(['brand'], '/brand', { brain: null })
   const content = useCompanyData<{ items: ContentItem[] }>(['content'], '/content', { items: [] })
-  const leads = useCompanyData<{ leads: LeadRow[] }>(['leads'], '/leads', { leads: [] })
+  const plan = useCompanyData<{ entries: PlanEntry[] }>(['plan'], '/plan', { entries: [] })
+  const metrics = useCompanyData<MetricsResponse>(['metrics'], '/metrics', {
+    days: [],
+    snapshot: null,
+    posts: [],
+    score: null,
+  })
   const conversations = useCompanyData<{ conversations: ConversationRow[] }>(
     ['conversations'],
     '/conversations',
@@ -97,213 +113,204 @@ export function DashboardPage() {
   )
 
   const completion = brandCompletion(brand.data.brain)
-  const audit = brand.data.brain?.auditFindings ?? null
   const waiting = content.data.items.filter((item) => item.status === 'aguardando')
+  const pecas = new Map(content.data.items.map((item) => [item.id, item]))
 
-  const funnel = funnelStages.map((stage) => ({
-    ...stage,
-    count: content.data.items.filter((item) => item.status === stage.status).length,
-  }))
-  const funnelTotal = content.data.items.length
+  const dias = diasDoPeriodo(start, end, plan.data.entries)
+  const pautas = dias.flatMap((d) => d.entries)
+  const criadas = pautas.filter((e) => e.contentItemId !== null).length
+  const intervalo = `${dayMonth(start)} a ${dayMonth(end)}`
 
   return (
-    <>
-      <PageHeader
-        title={`${greeting()}, ${firstName}`}
-        description={`Veja o que está acontecendo na ${company?.name ?? 'sua empresa'} hoje.`}
-      />
+    <div className="mx-auto w-full max-w-[78rem] space-y-8 pt-2">
+      {/* Saudação e controles */}
+      <div className="flex flex-wrap items-center justify-between gap-5">
+        <div className="flex items-center gap-4">
+          <span className="rounded-full bg-gradient-to-br from-azul to-ciano p-[3px]">
+            <span className="grid size-16 place-items-center rounded-full border-[3px] border-white bg-noite text-lg font-semibold text-white">
+              {initialsFrom(user?.fullName ?? '')}
+            </span>
+          </span>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-noite sm:text-4xl">
+              {greeting()},{' '}
+              <span className="bg-gradient-to-r from-azul to-ciano bg-clip-text text-transparent">
+                {firstName}
+              </span>
+            </h1>
+            <p className="mt-1 text-sm text-ardosia">
+              Veja o que está acontecendo na {company?.name ?? 'sua empresa'}.
+            </p>
+          </div>
+        </div>
 
-      <StatStrip
-        stats={[
-          {
-            label: 'Nota da auditoria',
-            value: audit ? audit.overallScore.toLocaleString('pt-BR') : '—',
-            hint: audit ? 'última análise' : 'auditoria não rodou',
-            icon: Gauge,
-            accent: true,
-          },
-          {
-            label: 'Conteúdos criados',
-            value: String(funnelTotal),
-            hint: waiting.length > 0 ? `${waiting.length} aguardando você` : 'nada na fila',
-            icon: Layers,
-          },
-          {
-            label: 'Conversas',
-            value: String(conversations.data.conversations.length),
-            hint: 'no WhatsApp',
-            icon: MessagesSquare,
-          },
-          {
-            label: 'Leads captados',
-            value: String(leads.data.leads.length),
-            hint: 'no total',
-            icon: Contact,
-          },
-        ]}
-      />
-
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_22rem]">
-        <div className="min-w-0 space-y-5">
-          <Panel>
-            <SectionHeading
-              aside={<span className="text-xs text-ardosia">{funnelTotal} peças no total</span>}
-            >
-              Funil de conteúdo
-            </SectionHeading>
-
-            {/* Uma barra só, dividida pelas etapas, e a legenda embaixo. */}
-            <div className="mt-5 flex h-3 overflow-hidden rounded-full bg-gelo">
-              {funnelTotal > 0 &&
-                funnel.map((stage) => (
-                  <div
-                    key={stage.status}
-                    className={stage.color}
-                    style={{ width: `${(stage.count / funnelTotal) * 100}%` }}
-                  />
-                ))}
-            </div>
-
-            <ol className="mt-5 grid grid-cols-2 gap-4 lg:grid-cols-4">
-              {funnel.map((stage) => (
-                <li key={stage.status} className="min-w-0">
-                  <p className="flex items-center gap-2 text-xs text-ardosia">
-                    <span className={`size-2 shrink-0 rounded-full ${stage.color}`} />
-                    {contentStatusLabel[stage.status]}
-                  </p>
-                  <p className="tabular mt-1.5 text-2xl leading-none font-bold text-noite">
-                    {stage.count}
-                  </p>
-                </li>
-              ))}
-            </ol>
-          </Panel>
-
-          <Panel padded={false}>
-            <div className="p-5 pb-3">
-              <SectionHeading
-                aside={
-                  <Link
-                    to="/aprovacoes"
-                    className="inline-flex items-center gap-1 text-xs font-medium text-azul hover:underline"
-                  >
-                    Ver tudo
-                    <ArrowRight className="size-3.5" />
-                  </Link>
-                }
+        <div className="flex flex-wrap items-center gap-2">
+          <div
+            role="group"
+            aria-label="Período"
+            className="flex rounded-full border border-regua bg-white p-1 shadow-card"
+          >
+            {(
+              [
+                ['semana', 'Visão semanal'],
+                ['mes', 'Visão mensal'],
+              ] as const
+            ).map(([valor, rotulo]) => (
+              <button
+                key={valor}
+                type="button"
+                aria-pressed={visao === valor}
+                onClick={() => setVisao(valor)}
+                className={cn(
+                  'rounded-full px-4 py-1.5 text-sm transition-colors',
+                  visao === valor
+                    ? 'bg-azul font-medium text-white'
+                    : 'text-ardosia hover:text-noite',
+                )}
               >
-                Aguardando sua aprovação
-              </SectionHeading>
-            </div>
+                {rotulo}
+              </button>
+            ))}
+          </div>
+          <Button asChild className="rounded-full px-5 shadow-card">
+            <Link to="/planejamento">
+              <CalendarDays />
+              {naSemana ? 'Planejar a semana' : 'Planejar o mês'}
+            </Link>
+          </Button>
+        </div>
+      </div>
 
-            {waiting.length === 0 ? (
-              <p className="flex items-center gap-2 px-5 pb-5 text-sm text-ardosia">
-                <CheckCheck className="size-4 text-emerald-600" />
-                Nada esperando aprovação.
-              </p>
-            ) : (
-              <div className="data-table-wrap px-1 pb-2">
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>Peça</th>
-                      <th>Formato</th>
-                      <th>Criada em</th>
-                      <th>Por</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {waiting.slice(0, 6).map((item) => (
-                      <tr key={item.id}>
-                        <td data-label="Peça" className="max-w-0 truncate font-medium text-noite">
-                          {item.title}
-                        </td>
-                        <td data-label="Formato">
-                          <FormatBadge format={item.type} />
-                        </td>
-                        <td data-label="Criada em" className="text-ardosia">
-                          {formatDate(item.createdAt)}
-                        </td>
-                        <td data-label="Por" className="text-ardosia">
-                          {item.authorName ?? '—'}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </Panel>
+      {/* Planejamento do período */}
+      <section className="space-y-3">
+        <Secao
+          titulo={`Planejamento ${naSemana ? 'da semana' : 'do mês'} (${intervalo})`}
+          aside={
+            <span className="text-xs text-ardosia">
+              <span className="tabular font-semibold text-noite">{criadas}</span> de{' '}
+              <span className="tabular">{pautas.length}</span>{' '}
+              {pautas.length === 1 ? 'pauta criada' : 'pautas criadas'}
+            </span>
+          }
+        />
+        <Panel className="p-4">
+          {pautas.length === 0 && !naSemana ? (
+            <p className="p-6 text-center text-sm text-ardosia">
+              Nenhuma pauta neste mês.{' '}
+              <Link to="/planejamento" className="font-medium text-azul hover:underline">
+                Fazer o planejamento
+              </Link>
+            </p>
+          ) : (
+            <PlanStrip days={dias} pecas={pecas} today={hoje} showEmptyDays={naSemana} />
+          )}
+        </Panel>
+      </section>
 
-          <Panel>
-            <SectionHeading>Atalhos</SectionHeading>
-            <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-              {shortcuts.map((atalho) => (
-                <li key={atalho.to}>
-                  <Link
-                    to={atalho.to}
-                    className="group flex items-center gap-3 rounded-xl border border-regua px-3 py-2.5 transition-colors hover:border-azul/40 hover:bg-gelo"
-                  >
-                    <span className="icon-chip size-9">
-                      <atalho.icon className="size-4" />
+      {/* Analytics do período */}
+      <section className="space-y-3">
+        <Secao
+          titulo={`Analytics ${naSemana ? 'da semana' : 'do mês'} (${intervalo})`}
+          aside={
+            <Link
+              to="/analytics"
+              className="inline-flex items-center gap-1 text-xs font-medium text-azul hover:underline"
+            >
+              Ver analytics completo
+              <ArrowRight className="size-3.5" />
+            </Link>
+          }
+        />
+        <PeriodAnalytics
+          metrics={metrics.data}
+          conversations={conversations.data.conversations}
+          start={start}
+          end={end}
+          today={hoje}
+          periodo={rotuloPeriodo}
+        />
+      </section>
+
+      {/* O que espera decisão e o Cérebro */}
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_22rem]">
+        <Panel>
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-sm font-semibold text-noite">Aguardando sua aprovação</h3>
+            <Link
+              to="/aprovacoes"
+              className="inline-flex items-center gap-1 text-xs font-medium text-azul hover:underline"
+            >
+              Ver tudo
+              <ArrowRight className="size-3.5" />
+            </Link>
+          </div>
+          {waiting.length === 0 ? (
+            <p className="mt-4 flex items-center gap-2 text-sm text-ardosia">
+              <CheckCheck className="size-4 text-emerald-600" />
+              Nada esperando aprovação.
+            </p>
+          ) : (
+            <ul className="mt-3 divide-y divide-regua">
+              {waiting.slice(0, 5).map((item) => (
+                <li key={item.id} className="flex items-center gap-3 py-2.5">
+                  {item.images[0] ? (
+                    <img
+                      src={item.images[0]}
+                      alt=""
+                      className="size-10 shrink-0 rounded-lg object-cover object-top"
+                    />
+                  ) : (
+                    <span className="size-10 shrink-0 rounded-lg bg-gelo" />
+                  )}
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-medium text-noite">
+                      {item.title}
                     </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-medium text-noite">
-                        {atalho.label}
-                      </span>
-                      <span className="block truncate text-xs text-ardosia">{atalho.hint}</span>
+                    <span className="block text-xs text-ardosia">
+                      {formatDate(item.createdAt)}
+                      {item.authorName ? ` · ${item.authorName}` : ''}
                     </span>
-                    <ArrowRight className="size-4 shrink-0 text-ardosia transition-transform group-hover:translate-x-0.5 group-hover:text-azul" />
-                  </Link>
+                  </span>
+                  <FormatBadge format={item.type} />
                 </li>
               ))}
             </ul>
-          </Panel>
-        </div>
+          )}
+        </Panel>
 
-        <div className="min-w-0 space-y-5">
-          <FeatureBlock>
-            <p className="flex items-center gap-2 text-sm font-medium text-white/80">
-              <Brain className="size-4" />
-              Cérebro da Marca
+        <FeatureBlock>
+          <p className="flex items-center gap-2 text-sm font-medium text-white/80">
+            <Brain className="size-4" />
+            Cérebro da Marca
+          </p>
+          <p className="tabular mt-4 text-5xl leading-none font-bold tracking-tight">
+            {completion.percent}
+            <span className="text-2xl text-white/60">%</span>
+          </p>
+          <p className="mt-1.5 text-sm text-white/70">preenchido</p>
+          <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/15">
+            <div
+              className="h-full rounded-full bg-ciano"
+              style={{ width: `${completion.percent}%` }}
+            />
+          </div>
+          {completion.missing.length > 0 && (
+            <p className="mt-4 text-xs text-white/70">
+              Falta: {completion.missing.slice(0, 3).join(', ')}
+              {completion.missing.length > 3 ? '…' : ''}
             </p>
-
-            <p className="tabular mt-5 text-5xl leading-none font-bold tracking-tight">
-              {completion.percent}
-              <span className="text-2xl text-white/60">%</span>
-            </p>
-            <p className="mt-1.5 text-sm text-white/70">preenchido</p>
-
-            <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/15">
-              <div
-                className="h-full rounded-full bg-ciano"
-                style={{ width: `${completion.percent}%` }}
-              />
-            </div>
-
-            {completion.missing.length > 0 && (
-              <>
-                <p className="mt-6 text-xs font-medium text-white/60">Ainda falta</p>
-                <ul className="mt-2 space-y-1.5 text-sm text-white/90">
-                  {completion.missing.slice(0, 4).map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </>
-            )}
-
-            <Button
-              asChild
-              className="mt-6 w-full rounded-full bg-white text-noite hover:bg-white/90"
-            >
-              <Link to="/marca">
-                {completion.percent === 0 ? 'Começar' : 'Completar'}
-                <ArrowRight />
-              </Link>
-            </Button>
-          </FeatureBlock>
-        </div>
+          )}
+          <Button
+            asChild
+            className="mt-5 w-full rounded-full bg-white text-noite hover:bg-white/90"
+          >
+            <Link to="/marca">
+              {completion.percent === 0 ? 'Começar' : 'Completar'}
+              <ArrowRight />
+            </Link>
+          </Button>
+        </FeatureBlock>
       </div>
-    </>
+    </div>
   )
 }
