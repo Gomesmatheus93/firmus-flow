@@ -58,12 +58,19 @@ export type TrendReport = {
 
 export type ScheduledPost = {
   id: string
-  scheduledFor: string
+  contentItemId: string
+  /** Nulo enquanto a peça só foi enviada e ninguém escolheu a hora. */
+  scheduledFor: string | null
   status: ScheduledPostStatus
   publishedAt: string | null
   errorMessage: string | null
+  /** Contas do post em colaboração, sem o @. */
+  collaborators: string[]
+  commentAutomation: boolean
   contentTitle: string
   contentType: ContentType
+  slideCount: number
+  coverUrl: string | null
 }
 
 export type CommentRule = {

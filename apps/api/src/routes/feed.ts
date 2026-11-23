@@ -93,7 +93,8 @@ export function feedRoutes(db: Database, signAssetUrls: AssetUrlSigner | null): 
     // A data mais próxima entre os agendamentos ativos de cada peça.
     const dataDe = new Map<string, Date>()
     for (const a of agendamentos) {
-      if (a.status !== 'agendado') continue
+      // Na fila sem hora (rascunho) ainda não tem lugar no tempo.
+      if (a.status !== 'agendado' || !a.scheduledFor) continue
       const atual = dataDe.get(a.contentItemId)
       if (!atual || a.scheduledFor < atual) dataDe.set(a.contentItemId, a.scheduledFor)
     }

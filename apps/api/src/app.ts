@@ -121,7 +121,7 @@ export function createApp({
   app.use(feedRoutes(db, signAssetUrls))
   app.use(planRoutes(db))
   app.use(trendRoutes(db))
-  app.use(scheduledPostRoutes(db))
+  app.use(scheduledPostRoutes(db, signAssetUrls))
   app.use(commentRuleRoutes(db))
   app.use(metricRoutes(db, buscarInsights, buscarRetrato))
   app.use(supportRoutes(db))

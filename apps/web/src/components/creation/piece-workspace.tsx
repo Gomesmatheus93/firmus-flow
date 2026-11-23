@@ -11,6 +11,7 @@ import type { ContentItem, ContentSlide } from '@/lib/api-types'
 import { formatDate } from '@/lib/dates'
 import { buildSlidesZip, saveBlob, slideFileName, slugify } from '@/lib/zip'
 import { formatConfig } from './format-config'
+import { SendToPublish } from './send-to-publish'
 
 /**
  * O slide grande. Sem imagem ainda, mostra o texto do slide num quadro do
@@ -174,6 +175,7 @@ export function PieceWorkspace({ item, format }: { item: ContentItem; format: Co
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <StatusBadge status={item.status} />
+            <SendToPublish item={item} />
             <DownloadZip item={item} />
           </div>
         </div>
