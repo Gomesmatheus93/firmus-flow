@@ -8,19 +8,14 @@ import {
   ExternalLink,
   Heart,
   Info,
-  MapPin,
   MessageCircle,
   MousePointerClick,
-  Phone,
   RefreshCw,
   Repeat2,
-  Send,
   Stethoscope,
   TrendingUp,
   TriangleAlert,
   UserCheck,
-  UserMinus,
-  UserPlus,
   Users,
   Zap,
 } from 'lucide-react'
@@ -309,7 +304,10 @@ function Painel({
   const novos = retrato.newFollowersByDay.length
     ? retrato.newFollowersByDay.reduce((s, p) => s + p.value, 0)
     : totals.follows
-  const visitasNosPosts = soma(posts.map((p) => p.profileVisits))
+  // Visitas ao perfil só existem por post: soma as dos posts da janela de 30 dias.
+  const visitasNosPosts = soma(
+    posts.filter((p) => p.postedAt >= retrato.since).map((p) => p.profileVisits),
+  )
 
   const interacoesPorTipo = [
     { label: 'Curtidas', value: totals.likes },
@@ -343,52 +341,38 @@ function Painel({
               </span>
             )
           }
-          nota={novos == null ? 'Ganho do mês só acima de 100 seguidores' : 'Hoje'}
+          nota={novos == null ? 'Ganho do mês só acima de 100 seguidores' : undefined}
         />
         <MetricCard
           label="Alcance total"
           value={fmt(totals.reach)}
           icon={UserCheck}
           tom="instagram"
-          nota="Soma diária · 30 dias"
+          nota={META_30D}
         />
         <MetricCard
           label="Visualizações"
           value={fmt(totals.views)}
           icon={TrendingUp}
           tom="laranja"
-          nota="Substituiu as impressões"
+          nota={META_30D}
         />
         <MetricCard
           label="Visitas ao perfil"
           value={fmt(visitasNosPosts)}
           icon={Eye}
           tom="azul"
-          nota={`Vindas dos últimos ${posts.length} posts`}
+          nota={META_30D}
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <MetricCard
-          label="Toques nos botões"
+          label="Cliques nos botões"
           value={fmt(totals.profileLinksTaps)}
           icon={MousePointerClick}
           tom="violeta"
-          nota={META_30D}
-        />
-        <MetricCard
-          label="Ligações"
-          value={totals.profileLinksTaps == null ? null : fmt(contactTaps.CALL ?? 0)}
-          icon={Phone}
-          tom="verde"
-          nota={META_30D}
-        />
-        <MetricCard
-          label="Direções"
-          value={totals.profileLinksTaps == null ? null : fmt(contactTaps.DIRECTION ?? 0)}
-          icon={MapPin}
-          tom="ambar"
-          nota={META_30D}
+          nota="Últimos 30 dias · a Meta não entrega mais cliques no site"
         />
         <MetricCard
           label="Interações totais"
@@ -402,51 +386,6 @@ function Painel({
           value={fmt(totals.accountsEngaged)}
           icon={Users}
           tom="azul"
-          nota={META_30D}
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
-        <MetricCard
-          label="Curtidas"
-          value={fmt(totals.likes)}
-          icon={Heart}
-          tom="rosa"
-          nota={META_30D}
-        />
-        <MetricCard
-          label="Comentários"
-          value={fmt(totals.comments)}
-          icon={MessageCircle}
-          tom="azul"
-          nota={META_30D}
-        />
-        <MetricCard
-          label="Compartilhamentos"
-          value={fmt(totals.shares)}
-          icon={Send}
-          tom="ciano"
-          nota={META_30D}
-        />
-        <MetricCard
-          label="Salvos"
-          value={fmt(totals.saves)}
-          icon={Bookmark}
-          tom="ambar"
-          nota={META_30D}
-        />
-        <MetricCard
-          label="Começaram a seguir"
-          value={fmt(totals.follows)}
-          icon={UserPlus}
-          tom="verde"
-          nota={META_30D}
-        />
-        <MetricCard
-          label="Deixaram de seguir"
-          value={fmt(totals.unfollows)}
-          icon={UserMinus}
-          tom="laranja"
           nota={META_30D}
         />
       </div>

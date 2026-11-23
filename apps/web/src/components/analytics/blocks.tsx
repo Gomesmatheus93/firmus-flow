@@ -115,7 +115,7 @@ export function MetricCard({
   value: string | null
   icon: Icone
   tom: Tom
-  nota: ReactNode
+  nota?: ReactNode
   /** Linha colorida embaixo do número, como o "+222 nos últimos 30d". */
   destaque?: ReactNode
 }) {
@@ -131,7 +131,7 @@ export function MetricCard({
         {value ?? <span className="text-ardosia/50">— —</span>}
       </p>
       {destaque && <p className="mt-3 text-xs font-semibold text-emerald-600">{destaque}</p>}
-      <p className={cn('text-sm text-ardosia', destaque ? 'mt-1' : 'mt-3')}>{nota}</p>
+      {nota && <p className={cn('text-sm text-ardosia', destaque ? 'mt-1' : 'mt-3')}>{nota}</p>}
     </TintCard>
   )
 }
