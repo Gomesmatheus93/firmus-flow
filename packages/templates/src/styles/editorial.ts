@@ -64,7 +64,7 @@ const marcaTecnica = `
             `<svg width="42" height="42" viewBox="0 0 42 42"><rect x="2" y="2" width="38" height="38" fill="none" stroke="${cor.noite}" stroke-width="3"/><path d="M2 2 L40 40 M40 2 L2 40" stroke="${cor.noite}" stroke-width="2"/></svg>`,
         )
         .join('')}
-      <div class="mono" style="margin-left:12px;font-size:13px;line-height:1.35;color:${cor.noite}">Firmus Tech<br>Sites · Sistemas · IA<br>Mossoró · RN</div>
+      <div class="mono" style="margin-left:12px;font-size:13px;line-height:1.35;color:${cor.noite}">Firmos Tech<br>Sites · Sistemas · IA<br>Mossoró · RN</div>
     </div>
     <div style="margin-top:12px;width:146px;height:14px;border:3px solid ${cor.noite}"></div>
   </div>`
@@ -100,7 +100,7 @@ const moldura = (assets: TemplateAssets, numero: string, rotulo: string, ligado 
     <span style="font-size:22px">${escapar(rotulo)}</span>
   </div>
   <div class="mono" style="position:absolute;bottom:56px;left:72px;right:72px;display:flex;justify-content:space-between;align-items:center;border-top:3px solid ${cor.noite};padding-top:22px;font-size:20px;color:${cor.noite}">
-    <span>Firmus Tech · Mossoró RN</span>${ligado ? avisoEditorial : ''}
+    <span>Firmos Tech · Mossoró RN</span>${ligado ? avisoEditorial : ''}
   </div>`
 
 export function renderEditorial(s: EditorialSlide, assets: TemplateAssets): string {

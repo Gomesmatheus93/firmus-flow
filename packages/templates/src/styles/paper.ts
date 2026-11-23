@@ -72,7 +72,7 @@ function etiqueta(
 
 const topo = (tags: string[] = []) => `
   <div style="position:absolute;top:72px;left:80px;right:80px;display:flex;justify-content:space-between;font-size:28px;font-weight:600;color:#fff">
-    <span>Firmus Tech</span>
+    <span>Firmos Tech</span>
     <span style="display:flex;gap:44px;font-weight:500;opacity:.85">${tags.map((t) => `<span>${escapar(t)}</span>`).join('')}</span>
   </div>`
 

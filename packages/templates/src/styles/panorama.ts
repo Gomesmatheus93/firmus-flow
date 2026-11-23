@@ -259,7 +259,7 @@ function conteudo(s: PanoramaSlide, i: number, total: number, instagram: string)
     case 'capa':
       return `
         <div style="position:absolute;left:${x0}px;top:34px;width:${WIDTH}px;display:flex;justify-content:center">
-          ${vidro(`<span style="font:400 26px Mulish;color:rgba(255,255,255,.8)">@${escapar(instagram)} <span style="opacity:.5">|</span> <b style="font-weight:900;color:${cor.ciano}">Firmus Tech</b></span>`, 'padding:14px 34px;border-radius:0 0 24px 24px;border-top:0')}
+          ${vidro(`<span style="font:400 26px Mulish;color:rgba(255,255,255,.8)">@${escapar(instagram)} <span style="opacity:.5">|</span> <b style="font-weight:900;color:${cor.ciano}">Firmos Tech</b></span>`, 'padding:14px 34px;border-radius:0 0 24px 24px;border-top:0')}
         </div>
         <div style="position:absolute;left:${x0}px;top:170px;width:${WIDTH}px;text-align:center">
           <div style="display:inline-block;padding:10px 60px;border:1.5px dashed rgba(255,255,255,.55);font:400 40px Mulish;letter-spacing:.24em;color:rgba(255,255,255,.85)">${escapar(s.antes.toUpperCase())}</div>
@@ -342,7 +342,7 @@ const avisoDireita = (x0: number) => `
 export function renderPanorama(post: PanoramaPost, assets: TemplateAssets): string[] {
   const total = post.slides.length
   const largura = total * WIDTH
-  const instagram = post.instagram ?? 'somosfirmus'
+  const instagram = post.instagram ?? 'somosfirmos'
 
   const fundo = post.fundo
     ? `<img src="${escapar(post.fundo)}" alt="" style="position:absolute;inset:0;width:${largura}px;height:${H}px;object-fit:cover">

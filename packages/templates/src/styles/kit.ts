@@ -91,7 +91,7 @@ function rodapeKit(ligado: boolean | undefined, tema: 'escuro' | 'claro' | 'cor'
     claro: arraste({ fundo: cor.noite, cor: '#fff' }),
     cor: arraste({ fundo: '#fff', cor: cor.noite }),
   }[tema]
-  return `${cantos({ corTexto, baixo: ['', '#firmustech'] })}
+  return `${cantos({ corTexto, baixo: ['', '#firmostech'] })}
     ${ligado === false ? '' : `<div style="position:absolute;left:72px;bottom:52px">${aviso}</div>`}`
 }
 
@@ -171,7 +171,7 @@ export function renderKit(s: KitSlide, _assets: TemplateAssets): string {
     case 'chamada':
       return pagina(
         `${textura(0.3)}
-        ${cantos({ corTexto: 'rgba(255,255,255,.75)', baixo: ['', s.hashtag ?? '#firmustech'] })}
+        ${cantos({ corTexto: 'rgba(255,255,255,.75)', baixo: ['', s.hashtag ?? '#firmostech'] })}
         <div style="position:absolute;top:270px;left:0;right:0;display:flex;justify-content:center">
           <div style="position:relative">
             <svg width="560" height="300" viewBox="0 0 560 300" style="position:absolute;top:30px;left:-80px;transform:rotate(-14deg)" xmlns="http://www.w3.org/2000/svg">

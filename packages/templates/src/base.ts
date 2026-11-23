@@ -146,8 +146,8 @@ export function pagina(
 
 /** Rótulos dos quatro cantos, que amarram os slides de um carrossel. */
 export function cantos({
-  cima = ['Firmus Tech', 'Siga a Firmus'],
-  baixo = ['Arrasta aí →', '#firmustech'],
+  cima = ['Firmos Tech', 'Siga a Firmos'],
+  baixo = ['Arrasta aí →', '#firmostech'],
   corTexto = cor.ardosia as string,
   margem = 72,
 }: { cima?: [string, string]; baixo?: [string, string]; corTexto?: string; margem?: number } = {}) {
